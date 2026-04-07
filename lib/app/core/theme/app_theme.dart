@@ -8,7 +8,7 @@ ThemeData buildAppTheme() {
     useMaterial3: true,
     scaffoldBackgroundColor: AppColors.background,
     colorScheme: const ColorScheme.light(
-      primary: AppColors.primary700,
+      primary: AppColors.primary800,
       secondary: AppColors.secondary500,
       surface: AppColors.surface,
       error: AppColors.error,
@@ -23,15 +23,15 @@ ThemeData buildAppTheme() {
       titleTextStyle: AppTextStyles.h2.copyWith(color: Colors.white),
       iconTheme: const IconThemeData(color: Colors.white),
     ),
-    cardTheme: CardTheme(
-      color: AppColors.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        side: const BorderSide(color: AppColors.border, width: AppDimensions.cardBorderWidth),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: AppDimensions.lg, vertical: AppDimensions.sm),
-    ),
+    // cardTheme: CardTheme(
+    //   color: AppColors.surface,
+    //   elevation: 0,
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+    //     side: const BorderSide(color: AppColors.border, width: AppDimensions.cardBorderWidth),
+    //   ),
+    //   margin: const EdgeInsets.symmetric(horizontal: AppDimensions.lg, vertical: AppDimensions.sm),
+    // ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.primary50,
@@ -46,15 +46,16 @@ ThemeData buildAppTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-        borderSide: const BorderSide(color: AppColors.primary700, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.primary800, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.xxl, vertical: AppDimensions.md,
+        horizontal: AppDimensions.xxl,
+        vertical: AppDimensions.md,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary700,
+        backgroundColor: AppColors.primary800,
         foregroundColor: Colors.white,
         elevation: 0,
         minimumSize: const Size(double.infinity, AppDimensions.buttonHeight),
@@ -65,16 +66,21 @@ ThemeData buildAppTheme() {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: AppColors.primary700),
+      style: TextButton.styleFrom(foregroundColor: AppColors.primary800),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 0.5),
+    dividerTheme: const DividerThemeData(
+      color: AppColors.divider,
+      thickness: 0.5,
+    ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AppColors.surface,
-      selectedItemColor: AppColors.primary700,
+      selectedItemColor: AppColors.primary800,
       unselectedItemColor: AppColors.neutral300,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
-      selectedLabelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.primary700),
+      selectedLabelStyle: AppTextStyles.labelSmall.copyWith(
+        color: AppColors.primary800,
+      ),
       unselectedLabelStyle: AppTextStyles.labelSmall,
     ),
   );
