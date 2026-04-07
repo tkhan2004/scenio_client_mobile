@@ -1,0 +1,206 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../core/constants/app_dimensions.dart';
+import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_text_styles.dart';
+import '../auth_viewmodel.dart';
+import '../widgets/auth_primary_button.dart';
+import '../widgets/auth_text_field.dart';
+import '../widgets/social_login_button.dart';
+
+class LoginView extends StatelessWidget {
+  const LoginView({super.key, required this.viewModel});
+
+  final AuthViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: viewModel.loginFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(AppStrings.authIdentifierLabel, style: AppTextStyles.labelLarge),
+          const SizedBox(height: AppDimensions.sm),
+          AuthTextField(
+            controller: viewModel.loginIdentifierController,
+            hintText: AppStrings.authIdentifierHint,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            validator: viewModel.validateIdentifier,
+            autofillHints: const <String>[
+              AutofillHints.username,
+              AutofillHints.email,
+            ],
+          ),
+          const SizedBox(height: AppDimensions.xl),
+          Text(AppStrings.authPasswordLabel, style: AppTextStyles.labelLarge),
+          const SizedBox(height: AppDimensions.sm),
+          Obx(
+            () => AuthTextField(
+              controller: viewModel.loginPasswordController,
+              hintText: AppStrings.authPasswordHint,
+              obscureText: viewModel.obscureLoginPassword.value,
+              textInputAction: TextInputAction.done,
+              validator: viewModel.validatePassword,
+              autofillHints: const <String>[AutofillHints.password],
+              onToggleObscure: viewModel.toggleLoginPasswordVisibility,
+              onFieldSubmitted: (_) => viewModel.submitLogin(),
+            ),
+          ),
+          const SizedBox(height: AppDimensions.lg),
+          Row(
+            children: <Widget>[
+              Obx(
+                () => _RememberMeToggle(
+                  value: viewModel.rememberMe.value,
+                  onTap: viewModel.toggleRememberMe,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: viewModel.handleForgotPassword,
+                child: Text(
+                  AppStrings.authForgotPassword,
+                  style: AppTextStyles.labelLarge,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.xl),
+          AuthPrimaryButton(
+            label: AppStrings.authLoginButton,
+            onPressed: viewModel.submitLogin,
+          ),
+          const SizedBox(height: AppDimensions.xxl),
+          _SocialDivider(label: AppStrings.authSocialDivider),
+          const SizedBox(height: AppDimensions.xl),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: SocialLoginButton(
+                  label: AppStrings.authGoogle,
+                  leading: const _LetterBadge(
+                    letter: 'G',
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xFFDB4437),
+                  ),
+                  onPressed: viewModel.handleGoogleSignIn,
+                ),
+              ),
+              const SizedBox(width: AppDimensions.md),
+              Expanded(
+                child: SocialLoginButton(
+                  label: AppStrings.authFacebook,
+                  leading: const Icon(
+                    Icons.facebook_rounded,
+                    color: Color(0xFF1877F2),
+                    size: AppDimensions.iconLg,
+                  ),
+                  onPressed: viewModel.handleFacebookSignIn,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RememberMeToggle extends StatelessWidget {
+  const _RememberMeToggle({required this.value, required this.onTap});
+
+  final bool value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: value ? const Color(0xFFE6F8F0) : Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: value
+                    ? const Color(0xFF1D9E75)
+                    : const Color(0xFFD3D1C7),
+                width: 1,
+              ),
+            ),
+            child: value
+                ? const Icon(
+                    Icons.check_rounded,
+                    size: 18,
+                    color: Color(0xFF1D9E75),
+                  )
+                : null,
+          ),
+          const SizedBox(width: AppDimensions.md),
+          Text(AppStrings.authRememberMe, style: AppTextStyles.bodyMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _SocialDivider extends StatelessWidget {
+  const _SocialDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+          child: Text(label, style: AppTextStyles.bodySmall),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+class _LetterBadge extends StatelessWidget {
+  const _LetterBadge({
+    required this.letter,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final String letter;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+        border: Border.all(color: foregroundColor.withValues(alpha: 0.16)),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: AppTextStyles.labelLarge.copyWith(
+          color: foregroundColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
