@@ -14,8 +14,11 @@ class AuthTextField extends StatelessWidget {
     this.obscureText = false,
     this.onToggleObscure,
     this.prefix,
+    this.suffix,
     this.autofillHints,
     this.onFieldSubmitted,
+    this.readOnly = false,
+    this.onTap,
   });
 
   final TextEditingController controller;
@@ -26,8 +29,11 @@ class AuthTextField extends StatelessWidget {
   final bool obscureText;
   final VoidCallback? onToggleObscure;
   final Widget? prefix;
+  final Widget? suffix;
   final Iterable<String>? autofillHints;
   final ValueChanged<String>? onFieldSubmitted;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +45,8 @@ class AuthTextField extends StatelessWidget {
       obscureText: obscureText,
       autofillHints: autofillHints,
       onFieldSubmitted: onFieldSubmitted,
+      readOnly: readOnly,
+      onTap: onTap,
       style: AppTextStyles.bodyLarge,
       decoration: InputDecoration(
         hintText: hintText,
@@ -58,9 +66,8 @@ class AuthTextField extends StatelessWidget {
         ),
         prefixIcon: prefix,
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: onToggleObscure == null
-            ? null
-            : IconButton(
+        suffixIcon: onToggleObscure != null
+            ? IconButton(
                 onPressed: onToggleObscure,
                 icon: Icon(
                   obscureText
@@ -68,7 +75,8 @@ class AuthTextField extends StatelessWidget {
                       : Icons.visibility_off_outlined,
                   color: AppColors.primary500,
                 ),
-              ),
+              )
+            : suffix,
         errorStyle: AppTextStyles.caption.copyWith(
           color: AppColors.error,
           height: 1.2,

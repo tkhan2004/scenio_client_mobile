@@ -67,43 +67,58 @@ class LoginView extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.xl),
-          AuthPrimaryButton(
-            label: AppStrings.authLoginButton,
-            onPressed: viewModel.submitLogin,
-          ),
-          const SizedBox(height: AppDimensions.xxl),
-          _SocialDivider(label: AppStrings.authSocialDivider),
-          const SizedBox(height: AppDimensions.xl),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: SocialLoginButton(
-                  label: AppStrings.authGoogle,
-                  leading: const _LetterBadge(
-                    letter: 'G',
-                    backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFFDB4437),
-                  ),
-                  onPressed: viewModel.handleGoogleSignIn,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.md),
-              Expanded(
-                child: SocialLoginButton(
-                  label: AppStrings.authFacebook,
-                  leading: const Icon(
-                    Icons.facebook_rounded,
-                    color: Color(0xFF1877F2),
-                    size: AppDimensions.iconLg,
-                  ),
-                  onPressed: viewModel.handleFacebookSignIn,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
+    );
+  }
+}
+
+class LoginFooter extends StatelessWidget {
+  const LoginFooter({super.key, required this.viewModel});
+
+  final AuthViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: key,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        AuthPrimaryButton(
+          label: AppStrings.authLoginButton,
+          onPressed: viewModel.submitLogin,
+        ),
+        const SizedBox(height: AppDimensions.xl),
+        _SocialDivider(label: AppStrings.authSocialDivider),
+        const SizedBox(height: AppDimensions.xl),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: SocialLoginButton(
+                label: AppStrings.authGoogle,
+                leading: const _LetterBadge(
+                  letter: 'G',
+                  backgroundColor: Colors.white,
+                  foregroundColor: Color(0xFFDB4437),
+                ),
+                onPressed: viewModel.handleGoogleSignIn,
+              ),
+            ),
+            const SizedBox(width: AppDimensions.md),
+            Expanded(
+              child: SocialLoginButton(
+                label: AppStrings.authFacebook,
+                leading: const Icon(
+                  Icons.facebook_rounded,
+                  color: Color(0xFF1877F2),
+                  size: AppDimensions.iconLg,
+                ),
+                onPressed: viewModel.handleFacebookSignIn,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

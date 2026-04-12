@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -14,273 +13,384 @@ import 'widgets/auth_redirect_text.dart';
 class AuthView extends GetView<AuthViewModel> {
   const AuthView({super.key});
 
+  static const double _heroHeight = 292;
+  static const double _sheetOverlap = 28;
+
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => PopScope<void>(
-        canPop: controller.isLogin,
+    return Obx(() {
+      final bool isLogin = controller.isLogin;
+
+      return PopScope<void>(
+        canPop: isLogin,
         onPopInvokedWithResult: (bool didPop, void result) {
           if (!didPop && controller.isRegister) {
-            controller.showLogin();
+            controller.handleRegisterBackNavigation();
           }
         },
         child: Scaffold(
           backgroundColor: AppColors.primary900,
           body: SafeArea(
             bottom: false,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 320),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              child: controller.isLogin
-                  ? _AuthScreenShell(
-                      key: const ValueKey<String>('login_shell'),
-                      showBrandLockup: true,
-                      showBackButton: false,
-                      heroHeight: 282,
-                      heroContentBottomPadding: 72,
-                      title: AppStrings.authLoginTitle,
-                      promptText: AppStrings.authLoginPrompt,
-                      promptAction: AppStrings.authLoginPromptAction,
-                      onPromptTap: controller.showRegister,
-                      child: LoginView(viewModel: controller),
-                    )
-                  : _AuthScreenShell(
-                      key: const ValueKey<String>('register_shell'),
-                      showBrandLockup: false,
-                      showBackButton: true,
-                      heroHeight: 244,
-                      heroContentBottomPadding: 60,
-                      title: AppStrings.authRegisterTitle,
-                      promptText: AppStrings.authRegisterPrompt,
-                      promptAction: AppStrings.authRegisterPromptAction,
-                      onPromptTap: controller.showLogin,
-                      onBackTap: controller.showLogin,
-                      child: RegisterView(viewModel: controller),
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final double maxSheetTop = constraints.maxHeight > 420
+                    ? constraints.maxHeight - 240
+                    : 176;
+                final double sheetTop = (_heroHeight - _sheetOverlap)
+                    .clamp(176.0, maxSheetTop)
+                    .toDouble();
+
+                return Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: _heroHeight,
+                      child: _AuthHero(
+                        title: isLogin
+                            ? AppStrings.authLoginTitle
+                            : AppStrings.authRegisterTitle,
+                        promptText: isLogin
+                            ? AppStrings.authLoginPrompt
+                            : AppStrings.authRegisterPrompt,
+                        promptAction: isLogin
+                            ? AppStrings.authLoginPromptAction
+                            : AppStrings.authRegisterPromptAction,
+                        onPromptTap: isLogin
+                            ? controller.showRegister
+                            : controller.showLogin,
+                        showBrandLockup: isLogin,
+                        showBackButton: controller.isRegister,
+                        onBackTap: controller.isRegister
+                            ? controller.handleRegisterBackNavigation
+                            : null,
+                      ),
                     ),
+                    Positioned.fill(
+                      top: sheetTop,
+                      child: _AuthSheet(
+                        header: isLogin
+                            ? null
+                            : _RegisterSheetHeader(viewModel: controller),
+                        contentTopPadding: isLogin
+                            ? AppDimensions.xxl
+                            : AppDimensions.sm,
+                        content: isLogin
+                            ? KeyedSubtree(
+                                key: const ValueKey<String>(
+                                  'auth_login_content',
+                                ),
+                                child: LoginView(viewModel: controller),
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey<String>(
+                                  'auth_register_content',
+                                ),
+                                child: RegisterView(viewModel: controller),
+                              ),
+                        footer: isLogin
+                            ? KeyedSubtree(
+                                key: const ValueKey<String>(
+                                  'auth_login_footer',
+                                ),
+                                child: LoginFooter(viewModel: controller),
+                              )
+                            : KeyedSubtree(
+                                key: const ValueKey<String>(
+                                  'auth_register_footer',
+                                ),
+                                child: RegisterFooter(viewModel: controller),
+                              ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
+      );
+    });
+  }
+}
+
+class _AuthSheet extends StatelessWidget {
+  const _AuthSheet({
+    this.header,
+    required this.contentTopPadding,
+    required this.content,
+    required this.footer,
+  });
+
+  final Widget? header;
+  final double contentTopPadding;
+  final Widget content;
+  final Widget footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final double bottomSafeInset = MediaQuery.paddingOf(context).bottom;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.78),
+          width: 0.8,
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.primary900.withValues(alpha: 0.12),
+            blurRadius: 28,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _AuthScreenShell extends StatelessWidget {
-  const _AuthScreenShell({
-    super.key,
-    required this.heroHeight,
-    required this.heroContentBottomPadding,
-    required this.title,
-    required this.promptText,
-    required this.promptAction,
-    required this.onPromptTap,
-    required this.child,
-    required this.showBrandLockup,
-    required this.showBackButton,
-    this.onBackTap,
-  });
-
-  final double heroHeight;
-  final double heroContentBottomPadding;
-  final String title;
-  final String promptText;
-  final String promptAction;
-  final VoidCallback onPromptTap;
-  final VoidCallback? onBackTap;
-  final Widget child;
-  final bool showBrandLockup;
-  final bool showBackButton;
-
-  @override
-  Widget build(BuildContext context) {
-    final double keyboardInset = MediaQuery.of(context).viewInsets.bottom;
-    final double bottomSafeInset = MediaQuery.of(context).padding.bottom;
-    const double panelOverlap = 48;
-
-    return LayoutBuilder(
-      key: key,
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final double panelHeight = math.max(
-          380,
-          constraints.maxHeight - heroHeight + panelOverlap,
-        );
-
-        return Stack(
-          children: <Widget>[
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: heroHeight,
-              child: _AuthHero(
-                height: heroHeight,
-                contentBottomPadding: heroContentBottomPadding,
-                title: title,
-                promptText: promptText,
-                promptAction: promptAction,
-                onPromptTap: onPromptTap,
-                showBrandLockup: showBrandLockup,
-                showBackButton: showBackButton,
-                onBackTap: onBackTap,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: AnimatedPadding(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                padding: EdgeInsets.only(bottom: keyboardInset),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: panelHeight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.72),
-                          width: 0.8,
-                        ),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.primary900.withValues(alpha: 0.12),
-                            blurRadius: 28,
-                            offset: const Offset(0, -4),
-                          ),
-                        ],
-                      ),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.fromLTRB(
-                          AppDimensions.xxl,
-                          AppDimensions.xl,
-                          AppDimensions.xxl,
-                          bottomSafeInset +
-                              AppDimensions.xxxl +
-                              AppDimensions.lg,
-                        ),
-                        child: child,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _AuthHero extends GetView<AuthViewModel> {
-  const _AuthHero({
-    required this.height,
-    required this.contentBottomPadding,
-    required this.title,
-    required this.promptText,
-    required this.promptAction,
-    required this.onPromptTap,
-    required this.showBrandLockup,
-    required this.showBackButton,
-    this.onBackTap,
-  });
-
-  final double height;
-  final double contentBottomPadding;
-  final String title;
-  final String promptText;
-  final String promptAction;
-  final VoidCallback onPromptTap;
-  final VoidCallback? onBackTap;
-  final bool showBrandLockup;
-  final bool showBackButton;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[
-                  AppColors.primary900,
-                  AppColors.primary800,
-                  AppColors.primary700.withValues(alpha: 0.94),
-                ],
+          if (header != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimensions.xxl,
+                AppDimensions.lg,
+                AppDimensions.xxl,
+                0,
               ),
+              child: header!,
             ),
-          ),
-          Positioned(
-            top: -36,
-            right: -24,
-            child: _HeroOrb(
-              size: 180,
-              color: AppColors.primary300.withValues(alpha: 0.18),
-            ),
-          ),
-          Positioned(
-            bottom: -48,
-            left: -28,
-            child: _HeroOrb(
-              size: 160,
-              color: AppColors.secondary300.withValues(alpha: 0.14),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                AppDimensions.xxl,
+                contentTopPadding,
+                AppDimensions.xxl,
+                AppDimensions.lg,
+              ),
+              child: content,
             ),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(
               AppDimensions.xxl,
-              AppDimensions.lg,
+              AppDimensions.md,
               AppDimensions.xxl,
-              contentBottomPadding,
+              bottomSafeInset + AppDimensions.xl,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (showBrandLockup)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 132),
-                    child: SvgPicture.asset(
-                      'assets/logo/logo-text.svg',
-                      fit: BoxFit.fitWidth,
-                      semanticsLabel: 'Scenio logo',
-                    ),
-                  )
-                else if (showBackButton)
-                  _HeroBackButton(onTap: onBackTap),
-                const Spacer(),
-                Text(
-                  title,
-                  style: AppTextStyles.displayLarge.copyWith(
-                    color: Colors.white,
-                    height: 1.22,
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.md),
-                AuthRedirectText(
-                  promptText: promptText,
-                  actionText: promptAction,
-                  onTap: onPromptTap,
-                  promptStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white.withValues(alpha: 0.74),
-                  ),
-                  actionStyle: AppTextStyles.labelLarge.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: _buildCenteredSwitcherLayout,
+              transitionBuilder: _buildFadeSwitcherTransition,
+              child: footer,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RegisterSheetHeader extends StatelessWidget {
+  const _RegisterSheetHeader({required this.viewModel});
+
+  final AuthViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          RegisterProgressHeader(
+            currentStep: viewModel.registerStep.value,
+            totalSteps: viewModel.registerStepCount,
+          ),
+          const SizedBox(height: AppDimensions.lg),
+          SizedBox(
+            height: 56,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: _buildTopAlignedSwitcherLayout,
+              transitionBuilder: _buildFadeSwitcherTransition,
+              child: _RegisterStepCopy(
+                key: ValueKey<String>(
+                  'register_sheet_header_${viewModel.registerStep.value}',
+                ),
+                title: viewModel.registerStepTitle,
+                caption: viewModel.registerStepCaption,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _buildTopAlignedSwitcherLayout(
+  Widget? currentChild,
+  List<Widget> previousChildren,
+) {
+  return Stack(
+    alignment: Alignment.topLeft,
+    children: <Widget>[
+      ...previousChildren,
+      if (currentChild case final Widget child) child,
+    ],
+  );
+}
+
+Widget _buildCenteredSwitcherLayout(
+  Widget? currentChild,
+  List<Widget> previousChildren,
+) {
+  return Stack(
+    alignment: Alignment.center,
+    children: <Widget>[
+      ...previousChildren,
+      if (currentChild case final Widget child) child,
+    ],
+  );
+}
+
+Widget _buildFadeSwitcherTransition(Widget child, Animation<double> animation) {
+  return FadeTransition(opacity: animation, child: child);
+}
+
+class _AuthHero extends StatelessWidget {
+  const _AuthHero({
+    required this.title,
+    required this.promptText,
+    required this.promptAction,
+    required this.onPromptTap,
+    required this.showBrandLockup,
+    required this.showBackButton,
+    this.onBackTap,
+  });
+
+  final String title;
+  final String promptText;
+  final String promptAction;
+  final VoidCallback onPromptTap;
+  final VoidCallback? onBackTap;
+  final bool showBrandLockup;
+  final bool showBackButton;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[
+                AppColors.primary900,
+                AppColors.primary800,
+                AppColors.primary700.withValues(alpha: 0.94),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: -36,
+          right: -24,
+          child: _HeroOrb(
+            size: 180,
+            color: AppColors.primary300.withValues(alpha: 0.18),
+          ),
+        ),
+        Positioned(
+          bottom: -48,
+          left: -28,
+          child: _HeroOrb(
+            size: 160,
+            color: AppColors.secondary300.withValues(alpha: 0.14),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppDimensions.xxl,
+            AppDimensions.lg,
+            AppDimensions.xxl,
+            AppDimensions.xxxl,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              if (showBrandLockup)
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 132),
+                  child: SvgPicture.asset(
+                    'assets/logo/logo-text.svg',
+                    fit: BoxFit.fitWidth,
+                    semanticsLabel: 'Scenio logo',
+                  ),
+                )
+              else if (showBackButton)
+                _HeroBackButton(onTap: onBackTap),
+              const Spacer(),
+              Text(
+                title,
+                style: AppTextStyles.displayLarge.copyWith(
+                  color: Colors.white,
+                  height: 1.18,
+                ),
+              ),
+              const SizedBox(height: AppDimensions.md),
+              AuthRedirectText(
+                promptText: promptText,
+                actionText: promptAction,
+                onTap: onPromptTap,
+                promptStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: Colors.white.withValues(alpha: 0.74),
+                ),
+                actionStyle: AppTextStyles.labelLarge.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RegisterStepCopy extends StatelessWidget {
+  const _RegisterStepCopy({
+    super.key,
+    required this.title,
+    required this.caption,
+  });
+
+  final String title;
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(title, style: AppTextStyles.h2),
+        const SizedBox(height: 2),
+        Text(
+          caption,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
     );
   }
 }

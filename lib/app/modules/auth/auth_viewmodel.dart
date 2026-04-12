@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../routes/app_routes.dart';
 
 enum AuthMode { login, register }
 
@@ -16,23 +17,39 @@ class AuthViewModel extends GetxController {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController birthDateController = TextEditingController();
   final TextEditingController registerPasswordController =
       TextEditingController();
 
   final Rx<AuthMode> mode = AuthMode.login.obs;
+  final RxInt registerStep = 0.obs;
   final RxBool rememberMe = true.obs;
   final RxBool obscureLoginPassword = true.obs;
   final RxBool obscureRegisterPassword = true.obs;
+  final RxString selectedGender = ''.obs;
+  final RxString genderError = ''.obs;
 
   bool get isLogin => mode.value == AuthMode.login;
   bool get isRegister => mode.value == AuthMode.register;
-  String get brandName => AppStrings.appName;
+  bool get isRegisterStepOne => registerStep.value == 0;
+  bool get isRegisterStepTwo => registerStep.value == 1;
+  int get registerStepCount => 2;
+  String get registerStepTitle => isRegisterStepOne
+      ? AppStrings.authRegisterStepOneTitle
+      : AppStrings.authRegisterStepTwoTitle;
+  String get registerStepCaption => isRegisterStepOne
+      ? AppStrings.authRegisterStepOneCaption
+      : AppStrings.authRegisterStepTwoCaption;
 
   void showLogin() {
+    _dismissKeyboard();
+    _resetRegisterStep();
     mode.value = AuthMode.login;
   }
 
   void showRegister() {
+    _dismissKeyboard();
+    _resetRegisterStep();
     mode.value = AuthMode.register;
   }
 
@@ -46,6 +63,39 @@ class AuthViewModel extends GetxController {
 
   void toggleRegisterPasswordVisibility() {
     obscureRegisterPassword.value = !obscureRegisterPassword.value;
+  }
+
+  void nextRegisterStep() {
+    final FormState? formState = registerFormKey.currentState;
+    if (formState == null || !formState.validate()) return;
+
+    _dismissKeyboard();
+    registerStep.value = 1;
+  }
+
+  void previousRegisterStep() {
+    _dismissKeyboard();
+    if (registerStep.value > 0) {
+      registerStep.value -= 1;
+    }
+  }
+
+  void handleRegisterBackNavigation() {
+    if (isRegisterStepTwo) {
+      previousRegisterStep();
+      return;
+    }
+
+    showLogin();
+  }
+
+  void setBirthDate(DateTime date) {
+    birthDateController.text = _formatDate(date);
+  }
+
+  void selectGender(String gender) {
+    selectedGender.value = gender;
+    genderError.value = '';
   }
 
   String? validateIdentifier(String? value) {
@@ -88,18 +138,23 @@ class AuthViewModel extends GetxController {
     return null;
   }
 
+  String? validateBirthDate(String? value) {
+    return _validateRequired(value);
+  }
+
   Future<void> submitLogin() async {
     final FormState? formState = loginFormKey.currentState;
     if (formState == null || !formState.validate()) return;
 
-    _showNotice(AppStrings.authLoginReadyMessage);
+    _goToHome();
   }
 
   Future<void> submitRegister() async {
     final FormState? formState = registerFormKey.currentState;
     if (formState == null || !formState.validate()) return;
+    if (!_validateGenderSelection()) return;
 
-    _showNotice(AppStrings.authRegisterReadyMessage);
+    _goToHome();
   }
 
   void handleForgotPassword() {
@@ -121,6 +176,35 @@ class AuthViewModel extends GetxController {
     return null;
   }
 
+  bool _validateGenderSelection() {
+    if (selectedGender.value.isEmpty) {
+      genderError.value = AppStrings.authRequiredFieldMessage;
+      return false;
+    }
+    genderError.value = '';
+    return true;
+  }
+
+  void _resetRegisterStep() {
+    registerStep.value = 0;
+    genderError.value = '';
+  }
+
+  void _dismissKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  void _goToHome() {
+    _dismissKeyboard();
+    Get.offAllNamed(Routes.home);
+  }
+
+  String _formatDate(DateTime date) {
+    final String day = date.day.toString().padLeft(2, '0');
+    final String month = date.month.toString().padLeft(2, '0');
+    return '$day/$month/${date.year}';
+  }
+
   void _showNotice(String message) {
     Get.snackbar(
       AppStrings.appName,
@@ -140,6 +224,7 @@ class AuthViewModel extends GetxController {
     lastNameController.dispose();
     emailController.dispose();
     phoneController.dispose();
+    birthDateController.dispose();
     registerPasswordController.dispose();
     super.onClose();
   }

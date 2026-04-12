@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
+import '../../core/constants/app_strings.dart';
 import 'splash_viewmodel.dart';
 
 class SplashView extends GetView<SplashViewModel> {
@@ -60,11 +61,11 @@ class SplashView extends GetView<SplashViewModel> {
                   horizontal: AppDimensions.xxxl,
                 ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 220),
+                  constraints: const BoxConstraints(maxWidth: 280),
                   child: SvgPicture.asset(
-                    'assets/logo/logo-onboarding.svg',
+                    AppStrings.splashOnboardingSampleAsset,
                     fit: BoxFit.contain,
-                    semanticsLabel: 'Scenio splash logo',
+                    semanticsLabel: 'Scenio splash sample image',
                   ),
                 ),
               ),
