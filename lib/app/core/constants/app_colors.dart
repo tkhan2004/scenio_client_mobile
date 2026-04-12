@@ -45,7 +45,7 @@ abstract class AppColors {
   static const Color bubbleAiBorder = primary200;
 
   // ── Convenience aliases (semantic) ───────────────────────
-  static const Color background = neutral100; // page/scaffold bg
+  static const Color background = Color(0xFFF6FBFF); // page/scaffold bg
   static const Color surface = neutral50; // card surface
   static const Color textPrimary = neutral900;
   static const Color textSecondary = neutral500;
