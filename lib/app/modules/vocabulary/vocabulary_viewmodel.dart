@@ -1,0 +1,256 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:get/get.dart';
+
+import '../../core/constants/app_strings.dart';
+import '../../core/utils/scenio_alerts.dart';
+import '../../data/models/vocab_card_model.dart';
+import '../../data/models/vocab_deck_model.dart';
+import '../../domain/repositories/vocab_repository.dart';
+import 'widgets/vocab_flashcard_stage.dart';
+
+class VocabularyViewModel extends GetxController {
+  VocabularyViewModel({required VocabRepository repository})
+    : _repository = repository;
+
+  final VocabRepository _repository;
+  final FlutterTts _flutterTts = FlutterTts();
+
+  final RxList<VocabDeckModel> decks = <VocabDeckModel>[].obs;
+  final RxList<VocabCardModel> activeCards = <VocabCardModel>[].obs;
+  final RxBool isLoadingDecks = false.obs;
+  final RxBool isOpeningDeck = false.obs;
+  final RxBool isSubmittingReview = false.obs;
+  final RxBool isCardFront = true.obs;
+  final RxBool isHintVisible = false.obs;
+  final RxBool isSpeaking = false.obs;
+  final Rxn<VocabDeckModel> activeDeck = Rxn<VocabDeckModel>();
+  final RxInt reviewSessionCount = 0.obs;
+
+  VocabCardModel? get currentCard =>
+      activeCards.isEmpty ? null : activeCards.first;
+
+  int get totalMasteredCount => decks.fold<int>(
+    0,
+    (int total, VocabDeckModel deck) => total + deck.masteredCount,
+  );
+
+  int get totalDeckCount => decks.length;
+
+  int get totalDueCount => decks.fold<int>(
+    0,
+    (int total, VocabDeckModel deck) => total + deck.dueWordsCount,
+  );
+
+  double get currentReviewProgress {
+    if (reviewSessionCount.value == 0) {
+      return activeCards.isEmpty ? 1 : 0;
+    }
+
+    return ((reviewSessionCount.value - activeCards.length) /
+            reviewSessionCount.value)
+        .clamp(0.0, 1.0);
+  }
+
+  String get currentReviewLabel {
+    if (reviewSessionCount.value == 0) {
+      return AppStrings.vocabularyDeckCompleted;
+    }
+
+    final int reviewedCount = reviewSessionCount.value - activeCards.length;
+    return '$reviewedCount/${reviewSessionCount.value}';
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _configureTts();
+    unawaited(loadDecks());
+  }
+
+  Future<void> loadDecks() async {
+    isLoadingDecks.value = true;
+    try {
+      decks.assignAll(await _repository.fetchDecks());
+    } finally {
+      isLoadingDecks.value = false;
+    }
+  }
+
+  Future<void> openDeck(VocabDeckModel deck) async {
+    if (isOpeningDeck.value || isSubmittingReview.value) {
+      return;
+    }
+
+    isOpeningDeck.value = true;
+    activeDeck.value = deck;
+    isCardFront.value = true;
+    isHintVisible.value = false;
+
+    try {
+      final List<VocabCardModel> cards = await _repository.fetchDeckCards(
+        deck.id,
+      );
+      final List<VocabCardModel> dueCards = cards
+          .where((VocabCardModel card) => !card.isMastered)
+          .toList();
+      activeCards.assignAll(dueCards);
+      reviewSessionCount.value = dueCards.length;
+
+      await Get.dialog<void>(
+        const VocabularyFlashcardStage(),
+        barrierDismissible: false,
+        barrierColor: Colors.black.withValues(alpha: 0.56),
+      );
+    } finally {
+      await _stopSpeaking();
+      _resetStageState();
+      isOpeningDeck.value = false;
+    }
+
+    await loadDecks();
+  }
+
+  void toggleCardFace() {
+    if (currentCard == null) return;
+    isCardFront.value = !isCardFront.value;
+    if (isCardFront.value) {
+      isHintVisible.value = false;
+      unawaited(_speakCurrentWordDelayed());
+    }
+  }
+
+  void toggleHint() {
+    if (currentCard == null) return;
+    isHintVisible.value = !isHintVisible.value;
+  }
+
+  Future<void> speakCurrentWord() async {
+    final VocabCardModel? card = currentCard;
+    if (card == null) return;
+
+    try {
+      isSpeaking.value = true;
+      await _flutterTts.stop();
+      await _flutterTts.speak(card.word);
+    } catch (_) {
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: AppStrings.vocabularySpeechError,
+        icon: Icons.volume_off_rounded,
+        isError: true,
+      );
+    } finally {
+      isSpeaking.value = false;
+    }
+  }
+
+  Future<void> markCurrentCardHard() async {
+    if (currentCard == null || isSubmittingReview.value) {
+      return;
+    }
+
+    final VocabCardModel card = activeCards.removeAt(0);
+    activeCards.add(card);
+    isCardFront.value = true;
+    isHintVisible.value = false;
+    await _speakCurrentWordDelayed();
+  }
+
+  Future<void> markCurrentCardDone() async {
+    final VocabCardModel? card = currentCard;
+    final VocabDeckModel? deck = activeDeck.value;
+
+    if (card == null || deck == null || isSubmittingReview.value) {
+      return;
+    }
+
+    final List<VocabCardModel> previousCards = activeCards.toList();
+    final VocabDeckModel previousDeck = deck;
+    isSubmittingReview.value = true;
+
+    activeCards.removeAt(0);
+    final VocabDeckModel updatedDeck = deck.copyWith(
+      masteredCount: deck.masteredCount + 1,
+      dueWordsCount: math.max(0, deck.dueWordsCount - 1),
+    );
+    activeDeck.value = updatedDeck;
+    _replaceDeck(updatedDeck);
+    isCardFront.value = true;
+    isHintVisible.value = false;
+
+    await _speakCurrentWordDelayed();
+
+    try {
+      await _repository.markWordAsDone(card.id);
+    } catch (_) {
+      activeCards.assignAll(previousCards);
+      activeDeck.value = previousDeck;
+      _replaceDeck(previousDeck);
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: AppStrings.vocabularyReviewError,
+        icon: Icons.error_outline_rounded,
+        isError: true,
+      );
+      await _speakCurrentWordDelayed();
+    } finally {
+      isSubmittingReview.value = false;
+    }
+  }
+
+  Future<void> closeDeckStage() async {
+    await _stopSpeaking();
+    if (Get.isDialogOpen ?? false) {
+      Get.back<void>();
+    }
+  }
+
+  Future<void> _configureTts() async {
+    await _flutterTts.setLanguage('en-US');
+    await _flutterTts.setSpeechRate(0.44);
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.awaitSpeakCompletion(false);
+  }
+
+  Future<void> _stopSpeaking() async {
+    try {
+      await _flutterTts.stop();
+    } catch (_) {
+      // Ignore stop failures from platform TTS.
+    } finally {
+      isSpeaking.value = false;
+    }
+  }
+
+  Future<void> _speakCurrentWordDelayed() async {
+    if (currentCard == null) return;
+    await Future<void>.delayed(const Duration(milliseconds: 140));
+    await speakCurrentWord();
+  }
+
+  void _replaceDeck(VocabDeckModel deck) {
+    final int index = decks.indexWhere(
+      (VocabDeckModel item) => item.id == deck.id,
+    );
+    if (index == -1) return;
+    decks[index] = deck;
+  }
+
+  void _resetStageState() {
+    activeCards.clear();
+    activeDeck.value = null;
+    reviewSessionCount.value = 0;
+    isCardFront.value = true;
+    isHintVisible.value = false;
+  }
+
+  @override
+  void onClose() {
+    unawaited(_stopSpeaking());
+    super.onClose();
+  }
+}

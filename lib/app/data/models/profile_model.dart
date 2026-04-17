@@ -75,10 +75,12 @@ class ProfileActionItem {
     required this.subtitle,
     required this.icon,
     this.isDestructive = false,
+    this.id,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final bool isDestructive;
+  final String? id;
 }

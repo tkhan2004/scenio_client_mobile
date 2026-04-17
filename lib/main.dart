@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'app/core/theme/app_theme.dart';
+import 'app/core/translations/app_translations.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 
@@ -16,6 +17,9 @@ class ScenioApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Scenio',
       theme: buildAppTheme(),
+      translations: AppTranslations(),
+      locale: const Locale('vi', 'VN'),
+      fallbackLocale: const Locale('en', 'US'),
       initialRoute: Routes.home,
       getPages: appPages,
       debugShowCheckedModeBanner: false,
