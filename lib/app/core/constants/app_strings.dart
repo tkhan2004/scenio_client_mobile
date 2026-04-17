@@ -226,4 +226,99 @@ abstract class AppStrings {
   static const String profileActionLogout = 'Log out';
   static const String profileActionLogoutSubtitle =
       'Sign out safely from this device.';
+
+  static const String homeTabPractice = 'Practice';
+  static const String homeContinueResumeLabel = 'Continue practice';
+  static const String homeContinueStartLabel = 'Suggested scene';
+  static const String homeContinueStatusActive = 'Session progress';
+  static const String homeContinueStatusReady = 'Ready when you are';
+
+  static const String scenesSearchHint = 'Search a scene, place, or goal';
+  static const String scenesRecommendedSection = 'Recommended for you';
+  static const String scenesLibrarySection = 'Scene library';
+  static const String scenesViewDetails = 'View details';
+  static const String scenesStartLabel = 'Start';
+  static const String scenesFilterAll = 'All';
+  static const String scenesDifficultyAll = 'Any level';
+  static const String scenesHeroEyebrow = 'Scene discovery';
+  static const String scenesHeroSubtitle =
+      'Browse calm, role-based situations and choose the next conversation that matches your goal.';
+  static const String scenesHeroChipVoice = 'Voice-ready layout';
+  static const String scenesHeroChipLibrary = 'Contextual roleplays';
+  static const String scenesHeroStatScenes = 'Scenes';
+  static const String scenesHeroStatActive = 'Active';
+
+  static const String practiceTabTitle = 'Practice';
+  static const String practiceResumeTitle = 'Resume current session';
+  static const String practiceResumeSubtitle =
+      'Jump back into your active roleplay with the AI partner waiting for your next reply.';
+  static const String practiceResumeButton = 'Continue session';
+  static const String practiceBrowseScenesButton = 'Browse scenes';
+  static const String practiceEmptyTitle = 'Start your next conversation';
+  static const String practiceEmptySubtitle =
+      'Choose a scene to begin a focused English practice session. We will keep the UI voice-ready from the start.';
+  static const String practiceHeroEyebrow = 'Practice shell';
+  static const String practiceHeroSubtitle =
+      'Keep a clean entry point for active sessions, focused resumes, and your next voice-ready conversation.';
+  static const String practiceHeroChipActive = 'Session active';
+  static const String practiceHeroChipIdle = 'No active session';
+  static const String practiceHeroStatTurns = 'Turns';
+  static const String practiceHeroStatMode = 'Mode';
+  static const String practiceMissionLabel = 'Mission';
+  static const String practiceProgressLabel = 'Progress';
+  static const String practiceStateActive = 'Active now';
+
+  static const String sceneDetailMissionTitle = 'Mission focus';
+  static const String sceneDetailCharacterTitle = 'AI partner';
+  static const String sceneDetailVocabularyTitle = 'Vocabulary preview';
+  static const String sceneDetailSceneMetaTitle = 'What you will practice';
+  static const String sceneDetailStartButton = 'Start Practice';
+  static const String sceneDetailContinueButton = 'Continue Practice';
+  static const String sceneDetailResumeCurrentButton = 'Resume Current Session';
+  static const String sceneDetailStartNewButton = 'Start This Scene Instead';
+  static const String sceneDetailConflictTitle =
+      'Another session is already active';
+  static const String sceneDetailConflictSubtitle =
+      'You can resume the current practice or start a fresh attempt for this scene.';
+  static const String sceneDetailAiBadge = 'AI Partner';
+
+  static const String practiceHeaderTitle = 'Practice session';
+  static const String practiceHintButton = 'Hint';
+  static const String practiceLeaveButton = 'Leave';
+  static const String practiceEndButton = 'End';
+  static const String practiceTranscriptTitle = 'Transcript';
+  static const String practiceTranscriptShow = 'Show transcript';
+  static const String practiceTranscriptHide = 'Hide transcript';
+  static const String practiceCaptionAi = 'AI';
+  static const String practiceCaptionYou = 'You';
+  static const String practiceComposerHint = 'Type your next reply';
+  static const String practiceSendLabel = 'Send';
+  static const String practiceVoiceComingSoon = 'Voice mode soon';
+  static const String practiceControlHint = 'Hint';
+  static const String practiceControlMic = 'Mic';
+  static const String practiceControlEnd = 'Finish';
+  static const String practiceStateIdle = 'Idle';
+  static const String practiceStateListening = 'Listening';
+  static const String practiceStateThinking = 'Thinking';
+  static const String practiceStateSpeaking = 'Speaking';
+  static const String practiceStatePaused = 'Paused';
+  static const String practiceStateTyping = 'Typing';
+  static const String practiceHintSnackbar =
+      'Focus on the mission and keep the reply short, natural, and confident.';
+  static const String practiceVoiceSnackbar =
+      'Voice-first controls are prepared next. For now, keep practicing with text.';
+  static const String practiceLeaveSnackbar =
+      'The current session was marked as abandoned.';
+
+  static const String sessionResultTitle = 'Session complete';
+  static const String sessionResultSubtitle =
+      'Nice work. Here is the clean snapshot of what moved forward in this scene.';
+  static const String sessionResultXpLabel = 'XP earned';
+  static const String sessionResultScoresTitle = 'Performance snapshot';
+  static const String sessionResultGrammar = 'Grammar';
+  static const String sessionResultVocabulary = 'Vocabulary';
+  static const String sessionResultNaturalness = 'Naturalness';
+  static const String sessionResultTranscriptTitle = 'Transcript highlights';
+  static const String sessionResultPrimaryButton = 'Back to home';
+  static const String sessionResultSecondaryButton = 'View scene again';
 }

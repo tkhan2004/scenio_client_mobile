@@ -16,7 +16,7 @@ class ScenioApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Scenio',
       theme: buildAppTheme(),
-      initialRoute: Routes.splash,
+      initialRoute: Routes.home,
       getPages: appPages,
       debugShowCheckedModeBanner: false,
     );

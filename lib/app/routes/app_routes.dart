@@ -3,4 +3,7 @@ abstract class Routes {
   static const String onboarding = '/onboarding';
   static const String auth = '/auth';
   static const String home = '/home';
+  static const String sceneDetail = '/scene-detail';
+  static const String practiceSession = '/practice-session';
+  static const String sessionResult = '/session-result';
 }
