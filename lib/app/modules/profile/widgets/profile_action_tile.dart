@@ -25,7 +25,7 @@ class ProfileActionTile extends StatelessWidget {
           Get.snackbar(
             action.title,
             'This profile action will be connected next.',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
             margin: const EdgeInsets.all(AppDimensions.lg),
             backgroundColor: Colors.white,
             colorText: AppColors.textPrimary,

@@ -2,12 +2,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import '../../domain/entities/scene_entity.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_text_styles.dart';
 import 'home_viewmodel.dart';
 import 'widgets/home_pill_nav_bar.dart';
+import 'widgets/home_practice_tab.dart';
+import 'widgets/home_scenes_tab.dart';
 import '../profile/profile_view.dart';
 import 'widgets/scenio_icon_badge.dart';
 
@@ -35,18 +38,12 @@ class HomeView extends GetView<HomeViewModel> {
                     viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
-                  _FeaturePlaceholderPage(
-                    title: AppStrings.homeTabScenes,
-                    icon: controller.tabs[1].activeIcon,
-                    description:
-                        'Danh sách scene sẽ hiển thị ở đây với filter, search và recommended scenes.',
+                  HomeScenesTab(
+                    viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
-                  _FeaturePlaceholderPage(
-                    title: AppStrings.homeTabChat,
-                    icon: controller.tabs[2].activeIcon,
-                    description:
-                        'AI conversation practice sẽ mở từ tab này sau khi nối flow chat/session.',
+                  HomePracticeTab(
+                    viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
                   ProfileView(bottomPadding: contentBottomPadding),
@@ -201,77 +198,79 @@ class _HomeDashboardSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppDimensions.radiusXl),
-        ),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: AppColors.primary900.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
+    return Obx(
+      () => Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppDimensions.radiusXl),
           ),
-        ],
-      ),
-      child: ListView(
-        controller: scrollController,
-        physics: const ClampingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          AppDimensions.xxl,
-          AppDimensions.xxl,
-          AppDimensions.xxl,
-          bottomPadding,
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: AppColors.primary900.withValues(alpha: 0.08),
+              blurRadius: 24,
+              offset: const Offset(0, -6),
+            ),
+          ],
         ),
-        children: <Widget>[
-          _SectionHeader(
-            title: AppStrings.homeMomentumSection,
-            actionLabel: null,
+        child: ListView(
+          controller: scrollController,
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            AppDimensions.xxl,
+            AppDimensions.xxl,
+            AppDimensions.xxl,
+            bottomPadding,
           ),
-          const SizedBox(height: AppDimensions.md),
-          Row(
-            children: viewModel.quickStats
-                .map(
-                  (HomeQuickStat stat) => Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: stat == viewModel.quickStats.last
-                            ? 0
-                            : AppDimensions.md,
+          children: <Widget>[
+            _SectionHeader(
+              title: AppStrings.homeMomentumSection,
+              actionLabel: null,
+            ),
+            const SizedBox(height: AppDimensions.md),
+            Row(
+              children: viewModel.quickStats
+                  .map(
+                    (HomeQuickStat stat) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          right: stat == viewModel.quickStats.last
+                              ? 0
+                              : AppDimensions.md,
+                        ),
+                        child: _QuickStatCard(stat: stat),
                       ),
-                      child: _QuickStatCard(stat: stat),
                     ),
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: AppDimensions.xl),
-          _SectionHeader(
-            title: AppStrings.homeMissionsSection,
-            actionLabel: AppStrings.homeSeeAll,
-          ),
-          const SizedBox(height: AppDimensions.md),
-          ...viewModel.todayMissions.expand(
-            (HomeMissionCardData mission) => <Widget>[
-              _MissionCard(mission: mission),
-              const SizedBox(height: AppDimensions.md),
-            ],
-          ),
-          const SizedBox(height: AppDimensions.lg),
-          _SectionHeader(
-            title: AppStrings.homeRecommendedSection,
-            actionLabel: AppStrings.homeSeeAll,
-          ),
-          const SizedBox(height: AppDimensions.md),
-          ...viewModel.recommendedScenes.expand(
-            (HomeSceneCardData scene) => <Widget>[
-              _SceneCard(scene: scene),
-              const SizedBox(height: AppDimensions.md),
-            ],
-          ),
-        ],
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: AppDimensions.xl),
+            _SectionHeader(
+              title: AppStrings.homeMissionsSection,
+              actionLabel: AppStrings.homeSeeAll,
+            ),
+            const SizedBox(height: AppDimensions.md),
+            ...viewModel.todayMissions.expand(
+              (HomeMissionCardData mission) => <Widget>[
+                _MissionCard(mission: mission),
+                const SizedBox(height: AppDimensions.md),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.lg),
+            _SectionHeader(
+              title: AppStrings.homeRecommendedSection,
+              actionLabel: AppStrings.homeSeeAll,
+            ),
+            const SizedBox(height: AppDimensions.md),
+            ...viewModel.recommendedScenes.expand(
+              (SceneEntity scene) => <Widget>[
+                _SceneCard(scene: scene),
+                const SizedBox(height: AppDimensions.md),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -381,6 +380,7 @@ class _HomeHeroSection extends StatelessWidget {
                                 child: SizedBox(
                                   width: constraints.maxWidth,
                                   child: _ContinueLearningCard(
+                                    viewModel: viewModel,
                                     compact: useCompactCard,
                                   ),
                                 ),
@@ -400,87 +400,135 @@ class _HomeHeroSection extends StatelessWidget {
 }
 
 class _ContinueLearningCard extends StatelessWidget {
-  const _ContinueLearningCard({this.compact = false});
+  const _ContinueLearningCard({required this.viewModel, this.compact = false});
 
+  final HomeViewModel viewModel;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(compact ? AppDimensions.md : AppDimensions.lg),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Obx(
+      () => InkWell(
+        onTap: viewModel.handleHeroSceneTap,
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: AppColors.primary900.withValues(alpha: 0.14),
-            blurRadius: 20,
-            offset: const Offset(0, 12),
+        child: Container(
+          padding: EdgeInsets.all(
+            compact ? AppDimensions.md : AppDimensions.lg,
           ),
-        ],
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: AppColors.primary900.withValues(alpha: 0.14),
+                blurRadius: 20,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Column(
             children: <Widget>[
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      AppStrings.homeContinueLabel,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary700,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          viewModel.continueCardLabel,
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: AppColors.primary700,
+                          ),
+                        ),
+                        const SizedBox(height: AppDimensions.xs),
+                        Text(
+                          viewModel.continueCardTitle,
+                          style: AppTextStyles.h2,
+                        ),
+                        SizedBox(
+                          height: compact ? AppDimensions.xs : AppDimensions.md,
+                        ),
+                        _InfoLine(
+                          icon: Icons.schedule_rounded,
+                          text: viewModel.continueCardTime,
+                        ),
+                        SizedBox(height: compact ? 6 : AppDimensions.sm),
+                        _InfoLine(
+                          icon: Icons.record_voice_over_rounded,
+                          text: viewModel.continueCardCharacter,
+                        ),
+                        SizedBox(height: compact ? 6 : AppDimensions.sm),
+                        _InfoLine(
+                          icon: Icons.theater_comedy_rounded,
+                          text: viewModel.continueCardMeta,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: compact ? AppDimensions.md : AppDimensions.lg,
+                  ),
+                  Container(
+                    width: compact ? 72 : 82,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppDimensions.md,
+                      vertical: compact ? AppDimensions.sm : AppDimensions.lg,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary50,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusLg,
                       ),
                     ),
-                    const SizedBox(height: AppDimensions.xs),
-                    Text(AppStrings.homeContinueTitle, style: AppTextStyles.h2),
-                    SizedBox(
-                      height: compact ? AppDimensions.xs : AppDimensions.md,
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          AppStrings.homeContinueBadgeLabel,
+                          style: AppTextStyles.labelMedium,
+                        ),
+                        SizedBox(
+                          height: compact ? AppDimensions.xs : AppDimensions.sm,
+                        ),
+                        Text(
+                          viewModel.continueBadgeValue,
+                          style: AppTextStyles.displayMedium.copyWith(
+                            color: AppColors.primary800,
+                          ),
+                        ),
+                      ],
                     ),
-                    _InfoLine(
-                      icon: Icons.schedule_rounded,
-                      text: AppStrings.homeContinueTime,
-                    ),
-                    SizedBox(height: compact ? 6 : AppDimensions.sm),
-                    _InfoLine(
-                      icon: Icons.record_voice_over_rounded,
-                      text: AppStrings.homeContinueCharacter,
-                    ),
-                    SizedBox(height: compact ? 6 : AppDimensions.sm),
-                    _InfoLine(
-                      icon: Icons.theater_comedy_rounded,
-                      text: AppStrings.homeContinueMeta,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(width: compact ? AppDimensions.md : AppDimensions.lg),
+              SizedBox(height: compact ? AppDimensions.md : AppDimensions.lg),
               Container(
-                width: compact ? 72 : 82,
+                width: double.infinity,
                 padding: EdgeInsets.symmetric(
-                  horizontal: AppDimensions.md,
-                  vertical: compact ? AppDimensions.sm : AppDimensions.lg,
+                  horizontal: AppDimensions.lg,
+                  vertical: compact ? 10 : AppDimensions.md,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary50,
+                  color: AppColors.secondary50,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
                 ),
-                child: Column(
+                child: Row(
                   children: <Widget>[
                     Text(
-                      AppStrings.homeContinueBadgeLabel,
-                      style: AppTextStyles.labelMedium,
+                      viewModel.continueStatusLabel,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: AppColors.secondary700,
+                      ),
                     ),
-                    SizedBox(
-                      height: compact ? AppDimensions.xs : AppDimensions.sm,
-                    ),
-                    Text(
-                      AppStrings.homeContinueBadgeValue,
-                      style: AppTextStyles.displayMedium.copyWith(
-                        color: AppColors.primary800,
+                    const Spacer(),
+                    Flexible(
+                      child: Text(
+                        viewModel.continueStatusValue,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.secondary500,
+                        ),
                       ),
                     ),
                   ],
@@ -488,36 +536,7 @@ class _ContinueLearningCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: compact ? AppDimensions.md : AppDimensions.lg),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: AppDimensions.lg,
-              vertical: compact ? 10 : AppDimensions.md,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.secondary50,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-            ),
-            child: Row(
-              children: <Widget>[
-                Text(
-                  AppStrings.homeContinueStatusLabel,
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: AppColors.secondary700,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  AppStrings.homeContinueStatusValue,
-                  style: AppTextStyles.h3.copyWith(
-                    color: AppColors.secondary500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -698,10 +717,12 @@ class _MissionCard extends StatelessWidget {
 class _SceneCard extends StatelessWidget {
   const _SceneCard({required this.scene});
 
-  final HomeSceneCardData scene;
+  final SceneEntity scene;
 
   @override
   Widget build(BuildContext context) {
+    final HomeViewModel viewModel = Get.find<HomeViewModel>();
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.lg),
       decoration: BoxDecoration(
@@ -709,43 +730,49 @@ class _SceneCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
       ),
-      child: Row(
-        children: <Widget>[
-          ScenioIconBadge(
-            icon: scene.icon,
-            tint: AppColors.primary800,
-            size: 52,
-          ),
-          const SizedBox(width: AppDimensions.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(scene.title, style: AppTextStyles.h3),
-                const SizedBox(height: 2),
-                Text(
-                  scene.subtitle,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.sm),
-                Text(
-                  scene.meta,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.primary700,
-                  ),
-                ),
-              ],
+      child: InkWell(
+        onTap: () => viewModel.openSceneDetails(scene),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        child: Row(
+          children: <Widget>[
+            ScenioIconBadge(
+              icon: _iconForScene(scene),
+              tint: _sceneTint(scene),
+              size: 52,
             ),
-          ),
-          const SizedBox(width: AppDimensions.md),
-          const Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: AppDimensions.iconSm,
-            color: AppColors.primary500,
-          ),
-        ],
+            const SizedBox(width: AppDimensions.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(scene.title, style: AppTextStyles.h3),
+                  const SizedBox(height: 2),
+                  Text(
+                    scene.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: AppDimensions.sm),
+                  Text(
+                    '${scene.categoryLabel} • ${scene.difficultyLabel} • ${scene.estimatedMinutes} min',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.primary700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppDimensions.md),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: AppDimensions.iconSm,
+              color: AppColors.primary500,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -776,82 +803,28 @@ class _InfoLine extends StatelessWidget {
   }
 }
 
-class _FeaturePlaceholderPage extends StatelessWidget {
-  const _FeaturePlaceholderPage({
-    required this.title,
-    required this.icon,
-    required this.description,
-    required this.bottomPadding,
-  });
+IconData _iconForScene(SceneEntity scene) {
+  switch (scene.category) {
+    case SceneCategory.dailyLife:
+      return Icons.local_cafe_rounded;
+    case SceneCategory.travel:
+      return Icons.flight_takeoff_rounded;
+    case SceneCategory.work:
+      return Icons.work_rounded;
+    case SceneCategory.service:
+      return Icons.hotel_rounded;
+  }
+}
 
-  final String title;
-  final IconData icon;
-  final String description;
-  final double bottomPadding;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppDimensions.xxl,
-          AppDimensions.xxl,
-          AppDimensions.xxl,
-          bottomPadding,
-        ),
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppDimensions.xxxl),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              border: Border.all(
-                color: AppColors.primary200.withValues(alpha: 0.92),
-              ),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: AppColors.primary900.withValues(alpha: 0.06),
-                  blurRadius: 20,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary50,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(icon, size: 34, color: AppColors.primary800),
-                ),
-                const SizedBox(height: AppDimensions.xl),
-                Text(
-                  '${AppStrings.homeCurrentPageLabel}: $title',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: AppColors.primary700,
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.sm),
-                Text(title, style: AppTextStyles.displayMedium),
-                const SizedBox(height: AppDimensions.md),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+Color _sceneTint(SceneEntity scene) {
+  switch (scene.category) {
+    case SceneCategory.dailyLife:
+      return AppColors.accent500;
+    case SceneCategory.travel:
+      return AppColors.primary800;
+    case SceneCategory.work:
+      return AppColors.secondary500;
+    case SceneCategory.service:
+      return AppColors.primary700;
   }
 }

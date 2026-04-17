@@ -209,7 +209,7 @@ class AuthViewModel extends GetxController {
     Get.snackbar(
       AppStrings.appName,
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(16),
       backgroundColor: AppColors.primary800,
       colorText: Colors.white,
