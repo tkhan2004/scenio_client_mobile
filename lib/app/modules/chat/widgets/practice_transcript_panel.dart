@@ -40,7 +40,7 @@ class PracticeTranscriptPanel extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(AppStrings.practiceTranscriptTitle, style: AppTextStyles.h3),
-              const Spacer(),
+              Spacer(),
               TextButton(
                 onPressed: onToggle,
                 child: Text(

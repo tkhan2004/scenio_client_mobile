@@ -64,7 +64,7 @@ class HomeViewModel extends GetxController {
   final Rxn<SessionResultEntity> lastCompletedResult =
       Rxn<SessionResultEntity>();
 
-  List<HomeTabItem> get tabs => const <HomeTabItem>[
+  List<HomeTabItem> get tabs => <HomeTabItem>[
     HomeTabItem(
       label: AppStrings.homeTabHome,
       icon: Icons.home_outlined,
@@ -74,6 +74,11 @@ class HomeViewModel extends GetxController {
       label: AppStrings.homeTabScenes,
       icon: Icons.theater_comedy_outlined,
       activeIcon: Icons.theater_comedy_rounded,
+    ),
+    HomeTabItem(
+      label: AppStrings.homeTabVocabulary,
+      icon: Icons.layers_outlined,
+      activeIcon: Icons.layers_rounded,
     ),
     HomeTabItem(
       label: AppStrings.homeTabPractice,
@@ -90,7 +95,7 @@ class HomeViewModel extends GetxController {
   String get displayName => AppStrings.homeDisplayName;
   String get greetingSubtitle => AppStrings.homeGreetingSubtitle;
 
-  List<HomeQuickStat> get quickStats => const <HomeQuickStat>[
+  List<HomeQuickStat> get quickStats => <HomeQuickStat>[
     HomeQuickStat(
       label: AppStrings.homeStatXp,
       value: '320',

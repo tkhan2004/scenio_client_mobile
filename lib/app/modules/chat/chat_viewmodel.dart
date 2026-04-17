@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/scenio_alerts.dart';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/entities/scene_entity.dart';
 import '../../domain/entities/session_entity.dart';
@@ -64,36 +63,25 @@ class ChatViewModel extends GetxController {
   }
 
   void showHint() {
-    Get.snackbar(
-      AppStrings.practiceHintButton,
-      '${scene.mission}\n\n${AppStrings.practiceHintSnackbar}',
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(AppDimensions.lg),
-      backgroundColor: Colors.white,
-      colorText: AppColors.textPrimary,
+    ScenioAlert.show(
+      title: AppStrings.practiceHintButton,
+      message: '${scene.mission}\n\n${AppStrings.practiceHintSnackbar}',
+      icon: Icons.lightbulb_outline_rounded,
     );
   }
 
   void showVoiceComingSoon() {
-    Get.snackbar(
-      AppStrings.appName,
-      AppStrings.practiceVoiceSnackbar,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(AppDimensions.lg),
-      backgroundColor: Colors.white,
-      colorText: AppColors.textPrimary,
+    ScenioAlert.show(
+      title: 'Scenio',
+      message: AppStrings.practiceVoiceSnackbar,
     );
   }
 
   void leaveSession() {
     homeViewModel.abandonCurrentSession();
-    Get.snackbar(
-      AppStrings.appName,
-      AppStrings.practiceLeaveSnackbar,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(AppDimensions.lg),
-      backgroundColor: Colors.white,
-      colorText: AppColors.textPrimary,
+    ScenioAlert.show(
+      title: 'Scenio',
+      message: AppStrings.practiceLeaveSnackbar,
     );
     Get.offAllNamed(Routes.home);
   }

@@ -79,12 +79,12 @@ class ChatView extends GetView<ChatViewModel> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: AppDimensions.md),
+                          SizedBox(width: AppDimensions.md),
                           _HeaderTextButton(
                             label: AppStrings.practiceHintButton,
                             onTap: controller.showHint,
                           ),
-                          const SizedBox(width: AppDimensions.sm),
+                          SizedBox(width: AppDimensions.sm),
                           _HeaderTextButton(
                             label: AppStrings.practiceLeaveButton,
                             onTap: controller.leaveSession,

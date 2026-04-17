@@ -12,6 +12,7 @@ import 'widgets/home_pill_nav_bar.dart';
 import 'widgets/home_practice_tab.dart';
 import 'widgets/home_scenes_tab.dart';
 import '../profile/profile_view.dart';
+import '../vocabulary/vocabulary_view.dart';
 import 'widgets/scenio_icon_badge.dart';
 
 class HomeView extends GetView<HomeViewModel> {
@@ -42,6 +43,7 @@ class HomeView extends GetView<HomeViewModel> {
                     viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
+                  VocabularyView(bottomPadding: contentBottomPadding),
                   HomePracticeTab(
                     viewModel: controller,
                     bottomPadding: contentBottomPadding,
@@ -229,23 +231,61 @@ class _HomeDashboardSheet extends StatelessWidget {
               actionLabel: null,
             ),
             const SizedBox(height: AppDimensions.md),
-            Row(
-              children: viewModel.quickStats
-                  .map(
-                    (HomeQuickStat stat) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          right: stat == viewModel.quickStats.last
-                              ? 0
-                              : AppDimensions.md,
-                        ),
-                        child: _QuickStatCard(stat: stat),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppDimensions.xxl,
+                horizontal: AppDimensions.xs,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: <Color>[
+                    Colors.white,
+                    AppColors.primary50.withValues(alpha: 0.6),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                border: Border.all(
+                  color: AppColors.primary200.withValues(alpha: 0.8),
+                  width: 1.5,
+                ),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: AppColors.primary700.withValues(alpha: 0.08),
+                    blurRadius: 28,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: viewModel.quickStats.asMap().entries.expand((
+                  MapEntry<int, HomeQuickStat> entry,
+                ) {
+                  final int index = entry.key;
+                  final HomeQuickStat stat = entry.value;
+                  final bool isLast = index == viewModel.quickStats.length - 1;
+
+                  final Widget statItem = Expanded(
+                    child: _QuickStatItem(stat: stat),
+                  );
+
+                  if (isLast) {
+                    return <Widget>[statItem];
+                  } else {
+                    return <Widget>[
+                      statItem,
+                      Container(
+                        height: 52,
+                        width: 1,
+                        color: AppColors.primary200.withValues(alpha: 0.6),
                       ),
-                    ),
-                  )
-                  .toList(),
+                    ];
+                  }
+                }).toList(),
+              ),
             ),
-            const SizedBox(height: AppDimensions.xl),
+            SizedBox(height: AppDimensions.xl),
             _SectionHeader(
               title: AppStrings.homeMissionsSection,
               actionLabel: AppStrings.homeSeeAll,
@@ -254,10 +294,10 @@ class _HomeDashboardSheet extends StatelessWidget {
             ...viewModel.todayMissions.expand(
               (HomeMissionCardData mission) => <Widget>[
                 _MissionCard(mission: mission),
-                const SizedBox(height: AppDimensions.md),
+                SizedBox(height: AppDimensions.md),
               ],
             ),
-            const SizedBox(height: AppDimensions.lg),
+            SizedBox(height: AppDimensions.lg),
             _SectionHeader(
               title: AppStrings.homeRecommendedSection,
               actionLabel: AppStrings.homeSeeAll,
@@ -610,47 +650,45 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _QuickStatCard extends StatelessWidget {
-  const _QuickStatCard({required this.stat});
+class _QuickStatItem extends StatelessWidget {
+  const _QuickStatItem({required this.stat});
 
   final HomeQuickStat stat;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 152),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.lg,
-        vertical: AppDimensions.md,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ScenioIconBadge(icon: stat.icon, tint: stat.tint, size: 40),
-          const SizedBox(height: AppDimensions.md),
-          Text(stat.value, style: AppTextStyles.displayMedium),
-          const SizedBox(height: AppDimensions.xs),
-          SizedBox(
-            height: 34,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                stat.label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        ScenioIconBadge(
+          icon: stat.icon,
+          tint: stat.tint,
+          size: 46,
+          iconColor: stat.tint,
+        ),
+        const SizedBox(height: AppDimensions.md),
+        Text(
+          stat.value,
+          style: AppTextStyles.displayMedium.copyWith(
+            color: AppColors.primary800,
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
+          child: Text(
+            stat.label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.3,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -692,14 +730,14 @@ class _MissionCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: AppDimensions.md),
           Row(
             children: <Widget>[
               Text(
                 '${AppStrings.homeMissionProgressLabel}: ${mission.current}/${mission.target}',
                 style: AppTextStyles.labelMedium,
               ),
-              const Spacer(),
+              Spacer(),
               Text(
                 '${AppStrings.homeMissionRewardLabel}: +${mission.xpReward}',
                 style: AppTextStyles.labelMedium.copyWith(

@@ -92,7 +92,7 @@ class PracticeControlBar extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               _SecondaryControlChip(
                 icon: Icons.stop_circle_outlined,
                 label: AppStrings.practiceControlEnd,
@@ -100,7 +100,7 @@ class PracticeControlBar extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.sm),
+          SizedBox(height: AppDimensions.sm),
           Text(
             AppStrings.practiceVoiceComingSoon,
             style: AppTextStyles.labelMedium.copyWith(
@@ -116,7 +116,7 @@ class PracticeControlBar extends StatelessWidget {
                   onChanged: onChanged,
                   minLines: 1,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: AppStrings.practiceComposerHint,
                     prefixIcon: Icon(Icons.edit_outlined),
                   ),

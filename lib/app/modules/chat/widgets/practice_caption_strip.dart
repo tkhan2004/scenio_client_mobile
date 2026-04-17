@@ -34,9 +34,9 @@ class PracticeCaptionStrip extends StatelessWidget {
               color: AppColors.primary700,
             ),
           ),
-          const SizedBox(height: AppDimensions.xs),
+          SizedBox(height: AppDimensions.xs),
           Text(aiCaption, style: AppTextStyles.bodyLarge),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: AppDimensions.md),
           Text(
             AppStrings.practiceCaptionYou,
             style: AppTextStyles.labelMedium.copyWith(
