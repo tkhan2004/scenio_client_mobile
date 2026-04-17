@@ -56,14 +56,14 @@ class ProfileHeroCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
-              const _HeroTextButton(
+              Spacer(),
+              _HeroTextButton(
                 icon: Icons.edit_outlined,
                 label: AppStrings.profileHeroEdit,
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.lg),
+          SizedBox(height: AppDimensions.lg),
           Text(
             AppStrings.homeProfileTitle,
             style: AppTextStyles.labelLarge.copyWith(
@@ -108,7 +108,7 @@ class ProfileHeroCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.lg),
+          SizedBox(height: AppDimensions.lg),
           Row(
             children: <Widget>[
               Expanded(
@@ -118,7 +118,7 @@ class ProfileHeroCard extends StatelessWidget {
                   accent: AppColors.secondary50,
                 ),
               ),
-              const SizedBox(width: AppDimensions.md),
+              SizedBox(width: AppDimensions.md),
               Expanded(
                 child: _HeroInfoPill(
                   title: AppStrings.profileBadgesSection,

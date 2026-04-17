@@ -16,8 +16,8 @@ class HomePillNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onSelected;
 
-  static const double navBarWidth = 348;
-  static const double navBarHeight = 54;
+  static const double navBarWidth = 382;
+  static const double navBarHeight = 56;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class HomePillNavBar extends StatelessWidget {
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final double slotWidth = constraints.maxWidth / items.length;
-            final double indicatorWidth = math.min(72, slotWidth - 10);
+            final double indicatorWidth = math.min(64, slotWidth - 10);
 
             return Stack(
               children: <Widget>[

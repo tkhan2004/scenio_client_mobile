@@ -15,7 +15,7 @@ class ProfileViewModel extends GetxController {
   String get profileBadgesProgress => AppStrings.profileBadgesProgressValue;
 
   List<ProfileOverviewStat> get profileOverviewStats =>
-      const <ProfileOverviewStat>[
+      <ProfileOverviewStat>[
         ProfileOverviewStat(
           label: AppStrings.profileStatXpLabel,
           value: '320',
@@ -24,16 +24,16 @@ class ProfileViewModel extends GetxController {
           tint: Color(0xFFEF9F27),
         ),
         ProfileOverviewStat(
-          label: AppStrings.profileStatStreakLabel,
+          label: 'Current Streak',
           value: '7',
-          subtitle: AppStrings.profileStatStreakSubtitle,
+          subtitle: 'Days in a row',
           icon: Icons.local_fire_department_rounded,
           tint: Color(0xFF1D9E75),
         ),
         ProfileOverviewStat(
-          label: AppStrings.profileStatSessionsLabel,
+          label: 'Sessions',
           value: '12',
-          subtitle: AppStrings.profileStatSessionsSubtitle,
+          subtitle: 'Completed lessons',
           icon: Icons.chat_bubble_rounded,
           tint: Color(0xFF66A7DA),
         ),
@@ -57,7 +57,7 @@ class ProfileViewModel extends GetxController {
         ProfileWeeklyXpPoint(dayLabel: 'S', xp: 44),
       ];
 
-  List<ProfileSkillScore> get profileSkillScores => const <ProfileSkillScore>[
+  List<ProfileSkillScore> get profileSkillScores => <ProfileSkillScore>[
         ProfileSkillScore(
           label: AppStrings.profileSkillGrammar,
           score: 85,
@@ -75,7 +75,7 @@ class ProfileViewModel extends GetxController {
         ),
       ];
 
-  List<ProfileBadgeData> get profileBadges => const <ProfileBadgeData>[
+  List<ProfileBadgeData> get profileBadges => <ProfileBadgeData>[
         ProfileBadgeData(
           title: AppStrings.profileBadgeFirstSceneTitle,
           description: AppStrings.profileBadgeFirstSceneDescription,
@@ -99,7 +99,7 @@ class ProfileViewModel extends GetxController {
         ),
       ];
 
-  List<ProfileHistoryItem> get profileHistory => const <ProfileHistoryItem>[
+  List<ProfileHistoryItem> get profileHistory => <ProfileHistoryItem>[
         ProfileHistoryItem(
           title: AppStrings.profileHistoryAirportTitle,
           meta: AppStrings.profileHistoryAirportMeta,
@@ -126,16 +126,17 @@ class ProfileViewModel extends GetxController {
         ),
       ];
 
-  List<ProfileActionItem> get profileActions => const <ProfileActionItem>[
-        ProfileActionItem(
-          title: AppStrings.profileActionSavedWords,
-          subtitle: AppStrings.profileActionSavedWordsSubtitle,
-          icon: Icons.menu_book_rounded,
-        ),
+  List<ProfileActionItem> get profileActions => <ProfileActionItem>[
         ProfileActionItem(
           title: AppStrings.profileActionDailyGoal,
           subtitle: AppStrings.profileActionDailyGoalSubtitle,
           icon: Icons.track_changes_rounded,
+        ),
+        ProfileActionItem(
+          id: 'language',
+          title: 'profileActionLanguage'.tr,
+          subtitle: 'profileActionLanguageSubtitle'.tr,
+          icon: Icons.language_rounded,
         ),
         ProfileActionItem(
           title: AppStrings.profileActionNotifications,

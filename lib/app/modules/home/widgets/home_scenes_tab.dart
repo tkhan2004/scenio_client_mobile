@@ -33,7 +33,7 @@ class HomeScenesTab extends StatelessWidget {
         ),
         children: <Widget>[
           _ScenesPageHeader(viewModel: viewModel),
-          const SizedBox(height: AppDimensions.lg),
+          SizedBox(height: AppDimensions.lg),
           TextField(
             onChanged: viewModel.updateSceneSearch,
             decoration: InputDecoration(
@@ -154,7 +154,7 @@ class HomeScenesTab extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           _ScenesSectionHeader(title: AppStrings.scenesRecommendedSection),
           const SizedBox(height: AppDimensions.md),
           SizedBox(
@@ -174,7 +174,7 @@ class HomeScenesTab extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           _ScenesSectionHeader(title: AppStrings.scenesLibrarySection),
           const SizedBox(height: AppDimensions.md),
           Obx(() {
@@ -264,14 +264,14 @@ class _ScenesPageHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.xs),
+          SizedBox(height: AppDimensions.xs),
           Text(
             AppStrings.scenesHeroSubtitle,
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: AppDimensions.md),
           Row(
             children: <Widget>[
               Text(
@@ -379,20 +379,20 @@ class _RecommendedSceneCard extends StatelessWidget {
               '${scene.categoryLabel} • ${scene.estimatedMinutes} min',
               style: AppTextStyles.labelMedium,
             ),
-            const SizedBox(height: AppDimensions.md),
+            SizedBox(height: AppDimensions.md),
             Row(
               children: <Widget>[
                 TextButton(
                   onPressed: onTap,
-                  child: const Text(AppStrings.scenesViewDetails),
+                  child: Text(AppStrings.scenesViewDetails),
                 ),
-                const Spacer(),
+                Spacer(),
                 ElevatedButton(
                   onPressed: onStart,
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(112, AppDimensions.buttonHeight),
+                    minimumSize: Size(112, AppDimensions.buttonHeight),
                   ),
-                  child: const Text(AppStrings.scenesStartLabel),
+                  child: Text(AppStrings.scenesStartLabel),
                 ),
               ],
             ),
@@ -495,7 +495,7 @@ class _SceneLibraryCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: const Text(AppStrings.scenesViewDetails),
+                  child: Text(AppStrings.scenesViewDetails),
                 ),
               ),
               const SizedBox(width: AppDimensions.md),
@@ -512,7 +512,7 @@ class _SceneLibraryCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: const Text(AppStrings.scenesStartLabel),
+                  child: Text(AppStrings.scenesStartLabel),
                 ),
               ),
             ],

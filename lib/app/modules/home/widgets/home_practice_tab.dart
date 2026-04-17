@@ -34,12 +34,12 @@ class HomePracticeTab extends StatelessWidget {
           ),
           children: <Widget>[
             _PracticePageHeader(viewModel: viewModel),
-            const SizedBox(height: AppDimensions.xl),
+            SizedBox(height: AppDimensions.xl),
             if (viewModel.hasActiveSession)
               _ActivePracticeCard(viewModel: viewModel)
             else
               _PracticeEmptyState(viewModel: viewModel),
-            const SizedBox(height: AppDimensions.xl),
+            SizedBox(height: AppDimensions.xl),
             Text(AppStrings.scenesRecommendedSection, style: AppTextStyles.h2),
             const SizedBox(height: AppDimensions.md),
             ...viewModel.recommendedScenes.map(
@@ -96,7 +96,7 @@ class _PracticePageHeader extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppDimensions.xs),
+        SizedBox(height: AppDimensions.xs),
         Text(
           AppStrings.practiceHeroSubtitle,
           style: AppTextStyles.bodyMedium.copyWith(
@@ -217,7 +217,7 @@ class _ActivePracticeCard extends StatelessWidget {
                   scene.mission,
                   style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
                 ),
-                const SizedBox(height: AppDimensions.md),
+                SizedBox(height: AppDimensions.md),
                 Row(
                   children: <Widget>[
                     Text(
@@ -226,7 +226,7 @@ class _ActivePracticeCard extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Text(
                       AppStrings.practiceStateActive,
                       style: AppTextStyles.labelLarge.copyWith(
@@ -245,7 +245,7 @@ class _ActivePracticeCard extends StatelessWidget {
               backgroundColor: Colors.white,
               foregroundColor: AppColors.primary900,
             ),
-            child: const Text(AppStrings.practiceResumeButton),
+            child: Text(AppStrings.practiceResumeButton),
           ),
         ],
       ),
@@ -289,13 +289,13 @@ class _PracticeEmptyState extends StatelessWidget {
               color: AppColors.primary800,
             ),
           ),
-          const SizedBox(height: AppDimensions.lg),
+          SizedBox(height: AppDimensions.lg),
           Text(
             AppStrings.practiceEmptyTitle,
             textAlign: TextAlign.center,
             style: AppTextStyles.h2,
           ),
-          const SizedBox(height: AppDimensions.xs),
+          SizedBox(height: AppDimensions.xs),
           Text(
             AppStrings.practiceEmptySubtitle,
             textAlign: TextAlign.center,
@@ -303,10 +303,10 @@ class _PracticeEmptyState extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: AppDimensions.lg),
+          SizedBox(height: AppDimensions.lg),
           ElevatedButton(
             onPressed: () => viewModel.selectTab(1),
-            child: const Text(AppStrings.practiceBrowseScenesButton),
+            child: Text(AppStrings.practiceBrowseScenesButton),
           ),
         ],
       ),

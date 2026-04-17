@@ -38,9 +38,9 @@ class ProfileView extends GetView<ProfileViewModel> {
           ProfileHeroCard(controller: controller),
           const SizedBox(height: AppDimensions.xl),
           ProfileSectionTitle(title: AppStrings.profileOverviewSection),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: AppDimensions.md),
           ProfileOverviewGrid(stats: controller.profileOverviewStats),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           ProfileSectionCard(
             title: AppStrings.profileWeeklyXpSection,
             subtitle: AppStrings.profileWeeklyXpCaption,
@@ -52,7 +52,7 @@ class ProfileView extends GetView<ProfileViewModel> {
             ),
             child: ProfileWeeklyXpChart(points: controller.profileWeeklyXp),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           ProfileSectionCard(
             title: AppStrings.profileSkillBreakdownSection,
             subtitle: 'Your strongest areas from recent completed sessions.',
@@ -71,7 +71,7 @@ class ProfileView extends GetView<ProfileViewModel> {
                   .toList(),
             ),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           ProfileSectionTitle(
             title: AppStrings.profileBadgesSection,
             actionLabel: AppStrings.profileBadgesEarnedLabel,
@@ -94,7 +94,7 @@ class ProfileView extends GetView<ProfileViewModel> {
                   .toList(),
             ),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           ProfileSectionTitle(
             title: AppStrings.profileHistorySection,
             actionLabel: AppStrings.profileViewAll,
@@ -110,7 +110,7 @@ class ProfileView extends GetView<ProfileViewModel> {
               child: ProfileHistoryCard(item: item),
             ),
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           ProfileSectionCard(
             title: AppStrings.profileAccountSection,
             subtitle:
@@ -118,8 +118,7 @@ class ProfileView extends GetView<ProfileViewModel> {
             child: Column(
               children: controller.profileActions
                   .map(
-                    (ProfileActionItem item) =>
-                        ProfileActionTile(action: item),
+                    (ProfileActionItem item) => ProfileActionTile(action: item),
                   )
                   .toList(),
             ),

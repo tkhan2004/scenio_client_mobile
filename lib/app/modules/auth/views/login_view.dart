@@ -21,7 +21,7 @@ class LoginView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(AppStrings.authIdentifierLabel, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppDimensions.sm),
+          SizedBox(height: AppDimensions.sm),
           AuthTextField(
             controller: viewModel.loginIdentifierController,
             hintText: AppStrings.authIdentifierHint,
@@ -33,9 +33,9 @@ class LoginView extends StatelessWidget {
               AutofillHints.email,
             ],
           ),
-          const SizedBox(height: AppDimensions.xl),
+          SizedBox(height: AppDimensions.xl),
           Text(AppStrings.authPasswordLabel, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppDimensions.sm),
+          SizedBox(height: AppDimensions.sm),
           Obx(
             () => AuthTextField(
               controller: viewModel.loginPasswordController,
@@ -57,7 +57,7 @@ class LoginView extends StatelessWidget {
                   onTap: viewModel.toggleRememberMe,
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               TextButton(
                 onPressed: viewModel.handleForgotPassword,
                 child: Text(
@@ -88,9 +88,9 @@ class LoginFooter extends StatelessWidget {
           label: AppStrings.authLoginButton,
           onPressed: viewModel.submitLogin,
         ),
-        const SizedBox(height: AppDimensions.xl),
+        SizedBox(height: AppDimensions.xl),
         _SocialDivider(label: AppStrings.authSocialDivider),
-        const SizedBox(height: AppDimensions.xl),
+        SizedBox(height: AppDimensions.xl),
         Row(
           children: <Widget>[
             Expanded(
@@ -104,7 +104,7 @@ class LoginFooter extends StatelessWidget {
                 onPressed: viewModel.handleGoogleSignIn,
               ),
             ),
-            const SizedBox(width: AppDimensions.md),
+            SizedBox(width: AppDimensions.md),
             Expanded(
               child: SocialLoginButton(
                 label: AppStrings.authFacebook,
@@ -159,7 +159,7 @@ class _RememberMeToggle extends StatelessWidget {
                   )
                 : null,
           ),
-          const SizedBox(width: AppDimensions.md),
+          SizedBox(width: AppDimensions.md),
           Text(AppStrings.authRememberMe, style: AppTextStyles.bodyMedium),
         ],
       ),

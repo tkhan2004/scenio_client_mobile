@@ -126,7 +126,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                           controller.scene.characterName,
                                           style: AppTextStyles.h2,
                                         ),
-                                        const SizedBox(height: 2),
+                                        SizedBox(height: 2),
                                         Text(
                                           '${controller.scene.characterRole} • ${AppStrings.sceneDetailAiBadge}',
                                           style: AppTextStyles.bodySmall
@@ -139,7 +139,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: AppDimensions.xl),
+                              SizedBox(height: AppDimensions.xl),
                               _DetailSection(
                                 title: AppStrings.sceneDetailSceneMetaTitle,
                                 child: Wrap(
@@ -159,7 +159,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: AppDimensions.lg),
+                              SizedBox(height: AppDimensions.lg),
                               _DetailSection(
                                 title: AppStrings.sceneDetailMissionTitle,
                                 child: Container(
@@ -181,7 +181,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: AppDimensions.lg),
+                              SizedBox(height: AppDimensions.lg),
                               _DetailSection(
                                 title: AppStrings.sceneDetailVocabularyTitle,
                                 child: Wrap(
@@ -218,7 +218,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                           color: AppColors.secondary700,
                                         ),
                                       ),
-                                      const SizedBox(height: AppDimensions.xs),
+                                      SizedBox(height: AppDimensions.xs),
                                       Text(
                                         AppStrings.sceneDetailConflictSubtitle,
                                         style: AppTextStyles.bodySmall.copyWith(
@@ -266,10 +266,10 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                 child: Text(controller.primaryCtaLabel),
               ),
               if (hasConflict) ...<Widget>[
-                const SizedBox(height: AppDimensions.sm),
+                SizedBox(height: AppDimensions.sm),
                 OutlinedButton(
                   onPressed: controller.forceStartNew,
-                  child: const Text(AppStrings.sceneDetailStartNewButton),
+                  child: Text(AppStrings.sceneDetailStartNewButton),
                 ),
               ],
             ],

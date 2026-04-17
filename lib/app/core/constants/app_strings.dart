@@ -1,324 +1,348 @@
+import 'package:get/get.dart';
+
 abstract class AppStrings {
   static const String appName = 'Scenio';
   static const String splashOnboardingSampleAsset =
       'assets/imame/splash-onboarding-sample-image.svg';
 
-  static const String onboardingTagline = 'Every scene. A new voice.';
-  static const String onboardingTitle = 'Practice English in real-world scenes';
-  static const String onboardingSubtitle =
-      'Step into immersive roleplay conversations and build confidence one scene at a time.';
+  static String get onboardingTagline => 'onboardingTagline'.tr;
+  static String get onboardingTitle => 'onboardingTitle'.tr;
+  static String get onboardingSubtitle => 'onboardingSubtitle'.tr;
 
-  static const List<String> onboardingTitles = <String>[
+  static List<String> get onboardingTitles => <String>[
     onboardingTitle,
-    'Meet AI partners that respond like real people',
-    'Get instant feedback after every reply',
-    'Build confidence with a speaking journey that fits you',
+    'Meet AI partners that respond like real people'.tr,
+    'Get instant feedback after every reply'.tr,
+    'Build confidence with a speaking journey that fits you'.tr,
   ];
 
-  static const List<String> onboardingSubtitles = <String>[
+  static List<String> get onboardingSubtitles => <String>[
     onboardingSubtitle,
-    'Each scene adapts to your words so the conversation feels natural, dynamic.',
-    'Improve grammar, word choice, and fluency with fast suggestions.',
-    'Track progress, keep your streak, and unlock the next best scene for your current level.',
+    'Each scene adapts to your words so the conversation feels natural, dynamic.'
+        .tr,
+    'Improve grammar, word choice, and fluency with fast suggestions.'.tr,
+    'Track progress, keep your streak, and unlock the next best scene for your current level.'
+        .tr,
   ];
 
-  static const String onboardingComingSoonMessage =
-      'Auth flow will be continued in the next step.';
-  static const String onboardingPrimaryButton = 'Get Started';
-  static const String onboardingSecondaryButton = 'Next';
+  static String get onboardingComingSoonMessage =>
+      'onboardingComingSoonMessage'.tr;
+  static String get onboardingPrimaryButton => 'onboardingPrimaryButton'.tr;
+  static String get onboardingSecondaryButton => 'onboardingSecondaryButton'.tr;
 
-  static const String onboardingPreviewLabel = 'Preview Image';
-  static const String onboardingPreviewCaption =
-      'Scene artwork will be attached here later.';
+  static String get onboardingPreviewLabel => 'onboardingPreviewLabel'.tr;
+  static String get onboardingPreviewCaption => 'onboardingPreviewCaption'.tr;
 
-  static const String splashTitle = AppStrings.appName;
-  static const String splashSubtitle = AppStrings.onboardingTagline;
+  static String get splashTitle => 'splashTitle'.tr;
+  static String get splashSubtitle => 'splashSubtitle'.tr;
 
-  static const String authLoginTitle = 'Sign in to your account';
-  static const String authLoginPrompt = 'Don\'t have an account?';
-  static const String authLoginPromptAction = 'Sign Up';
-  static const String authRegisterTitle = 'Create your account';
-  static const String authRegisterPrompt = 'Already have an account?';
-  static const String authRegisterPromptAction = 'Log In';
+  static String get authLoginTitle => 'authLoginTitle'.tr;
+  static String get authLoginPrompt => 'authLoginPrompt'.tr;
+  static String get authLoginPromptAction => 'authLoginPromptAction'.tr;
+  static String get authRegisterTitle => 'authRegisterTitle'.tr;
+  static String get authRegisterPrompt => 'authRegisterPrompt'.tr;
+  static String get authRegisterPromptAction => 'authRegisterPromptAction'.tr;
 
-  static const String authIdentifierLabel = 'Email or Username';
-  static const String authIdentifierHint = 'Type your email or username';
-  static const String authPasswordLabel = 'Password';
-  static const String authPasswordHint = 'Type your password';
-  static const String authRememberMe = 'Remember me';
-  static const String authForgotPassword = 'Forgot Password?';
-  static const String authLoginButton = 'Log In';
-  static const String authSocialDivider = 'Or continue with';
-  static const String authGoogle = 'Google';
-  static const String authFacebook = 'Facebook';
+  static String get authIdentifierLabel => 'authIdentifierLabel'.tr;
+  static String get authIdentifierHint => 'authIdentifierHint'.tr;
+  static String get authPasswordLabel => 'authPasswordLabel'.tr;
+  static String get authPasswordHint => 'authPasswordHint'.tr;
+  static String get authRememberMe => 'authRememberMe'.tr;
+  static String get authForgotPassword => 'authForgotPassword'.tr;
+  static String get authLoginButton => 'authLoginButton'.tr;
+  static String get authSocialDivider => 'authSocialDivider'.tr;
+  static String get authGoogle => 'authGoogle'.tr;
+  static String get authFacebook => 'authFacebook'.tr;
 
-  static const String authFirstNameLabel = 'First Name';
-  static const String authLastNameLabel = 'Last Name';
-  static const String authNameHint = 'Type here';
-  static const String authEmailLabel = 'Email';
-  static const String authEmailHint = 'Type your email';
-  static const String authPhoneLabel = 'Phone Number';
-  static const String authPhoneHint = 'Type your phone number';
-  static const String authPhoneCode = '+84';
-  static const String authDateOfBirthLabel = 'Date of Birth';
-  static const String authDateOfBirthHint = 'Select your birth date';
-  static const String authGenderLabel = 'Gender';
-  static const String authGenderFemale = 'Female';
-  static const String authGenderMale = 'Male';
-  static const String authGenderOther = 'Other';
-  static const String authRegisterStepOneTitle = 'Basic details';
-  static const String authRegisterStepOneCaption =
-      'Start with your contact information.';
-  static const String authRegisterStepTwoTitle = 'Personal details';
-  static const String authRegisterStepTwoCaption =
-      'Add the last details to complete your profile.';
-  static const String authRegisterStepLabel = 'Step';
-  static const String authNextButton = 'Next';
-  static const String authBackButton = 'Back';
-  static const String authRegisterButton = 'Create Account';
+  static String get authFirstNameLabel => 'authFirstNameLabel'.tr;
+  static String get authLastNameLabel => 'authLastNameLabel'.tr;
+  static String get authNameHint => 'authNameHint'.tr;
+  static String get authEmailLabel => 'authEmailLabel'.tr;
+  static String get authEmailHint => 'authEmailHint'.tr;
+  static String get authPhoneLabel => 'authPhoneLabel'.tr;
+  static String get authPhoneHint => 'authPhoneHint'.tr;
+  static String get authPhoneCode => 'authPhoneCode'.tr;
+  static String get authDateOfBirthLabel => 'authDateOfBirthLabel'.tr;
+  static String get authDateOfBirthHint => 'authDateOfBirthHint'.tr;
+  static String get authGenderLabel => 'authGenderLabel'.tr;
+  static String get authGenderFemale => 'authGenderFemale'.tr;
+  static String get authGenderMale => 'authGenderMale'.tr;
+  static String get authGenderOther => 'authGenderOther'.tr;
+  static String get authRegisterStepOneTitle => 'authRegisterStepOneTitle'.tr;
+  static String get authRegisterStepOneCaption =>
+      'authRegisterStepOneCaption'.tr;
+  static String get authRegisterStepTwoTitle => 'authRegisterStepTwoTitle'.tr;
+  static String get authRegisterStepTwoCaption =>
+      'authRegisterStepTwoCaption'.tr;
+  static String get authRegisterStepLabel => 'authRegisterStepLabel'.tr;
+  static String get authNextButton => 'authNextButton'.tr;
+  static String get authBackButton => 'authBackButton'.tr;
+  static String get authRegisterButton => 'authRegisterButton'.tr;
 
-  static const String authRequiredFieldMessage = 'This field is required.';
-  static const String authInvalidEmailMessage = 'Enter a valid email address.';
-  static const String authInvalidPhoneMessage = 'Enter a valid phone number.';
-  static const String authPasswordTooShortMessage =
-      'Password must be at least 6 characters.';
+  static String get authRequiredFieldMessage => 'authRequiredFieldMessage'.tr;
+  static String get authInvalidEmailMessage => 'authInvalidEmailMessage'.tr;
+  static String get authInvalidPhoneMessage => 'authInvalidPhoneMessage'.tr;
+  static String get authPasswordTooShortMessage =>
+      'authPasswordTooShortMessage'.tr;
 
-  static const String authLoginReadyMessage =
-      'Login flow UI is ready for API integration.';
-  static const String authRegisterReadyMessage =
-      'Registration flow UI is ready for API integration.';
-  static const String authForgotPasswordMessage =
-      'Forgot password flow will be connected next.';
-  static const String authGoogleReadyMessage =
-      'Google sign-in will be connected next.';
-  static const String authFacebookReadyMessage =
-      'Facebook sign-in will be connected next.';
+  static String get authLoginReadyMessage => 'authLoginReadyMessage'.tr;
+  static String get authRegisterReadyMessage => 'authRegisterReadyMessage'.tr;
+  static String get authForgotPasswordMessage => 'authForgotPasswordMessage'.tr;
+  static String get authGoogleReadyMessage => 'authGoogleReadyMessage'.tr;
+  static String get authFacebookReadyMessage => 'authFacebookReadyMessage'.tr;
 
-  static const String homeTabHome = 'Home';
-  static const String homeTabScenes = 'Scenes';
-  static const String homeTabChat = 'Chat';
-  static const String homeTabProfile = 'Profile';
-  static const String homeCurrentPageLabel = 'Current page';
-  static const String homeGreeting = 'Good Morning';
-  static const String homeDisplayName = 'Nguyen Thanh Khang';
-  static const String homeGreetingSubtitle =
-      'Let\'s speak with confidence today';
-  static const String homeContinueLabel = 'Continue learning';
-  static const String homeContinueTitle = 'Cafe small talk';
-  static const String homeContinueTime = '09:30 AM • 21 November 2025';
-  static const String homeContinueCharacter = 'Mia • Friendly barista';
-  static const String homeContinueMeta = 'Daily • A2 • 6 minutes';
-  static const String homeContinueBadgeLabel = 'Level';
-  static const String homeContinueBadgeValue = 'A2';
-  static const String homeContinueStatusLabel = 'Live mission status';
-  static const String homeContinueStatusValue = '2 active';
-  static const String homeMomentumSection = 'Your momentum';
-  static const String homeMissionsSection = 'Today\'s missions';
-  static const String homeRecommendedSection = 'Recommended scenes';
-  static const String homeSeeAll = 'See all';
-  static const String homeStatXp = 'Total XP';
-  static const String homeStatStreak = 'Streak';
-  static const String homeStatSaved = 'Saved words';
-  static const String homeMissionOneTitle = 'Complete 1 roleplay scene';
-  static const String homeMissionOneSubtitle =
-      'Finish a scene from greeting to mission completion.';
-  static const String homeMissionTwoTitle = 'Use 3 helpful vocabulary words';
-  static const String homeMissionTwoSubtitle =
-      'Practice the target words inside a real reply.';
-  static const String homeMissionProgressLabel = 'Progress';
-  static const String homeMissionRewardLabel = 'XP reward';
-  static const String homeSceneOneMeta = 'Daily • A2 • 6 min';
-  static const String homeSceneTwoMeta = 'Travel • A2 • 7 min';
-  static const String homeSceneThreeMeta = 'Work • B1 • 8 min';
+  static String get homeTabHome => 'homeTabHome'.tr;
+  static String get homeTabScenes => 'homeTabScenes'.tr;
+  static String get homeTabVocabulary => 'homeTabVocabulary'.tr;
+  static String get homeTabChat => 'homeTabChat'.tr;
+  static String get homeTabProfile => 'homeTabProfile'.tr;
+  static String get homeCurrentPageLabel => 'homeCurrentPageLabel'.tr;
+  static String get homeGreeting => 'homeGreeting'.tr;
+  static String get homeDisplayName => 'homeDisplayName'.tr;
+  static String get homeGreetingSubtitle => 'homeGreetingSubtitle'.tr;
+  static String get homeContinueLabel => 'homeContinueLabel'.tr;
+  static String get homeContinueTitle => 'homeContinueTitle'.tr;
+  static String get homeContinueTime => 'homeContinueTime'.tr;
+  static String get homeContinueCharacter => 'homeContinueCharacter'.tr;
+  static String get homeContinueMeta => 'homeContinueMeta'.tr;
+  static String get homeContinueBadgeLabel => 'homeContinueBadgeLabel'.tr;
+  static String get homeContinueBadgeValue => 'homeContinueBadgeValue'.tr;
+  static String get homeContinueStatusLabel => 'homeContinueStatusLabel'.tr;
+  static String get homeContinueStatusValue => 'homeContinueStatusValue'.tr;
+  static String get homeMomentumSection => 'homeMomentumSection'.tr;
+  static String get homeMissionsSection => 'homeMissionsSection'.tr;
+  static String get homeRecommendedSection => 'homeRecommendedSection'.tr;
+  static String get homeSeeAll => 'homeSeeAll'.tr;
+  static String get homeStatXp => 'homeStatXp'.tr;
+  static String get homeStatStreak => 'homeStatStreak'.tr;
+  static String get homeStatSaved => 'homeStatSaved'.tr;
+  static String get homeMissionOneTitle => 'homeMissionOneTitle'.tr;
+  static String get homeMissionOneSubtitle => 'homeMissionOneSubtitle'.tr;
+  static String get homeMissionTwoTitle => 'homeMissionTwoTitle'.tr;
+  static String get homeMissionTwoSubtitle => 'homeMissionTwoSubtitle'.tr;
+  static String get homeMissionProgressLabel => 'homeMissionProgressLabel'.tr;
+  static String get homeMissionRewardLabel => 'homeMissionRewardLabel'.tr;
+  static String get homeSceneOneMeta => 'homeSceneOneMeta'.tr;
+  static String get homeSceneTwoMeta => 'homeSceneTwoMeta'.tr;
+  static String get homeSceneThreeMeta => 'homeSceneThreeMeta'.tr;
 
-  static const String homeWelcomeLabel = 'Daily conversation';
-  static const String homeWelcomeTitle = 'Pick up your next English scene';
-  static const String homeWelcomeSubtitle =
-      'Short speaking drills, quick feedback, and a smoother path to real-world confidence.';
-  static const String homeResumeCardTitle = 'Continue with Cafe small talk';
-  static const String homeResumeCardSubtitle =
-      'Warm up with a 5-minute roleplay and keep your speaking streak alive.';
-  static const String homeResumeAction = 'Resume scene';
-  static const String homeStreakTitle = '7-day streak';
-  static const String homeFeedbackTitle = '18 feedback notes';
-  static const String homeScenesSectionTitle = 'Popular scenes';
-  static const String homeSceneOneTitle = 'Job interview';
-  static const String homeSceneOneSubtitle =
-      'Practice introducing yourself with calm, natural answers.';
-  static const String homeSceneTwoTitle = 'Travel check-in';
-  static const String homeSceneTwoSubtitle =
-      'Handle airport and hotel questions without freezing up.';
-  static const String homeSceneThreeTitle = 'Team meeting update';
-  static const String homeSceneThreeSubtitle =
-      'Give a short progress update in clear workplace English.';
+  static String get homeWelcomeLabel => 'homeWelcomeLabel'.tr;
+  static String get homeWelcomeTitle => 'homeWelcomeTitle'.tr;
+  static String get homeWelcomeSubtitle => 'homeWelcomeSubtitle'.tr;
+  static String get homeResumeCardTitle => 'homeResumeCardTitle'.tr;
+  static String get homeResumeCardSubtitle => 'homeResumeCardSubtitle'.tr;
+  static String get homeResumeAction => 'homeResumeAction'.tr;
+  static String get homeStreakTitle => 'homeStreakTitle'.tr;
+  static String get homeFeedbackTitle => 'homeFeedbackTitle'.tr;
+  static String get homeScenesSectionTitle => 'homeScenesSectionTitle'.tr;
+  static String get homeSceneOneTitle => 'homeSceneOneTitle'.tr;
+  static String get homeSceneOneSubtitle => 'homeSceneOneSubtitle'.tr;
+  static String get homeSceneTwoTitle => 'homeSceneTwoTitle'.tr;
+  static String get homeSceneTwoSubtitle => 'homeSceneTwoSubtitle'.tr;
+  static String get homeSceneThreeTitle => 'homeSceneThreeTitle'.tr;
+  static String get homeSceneThreeSubtitle => 'homeSceneThreeSubtitle'.tr;
 
-  static const String homeChatTitle = 'Talk with Scenio AI';
-  static const String homeChatSubtitle =
-      'Start a free conversation, test your fluency, and get instant coaching after each reply.';
-  static const String homeChatAction = 'Start chat practice';
+  static String get homeChatTitle => 'homeChatTitle'.tr;
+  static String get homeChatSubtitle => 'homeChatSubtitle'.tr;
+  static String get homeChatAction => 'homeChatAction'.tr;
 
-  static const String homeProfileTitle = 'Your speaking journey';
-  static const String homeProfileSubtitle =
-      'Review saved scenes, track your level, and keep a steady practice rhythm.';
-  static const String homeProfileLevel = 'Level A2 - Building confidence';
-  static const String homeProfileHistory = 'Practice history';
-  static const String homeProfileSaved = 'Saved scenes';
-  static const String homeProfileGoal = 'Daily speaking goal';
+  static String get homeProfileTitle => 'homeProfileTitle'.tr;
+  static String get homeProfileSubtitle => 'homeProfileSubtitle'.tr;
+  static String get homeProfileLevel => 'homeProfileLevel'.tr;
+  static String get homeProfileHistory => 'homeProfileHistory'.tr;
+  static String get homeProfileSaved => 'homeProfileSaved'.tr;
+  static String get homeProfileGoal => 'homeProfileGoal'.tr;
 
-  static const String profileEmail = 'learner@scenio.dev';
-  static const String profileHeroEdit = 'Edit profile';
-  static const String profileHeroGoal = 'Travel';
-  static const String profileHeroFrequency = 'Regular';
-  static const String profileHeroFocus = 'Grammar';
-  static const String profileGoalProgressValue = '4 / 5 replies today';
-  static const String profileBadgesProgressValue = '2 / 5 unlocked';
+  static String get profileEmail => 'profileEmail'.tr;
+  static String get profileHeroEdit => 'profileHeroEdit'.tr;
+  static String get profileHeroGoal => 'profileHeroGoal'.tr;
+  static String get profileHeroFrequency => 'profileHeroFrequency'.tr;
+  static String get profileHeroFocus => 'profileHeroFocus'.tr;
+  static String get profileGoalProgressValue => 'profileGoalProgressValue'.tr;
+  static String get profileBadgesProgressValue =>
+      'profileBadgesProgressValue'.tr;
 
-  static const String profileOverviewSection = 'Overview';
-  static const String profileWeeklyXpSection = 'Weekly XP';
-  static const String profileWeeklyXpCaption =
-      'Steady speaking rhythm this week';
-  static const String profileSkillBreakdownSection = 'Skill breakdown';
-  static const String profileBadgesSection = 'Achievements';
-  static const String profileBadgesEarnedLabel = '2 of 5 earned';
-  static const String profileHistorySection = 'Recent practice';
-  static const String profileAccountSection = 'Account';
-  static const String profileViewAll = 'View all';
+  static String get profileOverviewSection => 'profileOverviewSection'.tr;
+  static String get profileWeeklyXpSection => 'profileWeeklyXpSection'.tr;
+  static String get profileWeeklyXpCaption => 'profileWeeklyXpCaption'.tr;
+  static String get profileSkillBreakdownSection =>
+      'profileSkillBreakdownSection'.tr;
+  static String get profileBadgesSection => 'profileBadgesSection'.tr;
+  static String get profileBadgesEarnedLabel => 'profileBadgesEarnedLabel'.tr;
+  static String get profileHistorySection => 'profileHistorySection'.tr;
+  static String get profileAccountSection => 'profileAccountSection'.tr;
+  static String get profileViewAll => 'profileViewAll'.tr;
 
-  static const String profileStatXpLabel = 'Total XP';
-  static const String profileStatXpSubtitle = 'Lifetime score';
-  static const String profileStatStreakLabel = 'Streak';
-  static const String profileStatStreakSubtitle = 'Active days';
-  static const String profileStatSessionsLabel = 'Sessions';
-  static const String profileStatSessionsSubtitle = 'Completed scenes';
-  static const String profileStatSavedLabel = 'Saved';
-  static const String profileStatSavedSubtitle = 'Words + scenes';
+  static String get profileStatXpLabel => 'profileStatXpLabel'.tr;
+  static String get profileStatXpSubtitle => 'profileStatXpSubtitle'.tr;
+  static String get profileStatStreakLabel => 'profileStatStreakLabel'.tr;
+  static String get profileStatStreakSubtitle => 'profileStatStreakSubtitle'.tr;
+  static String get profileStatSessionsLabel => 'profileStatSessionsLabel'.tr;
+  static String get profileStatSessionsSubtitle =>
+      'profileStatSessionsSubtitle'.tr;
+  static String get profileStatSavedLabel => 'profileStatSavedLabel'.tr;
+  static String get profileStatSavedSubtitle => 'profileStatSavedSubtitle'.tr;
 
-  static const String profileSkillGrammar = 'Grammar';
-  static const String profileSkillVocabulary = 'Vocabulary';
-  static const String profileSkillNaturalness = 'Naturalness';
+  static String get profileSkillGrammar => 'profileSkillGrammar'.tr;
+  static String get profileSkillVocabulary => 'profileSkillVocabulary'.tr;
+  static String get profileSkillNaturalness => 'profileSkillNaturalness'.tr;
 
-  static const String profileBadgeFirstSceneTitle = 'First scene complete';
-  static const String profileBadgeFirstSceneDescription =
-      'Complete your first roleplay practice.';
-  static const String profileBadgeSevenDayTitle = '7-day streak';
-  static const String profileBadgeSevenDayDescription =
-      'Show up for seven learning days in a row.';
-  static const String profileBadgeCollectorTitle = 'Word collector';
-  static const String profileBadgeCollectorDescription =
-      'Save 20 useful words from feedback.';
+  static String get profileBadgeFirstSceneTitle =>
+      'profileBadgeFirstSceneTitle'.tr;
+  static String get profileBadgeFirstSceneDescription =>
+      'profileBadgeFirstSceneDescription'.tr;
+  static String get profileBadgeSevenDayTitle => 'profileBadgeSevenDayTitle'.tr;
+  static String get profileBadgeSevenDayDescription =>
+      'profileBadgeSevenDayDescription'.tr;
+  static String get profileBadgeCollectorTitle =>
+      'profileBadgeCollectorTitle'.tr;
+  static String get profileBadgeCollectorDescription =>
+      'profileBadgeCollectorDescription'.tr;
 
-  static const String profileHistoryAirportTitle = 'Airport check-in';
-  static const String profileHistoryAirportMeta = 'Travel • A2 • 18 min';
-  static const String profileHistoryCafeTitle = 'Cafe small talk';
-  static const String profileHistoryCafeMeta = 'Daily • A2 • 12 min';
-  static const String profileHistoryMeetingTitle = 'Team stand-up update';
-  static const String profileHistoryMeetingMeta = 'Work • B1 • 16 min';
+  static String get profileHistoryAirportTitle =>
+      'profileHistoryAirportTitle'.tr;
+  static String get profileHistoryAirportMeta => 'profileHistoryAirportMeta'.tr;
+  static String get profileHistoryCafeTitle => 'profileHistoryCafeTitle'.tr;
+  static String get profileHistoryCafeMeta => 'profileHistoryCafeMeta'.tr;
+  static String get profileHistoryMeetingTitle =>
+      'profileHistoryMeetingTitle'.tr;
+  static String get profileHistoryMeetingMeta => 'profileHistoryMeetingMeta'.tr;
 
-  static const String profileActionSavedWords = 'Saved words';
-  static const String profileActionSavedWordsSubtitle =
-      'Review vocabulary you kept from feedback.';
-  static const String profileActionNotifications = 'Notifications';
-  static const String profileActionNotificationsSubtitle =
-      'Manage reminders, streak nudges, and updates.';
-  static const String profileActionDailyGoal = 'Daily goal';
-  static const String profileActionDailyGoalSubtitle =
-      'Tune how many replies or scenes you want each day.';
-  static const String profileActionLogout = 'Log out';
-  static const String profileActionLogoutSubtitle =
-      'Sign out safely from this device.';
+  static String get profileActionSavedWords => 'profileActionSavedWords'.tr;
+  static String get profileActionSavedWordsSubtitle =>
+      'profileActionSavedWordsSubtitle'.tr;
+  static String get profileActionNotifications =>
+      'profileActionNotifications'.tr;
+  static String get profileActionNotificationsSubtitle =>
+      'profileActionNotificationsSubtitle'.tr;
+  static String get profileActionDailyGoal => 'profileActionDailyGoal'.tr;
+  static String get profileActionDailyGoalSubtitle =>
+      'profileActionDailyGoalSubtitle'.tr;
+  static String get profileActionLogout => 'profileActionLogout'.tr;
+  static String get profileActionLogoutSubtitle =>
+      'profileActionLogoutSubtitle'.tr;
 
-  static const String homeTabPractice = 'Practice';
-  static const String homeContinueResumeLabel = 'Continue practice';
-  static const String homeContinueStartLabel = 'Suggested scene';
-  static const String homeContinueStatusActive = 'Session progress';
-  static const String homeContinueStatusReady = 'Ready when you are';
+  static String get homeTabPractice => 'homeTabPractice'.tr;
+  static String get homeContinueResumeLabel => 'homeContinueResumeLabel'.tr;
+  static String get homeContinueStartLabel => 'homeContinueStartLabel'.tr;
+  static String get homeContinueStatusActive => 'homeContinueStatusActive'.tr;
+  static String get homeContinueStatusReady => 'homeContinueStatusReady'.tr;
 
-  static const String scenesSearchHint = 'Search a scene, place, or goal';
-  static const String scenesRecommendedSection = 'Recommended for you';
-  static const String scenesLibrarySection = 'Scene library';
-  static const String scenesViewDetails = 'View details';
-  static const String scenesStartLabel = 'Start';
-  static const String scenesFilterAll = 'All';
-  static const String scenesDifficultyAll = 'Any level';
-  static const String scenesHeroEyebrow = 'Scene discovery';
-  static const String scenesHeroSubtitle =
-      'Browse calm, role-based situations and choose the next conversation that matches your goal.';
-  static const String scenesHeroChipVoice = 'Voice-ready layout';
-  static const String scenesHeroChipLibrary = 'Contextual roleplays';
-  static const String scenesHeroStatScenes = 'Scenes';
-  static const String scenesHeroStatActive = 'Active';
+  static String get scenesSearchHint => 'scenesSearchHint'.tr;
+  static String get scenesRecommendedSection => 'scenesRecommendedSection'.tr;
+  static String get scenesLibrarySection => 'scenesLibrarySection'.tr;
+  static String get scenesViewDetails => 'scenesViewDetails'.tr;
+  static String get scenesStartLabel => 'scenesStartLabel'.tr;
+  static String get scenesFilterAll => 'scenesFilterAll'.tr;
+  static String get scenesDifficultyAll => 'scenesDifficultyAll'.tr;
+  static String get scenesHeroEyebrow => 'scenesHeroEyebrow'.tr;
+  static String get scenesHeroSubtitle => 'scenesHeroSubtitle'.tr;
+  static String get scenesHeroChipVoice => 'scenesHeroChipVoice'.tr;
+  static String get scenesHeroChipLibrary => 'scenesHeroChipLibrary'.tr;
+  static String get scenesHeroStatScenes => 'scenesHeroStatScenes'.tr;
+  static String get scenesHeroStatActive => 'scenesHeroStatActive'.tr;
 
-  static const String practiceTabTitle = 'Practice';
-  static const String practiceResumeTitle = 'Resume current session';
-  static const String practiceResumeSubtitle =
-      'Jump back into your active roleplay with the AI partner waiting for your next reply.';
-  static const String practiceResumeButton = 'Continue session';
-  static const String practiceBrowseScenesButton = 'Browse scenes';
-  static const String practiceEmptyTitle = 'Start your next conversation';
-  static const String practiceEmptySubtitle =
-      'Choose a scene to begin a focused English practice session. We will keep the UI voice-ready from the start.';
-  static const String practiceHeroEyebrow = 'Practice shell';
-  static const String practiceHeroSubtitle =
-      'Keep a clean entry point for active sessions, focused resumes, and your next voice-ready conversation.';
-  static const String practiceHeroChipActive = 'Session active';
-  static const String practiceHeroChipIdle = 'No active session';
-  static const String practiceHeroStatTurns = 'Turns';
-  static const String practiceHeroStatMode = 'Mode';
-  static const String practiceMissionLabel = 'Mission';
-  static const String practiceProgressLabel = 'Progress';
-  static const String practiceStateActive = 'Active now';
+  static String get practiceTabTitle => 'practiceTabTitle'.tr;
+  static String get practiceResumeTitle => 'practiceResumeTitle'.tr;
+  static String get practiceResumeSubtitle => 'practiceResumeSubtitle'.tr;
+  static String get practiceResumeButton => 'practiceResumeButton'.tr;
+  static String get practiceBrowseScenesButton =>
+      'practiceBrowseScenesButton'.tr;
+  static String get practiceEmptyTitle => 'practiceEmptyTitle'.tr;
+  static String get practiceEmptySubtitle => 'practiceEmptySubtitle'.tr;
+  static String get practiceHeroEyebrow => 'practiceHeroEyebrow'.tr;
+  static String get practiceHeroSubtitle => 'practiceHeroSubtitle'.tr;
+  static String get practiceHeroChipActive => 'practiceHeroChipActive'.tr;
+  static String get practiceHeroChipIdle => 'practiceHeroChipIdle'.tr;
+  static String get practiceHeroStatTurns => 'practiceHeroStatTurns'.tr;
+  static String get practiceHeroStatMode => 'practiceHeroStatMode'.tr;
+  static String get practiceMissionLabel => 'practiceMissionLabel'.tr;
+  static String get practiceProgressLabel => 'practiceProgressLabel'.tr;
+  static String get practiceStateActive => 'practiceStateActive'.tr;
 
-  static const String sceneDetailMissionTitle = 'Mission focus';
-  static const String sceneDetailCharacterTitle = 'AI partner';
-  static const String sceneDetailVocabularyTitle = 'Vocabulary preview';
-  static const String sceneDetailSceneMetaTitle = 'What you will practice';
-  static const String sceneDetailStartButton = 'Start Practice';
-  static const String sceneDetailContinueButton = 'Continue Practice';
-  static const String sceneDetailResumeCurrentButton = 'Resume Current Session';
-  static const String sceneDetailStartNewButton = 'Start This Scene Instead';
-  static const String sceneDetailConflictTitle =
-      'Another session is already active';
-  static const String sceneDetailConflictSubtitle =
-      'You can resume the current practice or start a fresh attempt for this scene.';
-  static const String sceneDetailAiBadge = 'AI Partner';
+  static String get vocabularyTabTitle => 'vocabularyTabTitle'.tr;
+  static String get vocabularyTabSubtitle => 'vocabularyTabSubtitle'.tr;
+  static String get vocabularyStickyMastered => 'vocabularyStickyMastered'.tr;
+  static String get vocabularyStickyDecks => 'vocabularyStickyDecks'.tr;
+  static String get vocabularyStickyDue => 'vocabularyStickyDue'.tr;
+  static String get vocabularyEmptyTitle => 'vocabularyEmptyTitle'.tr;
+  static String get vocabularyEmptySubtitle => 'vocabularyEmptySubtitle'.tr;
+  static String get vocabularyDeckWordsLabel => 'vocabularyDeckWordsLabel'.tr;
+  static String get vocabularyDeckDueLabel => 'vocabularyDeckDueLabel'.tr;
+  static String get vocabularyDeckDoneLabel => 'vocabularyDeckDoneLabel'.tr;
+  static String get vocabularyDeckCompleted => 'vocabularyDeckCompleted'.tr;
+  static String get vocabularyStageReadyLabel => 'vocabularyStageReadyLabel'.tr;
+  static String get vocabularyStageFlipHint => 'vocabularyStageFlipHint'.tr;
+  static String get vocabularyStageShowSample => 'vocabularyStageShowSample'.tr;
+  static String get vocabularyStageHideSample => 'vocabularyStageHideSample'.tr;
+  static String get vocabularyStagePronunciation =>
+      'vocabularyStagePronunciation'.tr;
+  static String get vocabularyStageMeaning => 'vocabularyStageMeaning'.tr;
+  static String get vocabularyStagePartOfSpeech =>
+      'vocabularyStagePartOfSpeech'.tr;
+  static String get vocabularyStageExample => 'vocabularyStageExample'.tr;
+  static String get vocabularyStageHard => 'vocabularyStageHard'.tr;
+  static String get vocabularyStageDone => 'vocabularyStageDone'.tr;
+  static String get vocabularyStageCompleteTitle =>
+      'vocabularyStageCompleteTitle'.tr;
+  static String get vocabularyStageCompleteSubtitle =>
+      'vocabularyStageCompleteSubtitle'.tr;
+  static String get vocabularyStageCompleteButton =>
+      'vocabularyStageCompleteButton'.tr;
+  static String get vocabularyReviewError => 'vocabularyReviewError'.tr;
+  static String get vocabularySpeechError => 'vocabularySpeechError'.tr;
 
-  static const String practiceHeaderTitle = 'Practice session';
-  static const String practiceHintButton = 'Hint';
-  static const String practiceLeaveButton = 'Leave';
-  static const String practiceEndButton = 'End';
-  static const String practiceTranscriptTitle = 'Transcript';
-  static const String practiceTranscriptShow = 'Show transcript';
-  static const String practiceTranscriptHide = 'Hide transcript';
-  static const String practiceCaptionAi = 'AI';
-  static const String practiceCaptionYou = 'You';
-  static const String practiceComposerHint = 'Type your next reply';
-  static const String practiceSendLabel = 'Send';
-  static const String practiceVoiceComingSoon = 'Voice mode soon';
-  static const String practiceControlHint = 'Hint';
-  static const String practiceControlMic = 'Mic';
-  static const String practiceControlEnd = 'Finish';
-  static const String practiceStateIdle = 'Idle';
-  static const String practiceStateListening = 'Listening';
-  static const String practiceStateThinking = 'Thinking';
-  static const String practiceStateSpeaking = 'Speaking';
-  static const String practiceStatePaused = 'Paused';
-  static const String practiceStateTyping = 'Typing';
-  static const String practiceHintSnackbar =
-      'Focus on the mission and keep the reply short, natural, and confident.';
-  static const String practiceVoiceSnackbar =
-      'Voice-first controls are prepared next. For now, keep practicing with text.';
-  static const String practiceLeaveSnackbar =
-      'The current session was marked as abandoned.';
+  static String get sceneDetailMissionTitle => 'sceneDetailMissionTitle'.tr;
+  static String get sceneDetailCharacterTitle => 'sceneDetailCharacterTitle'.tr;
+  static String get sceneDetailVocabularyTitle =>
+      'sceneDetailVocabularyTitle'.tr;
+  static String get sceneDetailSceneMetaTitle => 'sceneDetailSceneMetaTitle'.tr;
+  static String get sceneDetailStartButton => 'sceneDetailStartButton'.tr;
+  static String get sceneDetailContinueButton => 'sceneDetailContinueButton'.tr;
+  static String get sceneDetailResumeCurrentButton =>
+      'sceneDetailResumeCurrentButton'.tr;
+  static String get sceneDetailStartNewButton => 'sceneDetailStartNewButton'.tr;
+  static String get sceneDetailConflictTitle => 'sceneDetailConflictTitle'.tr;
+  static String get sceneDetailConflictSubtitle =>
+      'sceneDetailConflictSubtitle'.tr;
+  static String get sceneDetailAiBadge => 'sceneDetailAiBadge'.tr;
 
-  static const String sessionResultTitle = 'Session complete';
-  static const String sessionResultSubtitle =
-      'Nice work. Here is the clean snapshot of what moved forward in this scene.';
-  static const String sessionResultXpLabel = 'XP earned';
-  static const String sessionResultScoresTitle = 'Performance snapshot';
-  static const String sessionResultGrammar = 'Grammar';
-  static const String sessionResultVocabulary = 'Vocabulary';
-  static const String sessionResultNaturalness = 'Naturalness';
-  static const String sessionResultTranscriptTitle = 'Transcript highlights';
-  static const String sessionResultPrimaryButton = 'Back to home';
-  static const String sessionResultSecondaryButton = 'View scene again';
+  static String get practiceHeaderTitle => 'practiceHeaderTitle'.tr;
+  static String get practiceHintButton => 'practiceHintButton'.tr;
+  static String get practiceLeaveButton => 'practiceLeaveButton'.tr;
+  static String get practiceEndButton => 'practiceEndButton'.tr;
+  static String get practiceTranscriptTitle => 'practiceTranscriptTitle'.tr;
+  static String get practiceTranscriptShow => 'practiceTranscriptShow'.tr;
+  static String get practiceTranscriptHide => 'practiceTranscriptHide'.tr;
+  static String get practiceCaptionAi => 'practiceCaptionAi'.tr;
+  static String get practiceCaptionYou => 'practiceCaptionYou'.tr;
+  static String get practiceComposerHint => 'practiceComposerHint'.tr;
+  static String get practiceSendLabel => 'practiceSendLabel'.tr;
+  static String get practiceVoiceComingSoon => 'practiceVoiceComingSoon'.tr;
+  static String get practiceControlHint => 'practiceControlHint'.tr;
+  static String get practiceControlMic => 'practiceControlMic'.tr;
+  static String get practiceControlEnd => 'practiceControlEnd'.tr;
+  static String get practiceStateIdle => 'practiceStateIdle'.tr;
+  static String get practiceStateListening => 'practiceStateListening'.tr;
+  static String get practiceStateThinking => 'practiceStateThinking'.tr;
+  static String get practiceStateSpeaking => 'practiceStateSpeaking'.tr;
+  static String get practiceStatePaused => 'practiceStatePaused'.tr;
+  static String get practiceStateTyping => 'practiceStateTyping'.tr;
+  static String get practiceHintSnackbar => 'practiceHintSnackbar'.tr;
+  static String get practiceVoiceSnackbar => 'practiceVoiceSnackbar'.tr;
+  static String get practiceLeaveSnackbar => 'practiceLeaveSnackbar'.tr;
+
+  static String get sessionResultTitle => 'sessionResultTitle'.tr;
+  static String get sessionResultSubtitle => 'sessionResultSubtitle'.tr;
+  static String get sessionResultXpLabel => 'sessionResultXpLabel'.tr;
+  static String get sessionResultScoresTitle => 'sessionResultScoresTitle'.tr;
+  static String get sessionResultGrammar => 'sessionResultGrammar'.tr;
+  static String get sessionResultVocabulary => 'sessionResultVocabulary'.tr;
+  static String get sessionResultNaturalness => 'sessionResultNaturalness'.tr;
+  static String get sessionResultTranscriptTitle =>
+      'sessionResultTranscriptTitle'.tr;
+  static String get sessionResultPrimaryButton =>
+      'sessionResultPrimaryButton'.tr;
+  static String get sessionResultSecondaryButton =>
+      'sessionResultSecondaryButton'.tr;
 }

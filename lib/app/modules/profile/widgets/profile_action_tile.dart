@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../data/models/profile_model.dart';
+import '../../../core/utils/scenio_alerts.dart';
 import '../../home/widgets/scenio_icon_badge.dart';
 
 class ProfileActionTile extends StatelessWidget {
@@ -22,13 +23,13 @@ class ProfileActionTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         onTap: () {
-          Get.snackbar(
-            action.title,
-            'This profile action will be connected next.',
-            snackPosition: SnackPosition.TOP,
-            margin: const EdgeInsets.all(AppDimensions.lg),
-            backgroundColor: Colors.white,
-            colorText: AppColors.textPrimary,
+          if (action.id == 'language') {
+            _showLanguageBottomSheet(context);
+            return;
+          }
+          ScenioAlert.show(
+            title: action.title,
+            message: 'This profile action will be connected next.',
           );
         },
         child: Padding(
@@ -67,6 +68,43 @@ class ProfileActionTile extends StatelessWidget {
               Icon(Icons.chevron_right_rounded, color: AppColors.primary300),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppDimensions.xl),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusXl)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text('Language Settings', style: AppTextStyles.h3),
+            const SizedBox(height: AppDimensions.lg),
+            ListTile(
+              title: const Text('English (US)'),
+              trailing: Get.locale?.languageCode == 'en' ? Icon(Icons.check_circle, color: AppColors.primary700) : null,
+              onTap: () {
+                Get.updateLocale(const Locale('en', 'US'));
+                Get.back();
+              },
+            ),
+            ListTile(
+              title: const Text('Tiếng Việt'),
+              trailing: Get.locale?.languageCode == 'vi' ? Icon(Icons.check_circle, color: AppColors.primary700) : null,
+              onTap: () {
+                Get.updateLocale(const Locale('vi', 'VN'));
+                Get.back();
+              },
+            ),
+            const SizedBox(height: AppDimensions.xxl),
+          ],
         ),
       ),
     );

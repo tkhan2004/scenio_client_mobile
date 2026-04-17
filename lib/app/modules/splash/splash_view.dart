@@ -57,11 +57,11 @@ class SplashView extends GetView<SplashViewModel> {
           SafeArea(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: AppDimensions.xxxl,
                 ),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 280),
+                  constraints: BoxConstraints(maxWidth: 280),
                   child: SvgPicture.asset(
                     AppStrings.splashOnboardingSampleAsset,
                     fit: BoxFit.contain,

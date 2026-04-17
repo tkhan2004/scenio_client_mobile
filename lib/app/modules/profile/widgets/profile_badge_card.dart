@@ -14,6 +14,7 @@ class ProfileBadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 176,
+      height: 240,
       padding: const EdgeInsets.all(AppDimensions.lg),
       decoration: BoxDecoration(
         color: badge.isEarned ? Colors.white : AppColors.primary50,
@@ -33,7 +34,7 @@ class ProfileBadgeCard extends StatelessWidget {
             size: 44,
           ),
           const SizedBox(height: AppDimensions.md),
-          Text(badge.title, style: AppTextStyles.h3),
+          Text(badge.title, style: AppTextStyles.h3, maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: AppDimensions.xs),
           Text(
             badge.description,
@@ -43,7 +44,7 @@ class ProfileBadgeCard extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: AppDimensions.md),
+          const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.md,

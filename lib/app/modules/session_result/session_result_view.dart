@@ -56,7 +56,7 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                 controller.result.sceneTitle,
                 style: AppTextStyles.displayLarge,
               ),
-              const SizedBox(height: AppDimensions.xs),
+              SizedBox(height: AppDimensions.xs),
               Text(
                 AppStrings.sessionResultSubtitle,
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -102,12 +102,12 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                   ],
                 ),
               ),
-              const SizedBox(height: AppDimensions.xl),
+              SizedBox(height: AppDimensions.xl),
               Text(
                 AppStrings.sessionResultScoresTitle,
                 style: AppTextStyles.h2,
               ),
-              const SizedBox(height: AppDimensions.md),
+              SizedBox(height: AppDimensions.md),
               Row(
                 children: <Widget>[
                   Expanded(
@@ -117,7 +117,7 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                       tint: AppColors.primary700,
                     ),
                   ),
-                  const SizedBox(width: AppDimensions.md),
+                  SizedBox(width: AppDimensions.md),
                   Expanded(
                     child: _ScoreCard(
                       label: AppStrings.sessionResultVocabulary,
@@ -125,7 +125,7 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                       tint: AppColors.accent500,
                     ),
                   ),
-                  const SizedBox(width: AppDimensions.md),
+                  SizedBox(width: AppDimensions.md),
                   Expanded(
                     child: _ScoreCard(
                       label: AppStrings.sessionResultNaturalness,
@@ -215,7 +215,7 @@ class SessionResultView extends GetView<SessionResultViewModel> {
             children: <Widget>[
               ElevatedButton(
                 onPressed: () => Get.offAllNamed(Routes.home),
-                child: const Text(AppStrings.sessionResultPrimaryButton),
+                child: Text(AppStrings.sessionResultPrimaryButton),
               ),
               const SizedBox(height: AppDimensions.sm),
               OutlinedButton(
@@ -229,7 +229,7 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                     nextVm.openSceneDetails(scene);
                   });
                 },
-                child: const Text(AppStrings.sessionResultSecondaryButton),
+                child: Text(AppStrings.sessionResultSecondaryButton),
               ),
             ],
           ),

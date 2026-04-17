@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/scenio_alerts.dart';
 import '../../routes/app_routes.dart';
 
 enum AuthMode { login, register }
@@ -206,13 +206,9 @@ class AuthViewModel extends GetxController {
   }
 
   void _showNotice(String message) {
-    Get.snackbar(
-      AppStrings.appName,
-      message,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(16),
-      backgroundColor: AppColors.primary800,
-      colorText: Colors.white,
+    ScenioAlert.show(
+      title: 'Scenio',
+      message: message,
     );
   }
 

@@ -83,13 +83,13 @@ class OnboardingView extends GetView<OnboardingViewModel> {
                       currentIndex: controller.currentIndex,
                       pageCount: controller.pageCount,
                     ),
-                    const SizedBox(height: AppDimensions.xl),
+                    SizedBox(height: AppDimensions.xl),
                     _PrimaryOnboardingButton(
                       label: AppStrings.onboardingPrimaryButton,
                       onPressed: controller.getStarted,
                     ),
                     if (!controller.isLastPage) ...<Widget>[
-                      const SizedBox(height: AppDimensions.md),
+                      SizedBox(height: AppDimensions.md),
                       _SecondaryOnboardingButton(
                         label: AppStrings.onboardingSecondaryButton,
                         onPressed: controller.nextPage,

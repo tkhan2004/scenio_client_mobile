@@ -60,12 +60,12 @@ class RegisterFooter extends StatelessWidget {
           transitionBuilder: _buildRegisterFadeTransition,
           child: isStepOne
               ? AuthPrimaryButton(
-                  key: const ValueKey<String>('register_footer_next'),
+                  key: ValueKey<String>('register_footer_next'),
                   label: AppStrings.authNextButton,
                   onPressed: viewModel.nextRegisterStep,
                 )
               : Row(
-                  key: const ValueKey<String>('register_footer_submit'),
+                  key: ValueKey<String>('register_footer_submit'),
                   children: <Widget>[
                     Expanded(
                       child: AuthSecondaryButton(
@@ -73,7 +73,7 @@ class RegisterFooter extends StatelessWidget {
                         onPressed: viewModel.previousRegisterStep,
                       ),
                     ),
-                    const SizedBox(width: AppDimensions.md),
+                    SizedBox(width: AppDimensions.md),
                     Expanded(
                       child: AuthPrimaryButton(
                         label: AppStrings.authRegisterButton,
@@ -124,7 +124,7 @@ class RegisterProgressHeader extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: AppDimensions.xs),
+        SizedBox(height: AppDimensions.xs),
         Text(
           '${AppStrings.authRegisterStepLabel} ${currentStep + 1}/$totalSteps',
           style: AppTextStyles.labelMedium.copyWith(
@@ -191,7 +191,7 @@ class _RegisterStepOneFields extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: AppDimensions.md),
+            SizedBox(width: AppDimensions.md),
             Expanded(
               child: _LabeledField(
                 label: AppStrings.authLastNameLabel,
@@ -206,7 +206,7 @@ class _RegisterStepOneFields extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppDimensions.md),
+        SizedBox(height: AppDimensions.md),
         _LabeledField(
           label: AppStrings.authEmailLabel,
           child: AuthTextField(
@@ -218,7 +218,7 @@ class _RegisterStepOneFields extends StatelessWidget {
             autofillHints: const <String>[AutofillHints.email],
           ),
         ),
-        const SizedBox(height: AppDimensions.md),
+        SizedBox(height: AppDimensions.md),
         _LabeledField(
           label: AppStrings.authPhoneLabel,
           child: AuthTextField(
@@ -227,11 +227,11 @@ class _RegisterStepOneFields extends StatelessWidget {
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
             validator: viewModel.validatePhone,
-            prefix: const _PhonePrefix(),
+            prefix: _PhonePrefix(),
             autofillHints: const <String>[AutofillHints.telephoneNumber],
           ),
         ),
-        const SizedBox(height: AppDimensions.md),
+        SizedBox(height: AppDimensions.md),
         _LabeledField(
           label: AppStrings.authPasswordLabel,
           child: Obx(
@@ -412,12 +412,12 @@ class _PhonePrefix extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: AppDimensions.lg, right: 6),
+      padding: EdgeInsets.only(left: AppDimensions.lg, right: 6),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text('VN', style: AppTextStyles.labelLarge),
-          const SizedBox(width: AppDimensions.xs),
+          SizedBox(width: AppDimensions.xs),
           Text(AppStrings.authPhoneCode, style: AppTextStyles.bodyMedium),
           const SizedBox(width: AppDimensions.xs),
           const Icon(
