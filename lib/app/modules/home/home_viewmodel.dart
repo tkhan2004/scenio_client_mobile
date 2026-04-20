@@ -76,14 +76,14 @@ class HomeViewModel extends GetxController {
       activeIcon: Icons.theater_comedy_rounded,
     ),
     HomeTabItem(
-      label: AppStrings.homeTabVocabulary,
-      icon: Icons.layers_outlined,
-      activeIcon: Icons.layers_rounded,
-    ),
-    HomeTabItem(
       label: AppStrings.homeTabPractice,
       icon: Icons.graphic_eq_rounded,
       activeIcon: Icons.graphic_eq_rounded,
+    ),
+    HomeTabItem(
+      label: AppStrings.homeTabVocabulary,
+      icon: Icons.layers_outlined,
+      activeIcon: Icons.layers_rounded,
     ),
     HomeTabItem(
       label: AppStrings.homeTabProfile,

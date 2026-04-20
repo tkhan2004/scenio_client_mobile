@@ -13,8 +13,6 @@ class ProfileBadgeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 176,
-      height: 240,
       padding: const EdgeInsets.all(AppDimensions.lg),
       decoration: BoxDecoration(
         color: badge.isEarned ? Colors.white : AppColors.primary50,
@@ -25,26 +23,32 @@ class ProfileBadgeCard extends StatelessWidget {
               : AppColors.primary200.withValues(alpha: 0.92),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           ScenioIconBadge(
             icon: badge.icon,
             tint: badge.isEarned ? AppColors.accent500 : AppColors.primary300,
             size: 44,
           ),
-          const SizedBox(height: AppDimensions.md),
-          Text(badge.title, style: AppTextStyles.h3, maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            badge.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+          const SizedBox(width: AppDimensions.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(badge.title, style: AppTextStyles.h3),
+                const SizedBox(height: AppDimensions.xs),
+                Text(
+                  badge.description,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: AppDimensions.md),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.md,

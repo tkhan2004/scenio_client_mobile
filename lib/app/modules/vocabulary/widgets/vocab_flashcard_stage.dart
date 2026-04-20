@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -21,83 +23,116 @@ class VocabularyFlashcardStage extends GetView<VocabularyViewModel> {
         if (didPop) return;
         await controller.closeDeckStage();
       },
-      child: Material(
-        color: Colors.transparent,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.lg),
-            child: Obx(() {
-              final deck = controller.activeDeck.value;
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 24.0, sigmaY: 24.0),
+          child: Container(
+            color: AppColors.primary900.withValues(alpha: 0.24),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimensions.lg),
+                child: Obx(() {
+                  final deck = controller.activeDeck.value;
 
-              if (deck == null) {
-                return const SizedBox.shrink();
-              }
+                  if (deck == null) {
+                    return const SizedBox.shrink();
+                  }
 
-              return Column(
-                children: <Widget>[
-                  _StageTopBar(
-                    title: deck.title,
-                    progressLabel: controller.currentReviewLabel,
-                    progress: controller.currentReviewProgress,
-                    onClose: controller.closeDeckStage,
-                  ),
-                  const SizedBox(height: AppDimensions.xl),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      child: controller.currentCard == null
-                          ? const _StageCompletedView()
-                          : _FlashcardBody(
-                              key: ValueKey<String>(controller.currentCard!.id),
-                              card: controller.currentCard!,
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.lg),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    child: controller.currentCard == null
-                        ? SizedBox(
-                            key: const ValueKey<String>('complete-action'),
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: controller.closeDeckStage,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.primary800,
-                                minimumSize: const Size(
-                                  double.infinity,
-                                  AppDimensions.buttonHeight,
+                  return Column(
+                    children: <Widget>[
+                      _StageTopBar(
+                        title: deck.title,
+                        progressLabel: controller.currentReviewLabel,
+                        progress: controller.currentReviewProgress,
+                        onClose: controller.closeDeckStage,
+                      ),
+                      const SizedBox(height: AppDimensions.xl),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          switchInCurve: Curves.easeOutBack,
+                          switchOutCurve: Curves.easeInBack,
+                          transitionBuilder: (child, animation) {
+                            // Check for the specific key we assigned to the success view
+                            final bool isSuccess =
+                                child.key ==
+                                const ValueKey<String>('stage-complete');
+
+                            if (isSuccess) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(
+                                    begin: 0.8,
+                                    end: 1.0,
+                                  ).animate(animation),
+                                  child: child,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppDimensions.radiusFull,
+                              );
+                            }
+
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, 0.1),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: ScaleTransition(
+                                  scale: Tween<double>(
+                                    begin: 0.92,
+                                    end: 1.0,
+                                  ).animate(animation),
+                                  child: child,
+                                ),
+                              ),
+                            );
+                          },
+                          child: controller.currentCard == null
+                              ? const _StageCompletedView(
+                                  key: ValueKey<String>('stage-complete'),
+                                )
+                              : _FlashcardBody(
+                                  key: ValueKey<String>(
+                                    controller.currentCard!.id,
                                   ),
+                                  card: controller.currentCard!,
                                 ),
-                              ),
-                              child: Text(
-                                AppStrings.vocabularyStageCompleteButton,
-                                style: AppTextStyles.labelLarge.copyWith(
-                                  color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: AppDimensions.lg),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: controller.currentCard == null
+                            ? SizedBox(
+                                key: const ValueKey<String>('complete-action'),
+                                width: double.infinity,
+                                child: _GlassButton(
+                                  label:
+                                      AppStrings.vocabularyStageCompleteButton,
+                                  icon: Icons.done_all_rounded,
+                                  color: AppColors.primary500,
+                                  onTap: controller.closeDeckStage,
+                                  isFilled: true,
                                 ),
+                              )
+                            : controller.isCardFront.value
+                            ? const _FlipHintFooter(
+                                key: ValueKey<String>('flip-hint'),
+                              )
+                            : _ReviewActionBar(
+                                key: const ValueKey<String>('review-actions'),
+                                isBusy: controller.isSubmittingReview.value,
+                                onHard: controller.markCurrentCardHard,
+                                onDone: controller.markCurrentCardDone,
                               ),
-                            ),
-                          )
-                        : controller.isCardFront.value
-                        ? const _FlipHintFooter(
-                            key: ValueKey<String>('flip-hint'),
-                          )
-                        : _ReviewActionBar(
-                            key: const ValueKey<String>('review-actions'),
-                            isBusy: controller.isSubmittingReview.value,
-                            onHard: controller.markCurrentCardHard,
-                            onDone: controller.markCurrentCardDone,
-                          ),
-                  ),
-                ],
-              );
-            }),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ),
@@ -123,9 +158,9 @@ class _StageTopBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: <Widget>[
@@ -249,18 +284,29 @@ class _FlashcardFront extends GetView<VocabularyViewModel> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.xxl),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: <Color>[Colors.white, AppColors.primary50],
+          colors: <Color>[
+            Colors.white.withValues(alpha: 0.9),
+            Colors.white.withValues(alpha: 0.7),
+          ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.6),
+          width: 1.5,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppColors.primary900.withValues(alpha: 0.12),
-            blurRadius: 28,
-            offset: const Offset(0, 18),
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
+          BoxShadow(
+            color: AppColors.primary900.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -386,11 +432,9 @@ class _FrontActionChip extends StatelessWidget {
             vertical: AppDimensions.md,
           ),
           decoration: BoxDecoration(
-            color: AppColors.primary50,
+            color: Colors.white.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-            border: Border.all(
-              color: AppColors.primary200.withValues(alpha: 0.9),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -434,16 +478,16 @@ class _FlashcardBack extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: <Color>[
             Colors.white,
-            AppColors.secondary50.withValues(alpha: 0.75),
+            AppColors.secondary50.withValues(alpha: 0.6),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
+        border: Border.all(color: Colors.white, width: 2),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppColors.primary900.withValues(alpha: 0.12),
-            blurRadius: 28,
-            offset: const Offset(0, 18),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 32,
+            offset: const Offset(0, 24),
           ),
         ],
       ),
@@ -566,10 +610,8 @@ class _FlipHintFooter extends StatelessWidget {
     return Container(
       key: key,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.lg,
-        vertical: AppDimensions.md,
-      ),
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
@@ -612,47 +654,22 @@ class _ReviewActionBar extends StatelessWidget {
       key: key,
       children: <Widget>[
         Expanded(
-          child: OutlinedButton(
-            onPressed: isBusy ? null : () => onHard(),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(
-                double.infinity,
-                AppDimensions.buttonHeight,
-              ),
-              side: const BorderSide(color: AppColors.accent200),
-              backgroundColor: AppColors.accent50.withValues(alpha: 0.9),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-              ),
-            ),
-            child: Text(
-              AppStrings.vocabularyStageHard,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.accent500,
-              ),
-            ),
+          child: _GlassButton(
+            label: AppStrings.vocabularyStageHard,
+            icon: Icons.refresh_rounded,
+            color: AppColors.accent500,
+            onTap: isBusy ? null : onHard,
+            isFilled: true,
           ),
         ),
         const SizedBox(width: AppDimensions.md),
         Expanded(
-          flex: 2,
-          child: FilledButton(
-            onPressed: isBusy ? null : () => onDone(),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(
-                double.infinity,
-                AppDimensions.buttonHeight,
-              ),
-              backgroundColor: AppColors.secondary500,
-              disabledBackgroundColor: AppColors.secondary300,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-              ),
-            ),
-            child: Text(
-              AppStrings.vocabularyStageDone,
-              style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
-            ),
+          child: _GlassButton(
+            label: AppStrings.vocabularyStageDone,
+            icon: Icons.check_circle_rounded,
+            color: AppColors.secondary500,
+            onTap: isBusy ? null : onDone,
+            isFilled: true,
           ),
         ),
       ],
@@ -660,64 +677,187 @@ class _ReviewActionBar extends StatelessWidget {
   }
 }
 
-class _StageCompletedView extends StatelessWidget {
-  const _StageCompletedView();
+class _GlassButton extends StatelessWidget {
+  const _GlassButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+    this.isFilled = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onTap;
+  final bool isFilled;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        key: const ValueKey<String>('deck-complete'),
-        width: double.infinity,
-        constraints: const BoxConstraints(maxWidth: 420),
-        padding: const EdgeInsets.all(AppDimensions.xxl),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: <Color>[
-              Colors.white,
-              AppColors.secondary50.withValues(alpha: 0.88),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        onTap: () {
+          if (onTap != null) {
+            HapticFeedback.lightImpact();
+            onTap!();
+          }
+        },
+        child: Container(
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+          decoration: BoxDecoration(
+            color: isFilled
+                ? color.withValues(alpha: 0.88)
+                : Colors.white.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+            border: Border.all(
+              color: isFilled
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : color.withValues(alpha: 0.6),
+            ),
+            boxShadow: isFilled
+                ? <BoxShadow>[
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(icon, color: isFilled ? Colors.white : color, size: 20),
+              const SizedBox(width: AppDimensions.xs),
+              Text(
+                label,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: isFilled ? Colors.white : color,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1,
+              ),
             ],
           ),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          border: Border.all(
-            color: AppColors.primary200.withValues(alpha: 0.9),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: AppColors.secondary50,
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              ),
-              child: const Icon(
-                Icons.check_rounded,
-                size: 34,
-                color: AppColors.secondary500,
-              ),
-            ),
-            const SizedBox(height: AppDimensions.lg),
-            Text(
-              AppStrings.vocabularyStageCompleteTitle,
-              style: AppTextStyles.h1,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppDimensions.xs),
-            Text(
-              AppStrings.vocabularyStageCompleteSubtitle,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
         ),
       ),
+    );
+  }
+}
+
+class _StageCompletedView extends StatelessWidget {
+  const _StageCompletedView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TweenAnimationBuilder<double>(
+          duration: const Duration(milliseconds: 1200),
+          tween: Tween(begin: 0.0, end: 1.0),
+          curve: Curves.elasticOut,
+          builder: (context, value, child) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                // Pulse effect
+                if (value > 0.8)
+                  TweenAnimationBuilder<double>(
+                    duration: const Duration(seconds: 2),
+                    tween: Tween(begin: 1.0, end: 1.4),
+                    curve: Curves.easeInOutSine,
+                    builder: (context, pulse, _) {
+                      return Container(
+                        width: 100 * pulse,
+                        height: 100 * pulse,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.secondary500.withValues(
+                              alpha: 0.2 * (1.5 - pulse),
+                            ),
+                            width: 2,
+                          ),
+                        ),
+                      );
+                    },
+                    onEnd:
+                        () {}, // Can be made repeating with a stateful widget, but keeping it simple
+                  ),
+                Transform.scale(
+                  scale: value,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.secondary500,
+                          AppColors.secondary700,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.secondary500.withValues(
+                            alpha: 0.4 * value,
+                          ),
+                          blurRadius: 32,
+                          spreadRadius: 8 * value,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      size: 64 * value,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: AppDimensions.xxl),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 420),
+          padding: const EdgeInsets.all(AppDimensions.xxl),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                AppStrings.vocabularyStageCompleteTitle,
+                style: AppTextStyles.h1.copyWith(color: AppColors.primary900),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppDimensions.xs),
+              Text(
+                AppStrings.vocabularyStageCompleteSubtitle,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

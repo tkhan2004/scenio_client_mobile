@@ -31,13 +31,14 @@ class VocabularyView extends GetView<VocabularyViewModel> {
                   AppDimensions.xxl,
                   AppDimensions.lg,
                 ),
-                child: const _VocabularyIntroHeader(),
-              ),
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _VocabularySummaryHeaderDelegate(
-                controller: controller,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const _VocabularyIntroHeader(),
+                    const SizedBox(height: AppDimensions.xl),
+                    _VocabularyHeroCard(controller: controller),
+                  ],
+                ),
               ),
             ),
             if (isLoading)
@@ -65,30 +66,20 @@ class VocabularyView extends GetView<VocabularyViewModel> {
                   AppDimensions.xxl,
                   bottomPadding,
                 ),
-                sliver: SliverLayoutBuilder(
-                  builder: (BuildContext context, dynamic constraints) {
-                    final double crossAxisExtent = constraints.crossAxisExtent;
-                    final int crossAxisCount = crossAxisExtent >= 760 ? 3 : 2;
-
-                    return SliverGrid(
-                      delegate: SliverChildBuilderDelegate((
-                        BuildContext context,
-                        int index,
-                      ) {
-                        final deck = controller.decks[index];
-                        return VocabDeckCard(
-                          deck: deck,
-                          onTap: () => controller.openDeck(deck),
-                        );
-                      }, childCount: controller.decks.length),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        mainAxisSpacing: AppDimensions.md,
-                        crossAxisSpacing: AppDimensions.md,
-                        childAspectRatio: 0.93,
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((
+                    BuildContext context,
+                    int index,
+                  ) {
+                    final deck = controller.decks[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppDimensions.md),
+                      child: VocabDeckCard(
+                        deck: deck,
+                        onTap: () => controller.openDeck(deck),
                       ),
                     );
-                  },
+                  }, childCount: controller.decks.length),
                 ),
               ),
           ],
@@ -106,21 +97,18 @@ class _VocabularyIntroHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Container(
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: AppColors.primary700,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-          ),
-        ),
-        const SizedBox(height: AppDimensions.sm),
-        Text(
-          AppStrings.vocabularyTabTitle,
-          style: AppTextStyles.displayLarge.copyWith(
-            fontSize: 28,
-            color: AppColors.primary900,
-          ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                AppStrings.vocabularyTabTitle,
+                style: AppTextStyles.displayLarge.copyWith(
+                  fontSize: 28,
+                  color: AppColors.primary900,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: AppDimensions.xs),
         Text(
@@ -134,132 +122,126 @@ class _VocabularyIntroHeader extends StatelessWidget {
   }
 }
 
-class _VocabularySummaryHeaderDelegate extends SliverPersistentHeaderDelegate {
-  const _VocabularySummaryHeaderDelegate({required this.controller});
+class _VocabularyHeroCard extends StatelessWidget {
+  const _VocabularyHeroCard({required this.controller});
 
   final VocabularyViewModel controller;
 
   @override
-  double get minExtent => 104;
-
-  @override
-  double get maxExtent => 104;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Container(
-      color: AppColors.background,
-      padding: const EdgeInsets.fromLTRB(
-        AppDimensions.xxl,
-        AppDimensions.sm,
-        AppDimensions.xxl,
-        AppDimensions.sm,
-      ),
-      child: Obx(
-        () => Container(
-          padding: const EdgeInsets.all(AppDimensions.lg),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                Colors.white,
-                AppColors.primary50.withValues(alpha: 0.9),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border.all(
-              color: AppColors.primary200.withValues(alpha: 0.9),
-            ),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: AppColors.primary700.withValues(alpha: 0.08),
-                blurRadius: 22,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: _SummaryMetric(
-                  label: AppStrings.vocabularyStickyMastered,
-                  value: '${controller.totalMasteredCount}',
-                  tint: AppColors.secondary500,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.md),
-              Expanded(
-                child: _SummaryMetric(
-                  label: AppStrings.vocabularyStickyDecks,
-                  value: '${controller.totalDeckCount}',
-                  tint: AppColors.primary700,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.md),
-              Expanded(
-                child: _SummaryMetric(
-                  label: AppStrings.vocabularyStickyDue,
-                  value: '${controller.totalDueCount}',
-                  tint: AppColors.accent500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _VocabularySummaryHeaderDelegate oldDelegate) {
-    return oldDelegate.controller != controller;
-  }
-}
-
-class _SummaryMetric extends StatelessWidget {
-  const _SummaryMetric({
-    required this.label,
-    required this.value,
-    required this.tint,
-  });
-
-  final String label;
-  final String value;
-  final Color tint;
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.md,
-        vertical: AppDimensions.sm,
-      ),
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            value,
-            style: AppTextStyles.h1.copyWith(color: tint, height: 1.1),
+    return Obx(() {
+      final int totalWords =
+          controller.totalMasteredCount + controller.totalDueCount;
+      final double progress = totalWords > 0
+          ? controller.totalMasteredCount / totalWords
+          : 0.0;
+
+      return Container(
+        padding: const EdgeInsets.all(AppDimensions.xl),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+          border: Border.all(
+            color: AppColors.primary200.withValues(alpha: 0.9),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: AppColors.primary900.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+        child: Row(
+          children: <Widget>[
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 8,
+                    backgroundColor: AppColors.primary50,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.primary500,
+                    ),
+                    strokeCap: StrokeCap.round,
+                  ),
+                  Center(
+                    child: Text(
+                      '${(progress * 100).toInt()}%',
+                      style: AppTextStyles.h2.copyWith(
+                        color: AppColors.primary800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppDimensions.xl),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary50,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.layers_rounded,
+                          size: 16,
+                          color: AppColors.primary700,
+                        ),
+                      ),
+                      const SizedBox(width: AppDimensions.sm),
+                      Expanded(
+                        child: Text(
+                          '${controller.totalDeckCount} ${AppStrings.vocabularyStickyDecks}',
+                          style: AppTextStyles.h3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimensions.md),
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent50.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.local_fire_department_rounded,
+                          size: 16,
+                          color: AppColors.accent500,
+                        ),
+                      ),
+                      const SizedBox(width: AppDimensions.sm),
+                      Expanded(
+                        child: Text(
+                          '${controller.totalDueCount} ${AppStrings.vocabularyStickyDue}',
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 

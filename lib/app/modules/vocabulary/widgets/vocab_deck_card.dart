@@ -15,81 +15,54 @@ class VocabDeckCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[Colors.white, deck.tint.withValues(alpha: 0.14)],
-            ),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border.all(color: deck.tint.withValues(alpha: 0.24)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: deck.tint.withValues(alpha: 0.08),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(AppDimensions.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  width: 82,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: deck.tint.withValues(alpha: 0.16),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppDimensions.radiusLg),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.sm),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    ScenioIconBadge(icon: deck.icon, tint: deck.tint, size: 48),
-                    const Spacer(),
+                    ScenioIconBadge(icon: deck.icon, tint: deck.tint, size: 44),
+                    const SizedBox(width: AppDimensions.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(deck.title, style: AppTextStyles.h3),
+                          const SizedBox(height: 2),
+                          Text(
+                            deck.sceneLabel,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppDimensions.sm),
                     _DeckStatusPill(deck: deck),
                   ],
                 ),
                 const SizedBox(height: AppDimensions.lg),
-                Text(
-                  deck.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.h2.copyWith(height: 1.2),
-                ),
-                const SizedBox(height: AppDimensions.xs),
-                Text(
-                  deck.sceneLabel,
-                  style: AppTextStyles.labelLarge.copyWith(color: deck.tint),
-                ),
-                const SizedBox(height: AppDimensions.xs),
-                Text(
-                  deck.createdLabel,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const Spacer(),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
                   child: LinearProgressIndicator(
                     value: deck.progress,
-                    minHeight: 8,
-                    backgroundColor: AppColors.primary200.withValues(
-                      alpha: 0.7,
-                    ),
+                    minHeight: 6,
+                    backgroundColor: AppColors.primary50,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       deck.isCompleted ? AppColors.secondary500 : deck.tint,
                     ),
@@ -98,14 +71,13 @@ class VocabDeckCard extends StatelessWidget {
                 const SizedBox(height: AppDimensions.sm),
                 Row(
                   children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        '${deck.masteredCount}/${deck.wordsCount} ${AppStrings.vocabularyDeckWordsLabel}',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    Text(
+                      '${deck.masteredCount}/${deck.wordsCount} ${AppStrings.vocabularyDeckWordsLabel}',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
+                    const Spacer(),
                     Text(
                       deck.isCompleted
                           ? AppStrings.vocabularyDeckDoneLabel
@@ -134,10 +106,24 @@ class _DeckStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color tint = deck.isCompleted ? AppColors.secondary500 : deck.tint;
-    final String label = deck.isCompleted
-        ? AppStrings.vocabularyDeckCompleted
-        : '${deck.dueWordsCount} ${AppStrings.vocabularyDeckDueLabel}';
+    if (deck.isCompleted) {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimensions.md,
+          vertical: AppDimensions.sm,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.secondary50,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        ),
+        child: Text(
+          AppStrings.vocabularyDeckCompleted,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: AppColors.secondary500,
+          ),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -145,12 +131,12 @@ class _DeckStatusPill extends StatelessWidget {
         vertical: AppDimensions.sm,
       ),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
+        color: AppColors.primary50,
         borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
       ),
       child: Text(
-        label,
-        style: AppTextStyles.labelMedium.copyWith(color: tint),
+        'Due',
+        style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary800),
       ),
     );
   }

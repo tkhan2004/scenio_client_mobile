@@ -77,22 +77,19 @@ class ProfileView extends GetView<ProfileViewModel> {
             actionLabel: AppStrings.profileBadgesEarnedLabel,
           ),
           const SizedBox(height: AppDimensions.md),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: controller.profileBadges
-                  .map(
-                    (ProfileBadgeData badge) => Padding(
-                      padding: EdgeInsets.only(
-                        right: badge == controller.profileBadges.last
-                            ? 0
-                            : AppDimensions.md,
-                      ),
-                      child: ProfileBadgeCard(badge: badge),
+          Column(
+            children: controller.profileBadges
+                .map(
+                  (ProfileBadgeData badge) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: badge == controller.profileBadges.last
+                          ? 0
+                          : AppDimensions.md,
                     ),
-                  )
-                  .toList(),
-            ),
+                    child: ProfileBadgeCard(badge: badge),
+                  ),
+                )
+                .toList(),
           ),
           SizedBox(height: AppDimensions.xl),
           ProfileSectionTitle(
