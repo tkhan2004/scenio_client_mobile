@@ -26,7 +26,10 @@ class ScenioAlert {
         ),
       ),
       icon: Icon(
-        icon ?? (isError ? Icons.error_outline_rounded : Icons.info_outline_rounded),
+        icon ??
+            (isError
+                ? Icons.error_outline_rounded
+                : Icons.info_outline_rounded),
         color: isError ? AppColors.error : AppColors.accent500,
         size: 28,
       ),
@@ -44,8 +47,9 @@ class ScenioAlert {
       borderWidth: 1.5,
       boxShadows: [
         BoxShadow(
-          color: (isError ? AppColors.error : AppColors.primary500)
-              .withValues(alpha: isError ? 0.2 : 0.1),
+          color: (isError ? AppColors.error : AppColors.primary500).withValues(
+            alpha: isError ? 0.2 : 0.1,
+          ),
           blurRadius: 24,
           offset: const Offset(0, 8),
         ),

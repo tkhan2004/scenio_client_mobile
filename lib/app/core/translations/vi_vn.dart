@@ -29,7 +29,7 @@ const Map<String, String> viVN = {
   'authRegisterPrompt': 'Đã có tài khoản?',
   'authRegisterPromptAction': 'Đăng nhập',
 
-  'authIdentifierLabel': 'Email hoặc Tên đăng nhập',
+  'authIdentifierLabel': 'Email',
   'authIdentifierHint': 'Nhập email của bạn',
   'authPasswordLabel': 'Mật khẩu',
   'authPasswordHint': 'Nhập mật khẩu',
@@ -45,23 +45,18 @@ const Map<String, String> viVN = {
   'authNameHint': 'Nhập tên của bạn',
   'authEmailLabel': 'Email',
   'authEmailHint': 'Nhập email của bạn',
-  'authPhoneLabel': 'Số điện thoại',
-  'authPhoneHint': 'Nhập số điện thoại',
-  'authDateOfBirthLabel': 'Ngày sinh',
-  'authDateOfBirthHint': 'Nhập ngày sinh',
-  'authGenderLabel': 'Giới tính',
-  'authGenderFemale': 'Nữ',
-  'authGenderMale': 'Nam',
-  'authGenderOther': 'Khác',
-
   'authRegisterStepOneTitle': 'Thông tin cơ bản',
   'authRegisterStepOneCaption': 'Bắt đầu với thông tin liên lạc của bạn.',
-  'authRegisterStepTwoTitle': 'Thông tin cá nhân',
-  'authRegisterStepTwoCaption': 'Hoàn thành hồ sơ để bắt đầu.',
+  'authRegisterStepTwoTitle': 'Định hướng học tập',
+  'authRegisterStepTwoCaption':
+      'Chọn cách bạn muốn Scenio gợi ý những ngữ cảnh đầu tiên.',
   'authRegisterStepLabel': 'Bước',
   'authNextButton': 'Tiếp tục',
   'authBackButton': 'Quay lại',
   'authRegisterButton': 'Tạo tài khoản',
+  'authLearningGoalLabel': 'Mục tiêu học',
+  'authStudyFrequencyLabel': 'Tần suất học',
+  'authSelfAssessmentLabel': 'Điểm bạn thấy khó nhất hiện tại',
 
   'authRequiredFieldMessage': 'Trường này là bắt buộc.',
   'authInvalidEmailMessage': 'Vui lòng nhập email hợp lệ.',
@@ -73,6 +68,8 @@ const Map<String, String> viVN = {
   'authForgotPasswordMessage': 'Tính năng Quên mật khẩu sẽ sớm ra mắt.',
   'authGoogleReadyMessage': 'Đăng nhập bằng Google sẽ sớm ra mắt.',
   'authFacebookReadyMessage': 'Đăng nhập bằng Facebook sẽ sớm ra mắt.',
+  'authLevelTestPendingMessage':
+      'Bài kiểm tra trình độ sẽ được nối ở bước tiếp theo. Hiện bạn vẫn có thể vào app để tiếp tục khám phá.',
 
   'homeTabHome': 'Trang chủ',
   'homeTabScenes': 'Ngữ cảnh',
@@ -239,6 +236,172 @@ const Map<String, String> viVN = {
   'practiceMissionLabel': 'Nhiệm vụ chính',
   'practiceProgressLabel': 'Tiến độ',
   'practiceStateActive': 'Đang học',
+  'Create your own practice': 'Tạo buổi luyện riêng',
+  'Shape a conversation around your real goal, role, and context.':
+      'Tạo một cuộc hội thoại bám đúng mục tiêu, vai trò và bối cảnh thật của bạn.',
+  'Start custom practice': 'Bắt đầu custom practice',
+  'You already have an active session. Starting a custom one will replace it.':
+      'Bạn đang có một phiên học hoạt động. Nếu bắt đầu custom practice mới, phiên hiện tại sẽ được thay thế.',
+  'Custom practice': 'Custom practice',
+  'Build a scene around what you really need to say.':
+      'Tạo một ngữ cảnh xoay quanh điều bạn thật sự cần nói.',
+  'Custom practice builder': 'Trình tạo custom practice',
+  'We will guide you one decision at a time so the scene feels clear, focused, and easy to start.':
+      'Chúng tôi sẽ dẫn bạn từng quyết định một để ngữ cảnh rõ ràng, tập trung và dễ bắt đầu hơn.',
+  'Starting session...': 'Đang khởi tạo phiên...',
+  'Back': 'Quay lại',
+  'Continue': 'Tiếp tục',
+  'Step': 'Bước',
+  'of': 'trên',
+  'Quick presets': 'Mẫu bắt đầu nhanh',
+  'Start from a realistic conversation seed.':
+      'Bắt đầu từ một tình huống thực tế để chỉnh lại nhanh hơn.',
+  'Use this preset': 'Dùng mẫu này',
+  'Choose a realistic seed first, then fine-tune it as you move through the steps.':
+      'Hãy chọn một mẫu gần với nhu cầu thật của bạn trước, rồi tinh chỉnh dần qua từng bước.',
+  'Small reminder': 'Gợi ý nhỏ',
+  'Use a preset': 'Dùng mẫu này',
+  'Goal and outcome': 'Mục tiêu và kết quả mong muốn',
+  'Tell Scenio what success looks like for this session.':
+      'Cho Scenio biết một buổi luyện thành công sẽ trông như thế nào.',
+  'Start with the situation you really want to handle well.':
+      'Bắt đầu từ tình huống mà bạn thật sự muốn xử lý tốt hơn.',
+  'Practice goal': 'Mục tiêu buổi luyện',
+  'Summarize the real situation you want to practice':
+      'Tóm tắt ngắn tình huống thật mà bạn muốn luyện.',
+  'Topic summary': 'Tóm tắt tình huống',
+  'For example: a short HR interview for a frontend intern role':
+      'Ví dụ: buổi phỏng vấn HR ngắn cho vị trí frontend intern.',
+  'Success outcome': 'Kết quả mong muốn',
+  'What would make this session feel successful?':
+      'Điều gì sẽ khiến bạn thấy buổi luyện này thành công?',
+  'Conversation setup': 'Thiết lập hội thoại',
+  'Lock the context first so the AI knows how to stay in role.':
+      'Chốt bối cảnh trước để AI giữ vai đúng ngay từ đầu.',
+  'Set the context so the conversation feels believable right away.':
+      'Thiết lập bối cảnh để cuộc trò chuyện nghe tự nhiên và đáng tin ngay từ đầu.',
+  'Context type': 'Loại bối cảnh',
+  'Conversation channel': 'Kênh hội thoại',
+  'Location': 'Địa điểm',
+  'Online meeting, office, airport, clinic...':
+      'Họp online, văn phòng, sân bay, phòng khám...',
+  'Your role': 'Vai trò của bạn',
+  'For example: frontend intern candidate': 'Ví dụ: ứng viên frontend intern.',
+  'Your intent': 'Ý định của bạn',
+  'What are you trying to achieve in this conversation?':
+      'Bạn muốn đạt được điều gì trong cuộc trò chuyện này?',
+  'AI partner': 'Đối tác AI',
+  'Decide who the AI is before you start the session.':
+      'Xác định AI là ai trước khi bạn bắt đầu buổi luyện.',
+  'Shape the AI into the right character before the session starts.':
+      'Định hình AI thành đúng nhân vật trước khi buổi luyện bắt đầu.',
+  'AI role': 'Vai trò của AI',
+  'For example: HR recruiter': 'Ví dụ: HR recruiter.',
+  'AI display name': 'Tên hiển thị của AI',
+  'Choose a friendly name for the AI partner':
+      'Chọn một cái tên dễ nhớ cho đối tác AI.',
+  'AI primary goal': 'Mục tiêu chính của AI',
+  'What should the AI try to achieve in role?':
+      'Trong vai này, AI nên cố gắng đạt điều gì?',
+  'AI behavior style': 'Phong cách hành xử của AI',
+  'For example: calm, professional, a bit challenging':
+      'Ví dụ: bình tĩnh, chuyên nghiệp, hơi thử thách.',
+  'Gender presentation': 'Giới tính thể hiện',
+  'Voice tone': 'Tông giọng',
+  'Accent preference': 'Accent ưu tiên',
+  'British, American, neutral...': 'Anh-Anh, Anh-Mỹ, trung tính...',
+  'Learning focus': 'Trọng tâm học tập',
+  'Keep the session aligned with your current level and coaching need.':
+      'Giữ buổi luyện bám sát trình độ hiện tại và nhu cầu coaching của bạn.',
+  'Tune the coaching level, then launch the session.':
+      'Chỉnh mức độ coaching, rồi bắt đầu buổi luyện.',
+  'Difficulty': 'Độ khó',
+  'Custom instructions': 'Chỉ dẫn bổ sung',
+  'Any special coaching rule or situation detail':
+      'Quy tắc coaching hoặc chi tiết tình huống đặc biệt.',
+  'Special conditions': 'Điều kiện đặc biệt',
+  'Separate quick notes with commas': 'Ngăn các ghi chú nhanh bằng dấu phẩy.',
+  'Please add a bit more detail.': 'Hãy thêm một chút chi tiết nữa.',
+  'Practice a job interview': 'Luyện một buổi phỏng vấn xin việc',
+  'Handle a customer complaint politely':
+      'Xử lý một lời phàn nàn của khách hàng thật lịch sự',
+  'Make an English phone call': 'Thực hành một cuộc gọi bằng tiếng Anh',
+  'A short HR interview for a frontend intern role':
+      'Một buổi phỏng vấn HR ngắn cho vị trí frontend intern',
+  'A phone call to reschedule a clinic appointment':
+      'Một cuộc gọi để đổi lịch hẹn tại phòng khám',
+  'A conversation with airline staff about a delayed bag':
+      'Một cuộc trò chuyện với nhân viên hãng bay về hành lý bị trễ',
+  'Online meeting': 'Cuộc họp online',
+  'Office lobby': 'Sảnh văn phòng',
+  'Airport service desk': 'Quầy hỗ trợ ở sân bay',
+  'On the phone': 'Trong một cuộc gọi điện',
+  'Customer': 'Khách hàng',
+  'Passenger': 'Hành khách',
+  'Student': 'Học sinh / sinh viên',
+  'Explain my situation clearly': 'Giải thích tình huống của tôi thật rõ ràng',
+  'Ask for help politely': 'Xin trợ giúp một cách lịch sự',
+  'Make a good impression': 'Tạo một ấn tượng tốt',
+  'Solve the problem quickly': 'Giải quyết vấn đề nhanh gọn',
+  'Receptionist': 'Lễ tân',
+  'Airline service agent': 'Nhân viên hỗ trợ của hãng bay',
+  'Customer support agent': 'Nhân viên hỗ trợ khách hàng',
+  'Warm and patient': 'Ấm áp và kiên nhẫn',
+  'Professional and direct': 'Chuyên nghiệp và trực diện',
+  'Busy but helpful': 'Bận rộn nhưng vẫn hỗ trợ',
+  'Challenging but fair': 'Khá thử thách nhưng công bằng',
+  'Keep feedback gentle and brief': 'Giữ feedback nhẹ nhàng và ngắn gọn',
+  'Ask short follow-up questions': 'Đặt các câu hỏi nối ngắn gọn',
+  'Use simple English first': 'Ưu tiên dùng tiếng Anh đơn giản trước',
+  'Job interview': 'Phỏng vấn công việc',
+  'HR interview for a frontend intern':
+      'Phỏng vấn HR cho vị trí frontend intern',
+  'Phone call': 'Cuộc gọi điện thoại',
+  'Call to reschedule a medical appointment': 'Gọi điện đổi lịch hẹn khám',
+  'Travel support': 'Hỗ trợ du lịch',
+  'Ask an airline agent to help with a delayed bag':
+      'Nhờ nhân viên hãng bay hỗ trợ hành lý bị trễ',
+  'Interview': 'Phỏng vấn',
+  'Work': 'Công việc',
+  'Travel': 'Du lịch',
+  'Customer service': 'Chăm sóc khách hàng',
+  'Social': 'Xã hội',
+  'Medical': 'Y tế',
+  'Other': 'Khác',
+  'In person': 'Trực tiếp',
+  'Video call': 'Gọi video',
+  'Neutral': 'Trung tính',
+  'Female': 'Nữ',
+  'Male': 'Nam',
+  'Friendly': 'Thân thiện',
+  'Warm': 'Ấm áp',
+  'Calm': 'Điềm tĩnh',
+  'Confident': 'Tự tin',
+  'Formal': 'Trang trọng',
+  'Please complete the session goal first.':
+      'Hãy hoàn thiện phần mục tiêu buổi luyện trước.',
+  'Please describe your role in the conversation.':
+      'Hãy mô tả vai trò của bạn trong cuộc trò chuyện.',
+  'Please define the AI role before continuing.':
+      'Hãy xác định vai trò của AI trước khi tiếp tục.',
+  'A good context makes the AI react more naturally and keeps the scene believable.':
+      'Một bối cảnh tốt giúp AI phản hồi tự nhiên hơn và giữ cho ngữ cảnh đáng tin.',
+  'This is where the scene starts to feel personal: role, name, tone, and attitude.':
+      'Đây là lúc ngữ cảnh bắt đầu mang cảm giác cá nhân hơn: vai trò, tên, tông giọng và thái độ.',
+  'The final step is intentionally light. Just tune the level and any special instruction.':
+      'Bước cuối được giữ nhẹ nhàng có chủ đích. Bạn chỉ cần chỉnh level và chỉ dẫn đặc biệt nếu cần.',
+  'Keep the setting concrete so the AI can ask realistic follow-up questions.':
+      'Hãy giữ bối cảnh cụ thể để AI có thể hỏi tiếp một cách thực tế hơn.',
+  'If this is a phone call or video call, choosing the right channel changes the tone right away.':
+      'Nếu đây là cuộc gọi điện hoặc gọi video, việc chọn đúng kênh sẽ đổi tông cuộc trò chuyện ngay lập tức.',
+  'Pick an AI name that feels human. It makes the roleplay feel less abstract.':
+      'Hãy chọn một cái tên nghe như người thật. Nó giúp roleplay bớt cảm giác trừu tượng.',
+  'Use behavior style to hint whether the AI should be warm, strict, busy, or encouraging.':
+      'Dùng phong cách hành xử để gợi ý AI nên ấm áp, nghiêm túc, bận rộn hay khích lệ.',
+  'Use custom instructions only when you need a special coaching style.':
+      'Chỉ dùng chỉ dẫn bổ sung khi bạn thật sự cần một kiểu coaching đặc biệt.',
+  'You can keep this step simple and still get a strong session.':
+      'Bạn có thể giữ bước này thật đơn giản mà vẫn có một buổi luyện tốt.',
   'vocabularyTabTitle': 'Trạm từ vựng',
   'vocabularyTabSubtitle':
       'Ôn lại từ vựng đã lưu từ các ngữ cảnh thật và dọn gọn từng deck theo đúng mạch học của bạn.',

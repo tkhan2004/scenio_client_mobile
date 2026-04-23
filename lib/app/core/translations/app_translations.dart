@@ -4,8 +4,5 @@ import 'vi_vn.dart';
 
 class AppTranslations extends Translations {
   @override
-  Map<String, Map<String, String>> get keys => {
-        'en_US': enUS,
-        'vi_VN': viVN,
-      };
+  Map<String, Map<String, String>> get keys => {'en_US': enUS, 'vi_VN': viVN};
 }
