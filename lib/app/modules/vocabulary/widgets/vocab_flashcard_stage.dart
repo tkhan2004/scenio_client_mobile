@@ -339,13 +339,15 @@ class _FlashcardFront extends GetView<VocabularyViewModel> {
               height: 1.1,
             ),
           ),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            card.phonetic,
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.primary700,
+          if (card.phonetic.trim().isNotEmpty) ...<Widget>[
+            const SizedBox(height: AppDimensions.xs),
+            Text(
+              card.phonetic,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.primary700,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: AppDimensions.xl),
           Row(
             children: <Widget>[
@@ -505,21 +507,24 @@ class _FlashcardBack extends StatelessWidget {
             card.translation,
             style: AppTextStyles.h1.copyWith(color: AppColors.textPrimary),
           ),
-          const SizedBox(height: AppDimensions.lg),
-          Text(
-            AppStrings.vocabularyStagePartOfSpeech,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.primary700,
+          if (card.partOfSpeech.trim().isNotEmpty) ...<Widget>[
+            const SizedBox(height: AppDimensions.lg),
+            Text(
+              AppStrings.vocabularyStagePartOfSpeech,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.primary700,
+              ),
             ),
-          ),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            card.partOfSpeech,
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
+            const SizedBox(height: AppDimensions.xs),
+            Text(
+              card.partOfSpeech,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
-          ),
-          const SizedBox(height: AppDimensions.xl),
+            const SizedBox(height: AppDimensions.xl),
+          ] else
+            const SizedBox(height: AppDimensions.lg),
           Text(
             AppStrings.vocabularyStageExample,
             style: AppTextStyles.labelMedium.copyWith(

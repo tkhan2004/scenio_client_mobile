@@ -1,10 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_strings.dart';
+import '../../core/network/api_response.dart';
+import '../../core/storage/storage_service.dart';
+import '../../core/utils/scenio_alerts.dart';
+import '../../data/models/custom_practice_model.dart';
+import '../../data/models/home_dashboard_model.dart';
+import '../../data/models/session_flow_model.dart';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/entities/scene_entity.dart';
 import '../../domain/entities/session_entity.dart';
+import '../../domain/entities/user_entity.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/learning_repository.dart';
 import '../../routes/app_routes.dart';
 
 class HomeTabItem {
@@ -52,6 +63,18 @@ class HomeMissionCardData {
 }
 
 class HomeViewModel extends GetxController {
+  HomeViewModel({
+    required LearningRepository repository,
+    required AuthRepository authRepository,
+    required StorageService storageService,
+  }) : _repository = repository,
+       _authRepository = authRepository,
+       _storageService = storageService;
+
+  final LearningRepository _repository;
+  final AuthRepository _authRepository;
+  final StorageService _storageService;
+
   final RxInt currentIndex = 0.obs;
   final RxDouble dashboardSheetProgress = 0.0.obs;
   final RxString sceneSearchQuery = ''.obs;
@@ -63,6 +86,17 @@ class HomeViewModel extends GetxController {
   final RxList<MessageEntity> activeMessages = <MessageEntity>[].obs;
   final Rxn<SessionResultEntity> lastCompletedResult =
       Rxn<SessionResultEntity>();
+  final Rxn<UserEntity> currentUser = Rxn<UserEntity>();
+  final RxBool isLoadingDashboard = false.obs;
+  final RxBool isLoadingScenes = false.obs;
+
+  final RxList<SceneEntity> _scenes = <SceneEntity>[..._fallbackScenes()].obs;
+  final RxList<SceneEntity> _recommendedScenes = <SceneEntity>[
+    ..._fallbackScenes().take(3),
+  ].obs;
+  final RxList<HomeMissionCardData> _todayMissions = <HomeMissionCardData>[
+    ..._fallbackMissions(),
+  ].obs;
 
   List<HomeTabItem> get tabs => <HomeTabItem>[
     HomeTabItem(
@@ -92,141 +126,33 @@ class HomeViewModel extends GetxController {
     ),
   ];
 
-  String get displayName => AppStrings.homeDisplayName;
+  String get displayName =>
+      currentUser.value?.effectiveDisplayName ?? AppStrings.homeDisplayName;
   String get greetingSubtitle => AppStrings.homeGreetingSubtitle;
 
   List<HomeQuickStat> get quickStats => <HomeQuickStat>[
     HomeQuickStat(
       label: AppStrings.homeStatXp,
-      value: '320',
+      value: '${currentUser.value?.totalXp ?? 320}',
       icon: Icons.stars_rounded,
-      tint: Color(0xFFEF9F27),
+      tint: const Color(0xFFEF9F27),
     ),
     HomeQuickStat(
       label: AppStrings.homeStatStreak,
-      value: '7',
+      value: '${currentUser.value?.streakDays ?? 7}',
       icon: Icons.local_fire_department_rounded,
-      tint: Color(0xFF1D9E75),
+      tint: const Color(0xFF1D9E75),
     ),
     HomeQuickStat(
       label: AppStrings.homeStatSaved,
       value: '18',
       icon: Icons.bookmark_rounded,
-      tint: Color(0xFF457FAF),
+      tint: const Color(0xFF457FAF),
     ),
   ];
 
-  List<HomeMissionCardData> get todayMissions => <HomeMissionCardData>[
-    HomeMissionCardData(
-      title: AppStrings.homeMissionOneTitle,
-      subtitle: AppStrings.homeMissionOneSubtitle,
-      current: hasActiveSession
-          ? currentSession!.completedTurns.clamp(0, 1).toInt()
-          : 0,
-      target: 1,
-      xpReward: 50,
-    ),
-    HomeMissionCardData(
-      title: AppStrings.homeMissionTwoTitle,
-      subtitle: AppStrings.homeMissionTwoSubtitle,
-      current: hasActiveSession
-          ? currentSession!.completedTurns.clamp(0, 3).toInt()
-          : 1,
-      target: 3,
-      xpReward: 30,
-    ),
-  ];
-
-  List<SceneEntity> get scenes => const <SceneEntity>[
-    SceneEntity(
-      id: 'cafe-small-talk',
-      title: 'Cafe small talk',
-      category: SceneCategory.dailyLife,
-      difficulty: SceneDifficulty.a2,
-      estimatedMinutes: 6,
-      characterName: 'Mia',
-      characterRole: 'Friendly barista',
-      description:
-          'Order a drink, answer a follow-up question, and close the conversation naturally.',
-      mission:
-          'Complete a smooth cafe order from greeting to payment without losing confidence.',
-      vocabularyPreview: <String>['iced latte', 'for here', 'receipt'],
-      starterPrompt:
-          'Hi there. Welcome in. What can I get started for you today?',
-      aiReplyPool: <String>[
-        'Great choice. Would you like that hot or iced?',
-        'Absolutely. Anything to eat with your drink today?',
-        'Perfect. That will be ready in a couple of minutes. You can pay at the counter.',
-      ],
-    ),
-    SceneEntity(
-      id: 'airport-check-in',
-      title: 'Airport check-in',
-      category: SceneCategory.travel,
-      difficulty: SceneDifficulty.a2,
-      estimatedMinutes: 8,
-      characterName: 'David',
-      characterRole: 'Check-in staff',
-      description:
-          'Answer travel questions clearly and respond to quick airport instructions.',
-      mission:
-          'Check in for your flight, confirm baggage details, and ask one useful follow-up question.',
-      vocabularyPreview: <String>['passport', 'boarding pass', 'checked bag'],
-      starterPrompt:
-          'Good afternoon. May I see your passport and booking confirmation, please?',
-      aiReplyPool: <String>[
-        'Thank you. Are you checking in any bags today?',
-        'Your seat is near the window. Is that okay for you?',
-        'Perfect. Here is your boarding pass. Boarding begins at gate twelve in forty minutes.',
-      ],
-    ),
-    SceneEntity(
-      id: 'job-interview',
-      title: 'Job interview',
-      category: SceneCategory.work,
-      difficulty: SceneDifficulty.b1,
-      estimatedMinutes: 10,
-      characterName: 'Sarah',
-      characterRole: 'Interviewer',
-      description:
-          'Introduce yourself, describe your strengths, and answer follow-up questions with calm structure.',
-      mission:
-          'Deliver a clear self-introduction and handle a short interview exchange with confidence.',
-      vocabularyPreview: <String>['experience', 'strengths', 'responsibility'],
-      starterPrompt:
-          'Thanks for joining us today. Could you start by telling me a little about yourself?',
-      aiReplyPool: <String>[
-        'That sounds good. What would you say is one strength you bring to a team?',
-        'Can you give me a quick example from your previous work or study experience?',
-        'Thank you. Do you have any questions for me before we finish?',
-      ],
-    ),
-    SceneEntity(
-      id: 'hotel-front-desk',
-      title: 'Hotel front desk',
-      category: SceneCategory.service,
-      difficulty: SceneDifficulty.a2,
-      estimatedMinutes: 7,
-      characterName: 'Emma',
-      characterRole: 'Receptionist',
-      description:
-          'Check in at a hotel, confirm your room details, and ask for one service politely.',
-      mission:
-          'Finish a hotel check-in and request one helpful service in polite English.',
-      vocabularyPreview: <String>[
-        'reservation',
-        'single room',
-        'late checkout',
-      ],
-      starterPrompt:
-          'Good evening. Welcome to Blue Harbor Hotel. Do you have a reservation with us?',
-      aiReplyPool: <String>[
-        'Thank you. I can see your booking here. Would you like a quiet room if one is available?',
-        'Breakfast starts at seven on the second floor. Is there anything else you need tonight?',
-        'Of course. I have noted your request. Enjoy your stay with us.',
-      ],
-    ),
-  ];
+  List<HomeMissionCardData> get todayMissions => _todayMissions;
+  List<SceneEntity> get scenes => _scenes;
 
   List<SceneCategory?> get sceneCategoryFilters => <SceneCategory?>[
     null,
@@ -240,8 +166,21 @@ class HomeViewModel extends GetxController {
 
   SceneEntity get heroScene => currentSessionScene ?? recommendedScenes.first;
 
-  SceneEntity? get currentSessionScene =>
-      currentSession == null ? null : sceneById(currentSession!.sceneId);
+  SceneEntity? get currentSessionScene {
+    final SessionEntity? session = currentSession;
+    if (session == null) return null;
+
+    for (final SceneEntity scene in _scenes) {
+      if (scene.id == session.sceneId) {
+        return scene;
+      }
+      if (scene.title.toLowerCase() == session.sceneTitle.toLowerCase()) {
+        return scene;
+      }
+    }
+
+    return null;
+  }
 
   SessionEntity? get currentSession => activeSession.value;
 
@@ -249,12 +188,14 @@ class HomeViewModel extends GetxController {
       activeSession.value != null &&
       activeSession.value!.status == SessionStatus.active;
 
-  List<SceneEntity> get recommendedScenes => scenes.take(3).toList();
+  List<SceneEntity> get recommendedScenes => _recommendedScenes.isNotEmpty
+      ? _recommendedScenes
+      : _scenes.take(3).toList(growable: false);
 
   List<SceneEntity> get filteredScenes {
     final String query = sceneSearchQuery.value.trim().toLowerCase();
 
-    return scenes.where((SceneEntity scene) {
+    return _scenes.where((SceneEntity scene) {
       final bool matchesQuery =
           query.isEmpty ||
           scene.title.toLowerCase().contains(query) ||
@@ -297,6 +238,98 @@ class HomeViewModel extends GetxController {
       ? '${currentSession!.completedTurns}/${currentSession!.targetTurns} turns'
       : heroScene.categoryLabel;
 
+  @override
+  void onInit() {
+    super.onInit();
+    unawaited(_bootstrap());
+  }
+
+  Future<void> _bootstrap() async {
+    if (!_authRepository.hasSession) {
+      Get.offAllNamed(Routes.auth);
+      return;
+    }
+
+    isLoadingDashboard.value = true;
+    isLoadingScenes.value = true;
+
+    try {
+      final HomeDashboardModel dashboard = await _repository.fetchDashboard();
+      currentUser.value = dashboard.user;
+      _todayMissions.assignAll(
+        dashboard.missions
+            .map(
+              (HomeMissionModel mission) => HomeMissionCardData(
+                title: mission.title,
+                subtitle: mission.description,
+                current: mission.current,
+                target: mission.target,
+                xpReward: mission.xp,
+              ),
+            )
+            .toList(),
+      );
+      _recommendedScenes.assignAll(
+        dashboard.recommendedScenes.cast<SceneEntity>(),
+      );
+
+      final List<SceneEntity> fetchedScenes = await _repository.fetchScenes();
+      if (fetchedScenes.isNotEmpty) {
+        _scenes.assignAll(fetchedScenes);
+      }
+
+      _hydrateInProgressSession(dashboard.inProgressSession);
+    } on ApiException catch (error) {
+      if (error.statusCode == 401) {
+        await _handleUnauthorized();
+        return;
+      }
+      _showError(error.message);
+    } catch (_) {
+      _showError('Không thể tải dữ liệu Home từ backend.');
+    } finally {
+      isLoadingDashboard.value = false;
+      isLoadingScenes.value = false;
+    }
+  }
+
+  void _hydrateInProgressSession(InProgressSessionModel? inProgressSession) {
+    if (inProgressSession == null || activeSession.value != null) {
+      return;
+    }
+
+    final SceneEntity scene = _ensureSceneForResume(
+      sceneId: '',
+      sceneTitle: inProgressSession.sceneTitle,
+      characterName: inProgressSession.characterName,
+    );
+
+    activeSession.value = SessionEntity(
+      id: inProgressSession.id,
+      sceneId: scene.id,
+      sceneTitle: scene.title,
+      characterName: scene.characterName,
+      characterRole: scene.characterRole,
+      difficultyLabel: scene.difficultyLabel,
+      mission: scene.mission,
+      startedAt: inProgressSession.startedAt,
+      status: SessionStatus.active,
+      completedTurns: 0,
+      targetTurns: 3,
+    );
+
+    activeMessages.assignAll(<MessageEntity>[
+      MessageEntity(
+        id: '${inProgressSession.id}-resume',
+        sessionId: inProgressSession.id,
+        author: MessageAuthor.ai,
+        text: 'Let’s continue where we left off whenever you are ready.',
+        createdAt: DateTime.now(),
+      ),
+    ]);
+    practiceState.value = PracticeRealtimeState.userListening;
+  }
+
   void selectTab(int index) {
     if (index < 0 || index >= tabs.length) return;
     currentIndex.value = index;
@@ -315,7 +348,19 @@ class HomeViewModel extends GetxController {
   }
 
   void openSceneDetails(SceneEntity scene) {
-    Get.toNamed(Routes.sceneDetail, arguments: scene.id);
+    unawaited(_openSceneDetails(scene));
+  }
+
+  Future<void> _openSceneDetails(SceneEntity scene) async {
+    try {
+      final SceneEntity detailedScene = await _repository.fetchSceneDetail(
+        scene.id,
+      );
+      _replaceOrInsertScene(detailedScene);
+      await Get.toNamed(Routes.sceneDetail, arguments: detailedScene);
+    } catch (_) {
+      await Get.toNamed(Routes.sceneDetail, arguments: scene);
+    }
   }
 
   void handleHeroSceneTap() {
@@ -332,6 +377,10 @@ class HomeViewModel extends GetxController {
     Get.toNamed(Routes.practiceSession, arguments: currentSession!.id);
   }
 
+  void openCustomPractice() {
+    Get.toNamed(Routes.customPractice);
+  }
+
   bool hasActiveSessionForScene(String sceneId) {
     return hasActiveSession && currentSession!.sceneId == sceneId;
   }
@@ -341,79 +390,246 @@ class HomeViewModel extends GetxController {
   }
 
   SceneEntity sceneById(String sceneId) {
-    return scenes.firstWhere((SceneEntity scene) => scene.id == sceneId);
+    return _scenes.firstWhere(
+      (SceneEntity scene) => scene.id == sceneId,
+      orElse: () => _scenes.first,
+    );
   }
 
-  SessionEntity startOrResumeScene(SceneEntity scene, {bool forceNew = false}) {
+  void beginScenePractice(SceneEntity scene, {bool forceNew = false}) {
+    unawaited(_beginScenePractice(scene, forceNew: forceNew));
+  }
+
+  Future<void> _beginScenePractice(
+    SceneEntity scene, {
+    bool forceNew = false,
+  }) async {
     if (hasActiveSession && !forceNew) {
-      return currentSession!;
+      openPracticeSession();
+      return;
     }
 
-    final SessionEntity session = SessionEntity(
-      id: 'session-${scene.id}-${DateTime.now().millisecondsSinceEpoch}',
+    if (hasActiveSession && forceNew) {
+      await _abandonCurrentSession(showAlert: false);
+    }
+
+    try {
+      final SessionStartModel start = await _repository.startSession(
+        sceneId: scene.id,
+      );
+      activeSession.value = start.toSessionEntity(scene);
+      activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
+      practiceState.value = PracticeRealtimeState.userListening;
+      openPracticeSession();
+    } on ApiException catch (error) {
+      if (error.statusCode == 409 &&
+          error.code == 'SESSION_ALREADY_ACTIVE' &&
+          error.details is List<dynamic>) {
+        _hydrateConflictingActiveSession(error.details as List<dynamic>);
+        openPracticeSession();
+        return;
+      }
+
+      if (error.statusCode == 401) {
+        await _handleUnauthorized();
+        return;
+      }
+
+      _showError(error.message);
+    } catch (_) {
+      _showError('Không thể bắt đầu phiên luyện tập lúc này.');
+    }
+  }
+
+  Future<bool> startCustomPracticeSession(
+    CustomPracticeDraft draft, {
+    bool replaceActive = true,
+  }) async {
+    if (hasActiveSession && !replaceActive) {
+      openPracticeSession();
+      return false;
+    }
+
+    if (hasActiveSession && replaceActive) {
+      await _abandonCurrentSession(showAlert: false);
+    }
+
+    try {
+      final CustomPracticeStartModel start = await _repository
+          .startCustomSession(draft);
+      final SceneEntity syntheticScene = start.toSyntheticScene();
+      _replaceOrInsertScene(syntheticScene);
+      activeSession.value = start.toSessionEntity(syntheticScene);
+      activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
+      practiceState.value = PracticeRealtimeState.userListening;
+      return true;
+    } on ApiException catch (error) {
+      if (error.statusCode == 409 &&
+          error.code == 'SESSION_ALREADY_ACTIVE' &&
+          error.details is List<dynamic>) {
+        _hydrateConflictingActiveSession(error.details as List<dynamic>);
+        return true;
+      }
+
+      if (error.statusCode == 401) {
+        await _handleUnauthorized();
+        return false;
+      }
+
+      _showError(error.message);
+      return false;
+    } catch (_) {
+      _showError('Không thể bắt đầu custom practice lúc này.');
+      return false;
+    }
+  }
+
+  void _hydrateConflictingActiveSession(List<dynamic> details) {
+    final Map<String, String> detailMap = <String, String>{};
+    for (final dynamic item in details) {
+      if (item is Map<String, dynamic>) {
+        final String field = item['field'] as String? ?? '';
+        final String message = item['message'] as String? ?? '';
+        if (field.isNotEmpty) {
+          detailMap[field] = message;
+        }
+      }
+    }
+
+    final SceneEntity scene = _ensureSceneForResume(
+      sceneId: detailMap['activeSession.sceneId'] ?? '',
+      sceneTitle: detailMap['activeSession.sceneTitle'] ?? 'Practice Session',
+      characterName: detailMap['activeSession.characterName'] ?? 'AI',
+    );
+
+    activeSession.value = SessionEntity(
+      id: detailMap['activeSession.id'] ?? '',
       sceneId: scene.id,
       sceneTitle: scene.title,
       characterName: scene.characterName,
       characterRole: scene.characterRole,
       difficultyLabel: scene.difficultyLabel,
       mission: scene.mission,
-      startedAt: DateTime.now(),
+      startedAt:
+          DateTime.tryParse(detailMap['activeSession.startedAt'] ?? '') ??
+          DateTime.now(),
       status: SessionStatus.active,
       completedTurns: 0,
       targetTurns: 3,
     );
-
-    activeSession.value = session;
     activeMessages.assignAll(<MessageEntity>[
       MessageEntity(
-        id: '${session.id}-welcome',
-        sessionId: session.id,
+        id: '${activeSession.value!.id}-conflict',
+        sessionId: activeSession.value!.id,
         author: MessageAuthor.ai,
-        text: scene.starterPrompt,
+        text: 'You already have an active practice. Let’s continue it here.',
         createdAt: DateTime.now(),
       ),
     ]);
     practiceState.value = PracticeRealtimeState.userListening;
-    return session;
+  }
+
+  SceneEntity _ensureSceneForResume({
+    required String sceneId,
+    required String sceneTitle,
+    required String characterName,
+  }) {
+    for (final SceneEntity scene in _scenes) {
+      if (sceneId.isNotEmpty && scene.id == sceneId) {
+        return scene;
+      }
+
+      if (scene.title.toLowerCase() == sceneTitle.toLowerCase()) {
+        return scene;
+      }
+    }
+
+    final SceneEntity syntheticScene = SceneEntity(
+      id: sceneId.isNotEmpty ? sceneId : 'synthetic-${sceneTitle.hashCode}',
+      title: sceneTitle,
+      category: SceneCategory.dailyLife,
+      difficulty: SceneDifficulty.a2,
+      estimatedMinutes: 8,
+      characterName: characterName,
+      characterRole: 'AI partner',
+      description: 'Resume your current practice session from the backend.',
+      mission: 'Continue the conversation naturally and finish the scene.',
+      vocabularyPreview: const <String>[],
+      starterPrompt: '',
+      aiReplyPool: const <String>[
+        'Thanks. Please continue.',
+        'I understand. What would you say next?',
+        'Great. Let’s finish this naturally.',
+      ],
+    );
+    _replaceOrInsertScene(syntheticScene);
+    return syntheticScene;
   }
 
   Future<void> submitPracticeReply(String text) async {
     if (!hasActiveSession) return;
 
-    final SceneEntity scene = currentSessionScene!;
+    final SceneEntity scene = currentSessionScene ?? _scenes.first;
     final SessionEntity session = currentSession!;
-    final int nextTurn = (session.completedTurns + 1)
-        .clamp(0, session.targetTurns)
-        .toInt();
+    final int nextTurn = (session.completedTurns + 1).clamp(0, 3).toInt();
+    final String trimmedText = text.trim();
 
-    activeMessages.add(
-      MessageEntity(
-        id: '${session.id}-user-$nextTurn',
-        sessionId: session.id,
-        author: MessageAuthor.user,
-        text: text.trim(),
-        createdAt: DateTime.now(),
-      ),
+    final MessageEntity userMessage = MessageEntity(
+      id: '${session.id}-user-$nextTurn-${DateTime.now().millisecondsSinceEpoch}',
+      sessionId: session.id,
+      author: MessageAuthor.user,
+      text: trimmedText,
+      createdAt: DateTime.now(),
     );
 
+    activeMessages.add(userMessage);
     activeSession.value = session.copyWith(completedTurns: nextTurn);
     practiceState.value = PracticeRealtimeState.aiThinking;
-    await Future<void>.delayed(const Duration(milliseconds: 650));
 
-    final int replyIndex = (nextTurn - 1)
-        .clamp(0, scene.aiReplyPool.length - 1)
-        .toInt();
-    final String aiReply = scene.aiReplyPool[replyIndex];
-
-    activeMessages.add(
-      MessageEntity(
-        id: '${session.id}-ai-$nextTurn',
+    try {
+      await _repository.syncMessage(
         sessionId: session.id,
-        author: MessageAuthor.ai,
-        text: aiReply,
-        createdAt: DateTime.now(),
-      ),
+        source: 'USER_TEXT',
+        content: trimmedText,
+        turnIndex: nextTurn,
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode == 401) {
+        await _handleUnauthorized();
+        return;
+      }
+      _showError(error.message);
+    } catch (_) {
+      _showError('Không thể đồng bộ câu trả lời của bạn.');
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 620));
+
+    final int replyIndex = (nextTurn - 1).clamp(
+      0,
+      scene.aiReplyPool.length - 1,
     );
+    final String aiReply = scene.aiReplyPool[replyIndex];
+    final MessageEntity aiMessage = MessageEntity(
+      id: '${session.id}-ai-$nextTurn-${DateTime.now().millisecondsSinceEpoch}',
+      sessionId: session.id,
+      author: MessageAuthor.ai,
+      text: aiReply,
+      createdAt: DateTime.now(),
+    );
+
+    activeMessages.add(aiMessage);
+
+    try {
+      await _repository.syncMessage(
+        sessionId: session.id,
+        source: 'AI_TEXT',
+        content: aiReply,
+        turnIndex: nextTurn,
+      );
+    } catch (_) {
+      // Giữ local AI placeholder để test flow UI ngay cả khi sync AI turn lỗi.
+    }
 
     practiceState.value = PracticeRealtimeState.aiSpeaking;
     await Future<void>.delayed(const Duration(milliseconds: 900));
@@ -422,42 +638,84 @@ class HomeViewModel extends GetxController {
     }
   }
 
+  void requestHint() {
+    unawaited(_requestHint());
+  }
+
+  Future<void> _requestHint() async {
+    if (!hasActiveSession) return;
+
+    try {
+      practiceState.value = PracticeRealtimeState.aiThinking;
+      final MessageEntity hintMessage = await _repository.requestHint(
+        currentSession!.id,
+      );
+      activeMessages.add(hintMessage);
+      practiceState.value = PracticeRealtimeState.aiSpeaking;
+      await Future<void>.delayed(const Duration(milliseconds: 720));
+      if (hasActiveSession) {
+        practiceState.value = PracticeRealtimeState.userListening;
+      }
+    } on ApiException catch (error) {
+      if (error.statusCode == 401) {
+        await _handleUnauthorized();
+        return;
+      }
+      practiceState.value = PracticeRealtimeState.userListening;
+      _showError(error.message);
+    } catch (_) {
+      practiceState.value = PracticeRealtimeState.userListening;
+      _showError('Không thể xin hint lúc này.');
+    }
+  }
+
   void setPracticeState(PracticeRealtimeState state) {
     practiceState.value = state;
   }
 
-  SessionResultEntity completeCurrentSession() {
+  Future<SessionResultEntity> completeCurrentSession() async {
     final SessionEntity session = currentSession!;
-    final SessionResultEntity result = SessionResultEntity(
-      sessionId: session.id,
-      sceneId: session.sceneId,
-      sceneTitle: session.sceneTitle,
-      characterName: session.characterName,
-      xpEarned: 50 + (session.completedTurns * 20),
-      grammarScore: 78 + (session.completedTurns * 4),
-      vocabularyScore: 74 + (session.completedTurns * 5),
-      naturalnessScore: 76 + (session.completedTurns * 4),
+
+    await _repository.completeSession(session.id);
+    final SessionResultModel resultModel = await _repository.fetchSessionResult(
+      session.id,
+    );
+    final SessionResultEntity result = resultModel.toEntity(
       completedTurns: session.completedTurns,
       targetTurns: session.targetTurns,
-      transcript: activeMessages.toList(growable: false),
     );
 
     lastCompletedResult.value = result;
-    activeSession.value = session.copyWith(status: SessionStatus.completed);
     activeSession.value = null;
     activeMessages.clear();
     practiceState.value = PracticeRealtimeState.idle;
+    unawaited(_bootstrap());
     return result;
   }
 
   void abandonCurrentSession() {
-    if (!hasActiveSession) return;
+    unawaited(_abandonCurrentSession());
+  }
 
-    final SessionEntity session = currentSession!;
-    activeSession.value = session.copyWith(status: SessionStatus.abandoned);
-    activeSession.value = null;
-    activeMessages.clear();
-    practiceState.value = PracticeRealtimeState.idle;
+  Future<void> _abandonCurrentSession({bool showAlert = true}) async {
+    final SessionEntity? session = currentSession;
+    if (session == null) return;
+
+    try {
+      await _repository.abandonSession(session.id);
+    } catch (_) {
+      // Dù backend abandon lỗi, vẫn dọn local state để user không bị kẹt UI.
+    } finally {
+      activeSession.value = null;
+      activeMessages.clear();
+      practiceState.value = PracticeRealtimeState.idle;
+      if (showAlert) {
+        ScenioAlert.show(
+          title: 'Scenio',
+          message: AppStrings.practiceLeaveSnackbar,
+        );
+      }
+    }
   }
 
   void updateDashboardSheetProgress({
@@ -471,9 +729,118 @@ class HomeViewModel extends GetxController {
     dashboardSheetProgress.value = progress;
   }
 
+  Future<void> _handleUnauthorized() async {
+    await _storageService.clearSession();
+    if (Get.currentRoute != Routes.auth) {
+      Get.offAllNamed(Routes.auth);
+    }
+  }
+
+  void _replaceOrInsertScene(SceneEntity scene) {
+    final int index = _scenes.indexWhere(
+      (SceneEntity item) => item.id == scene.id,
+    );
+    if (index >= 0) {
+      _scenes[index] = scene;
+      return;
+    }
+    _scenes.insert(0, scene);
+  }
+
+  void _showError(String message) {
+    ScenioAlert.show(title: 'Scenio', message: message, isError: true);
+  }
+
   String _formatSessionStart(DateTime time) {
     final String hour = time.hour.toString().padLeft(2, '0');
     final String minute = time.minute.toString().padLeft(2, '0');
     return 'at $hour:$minute';
   }
+}
+
+List<HomeMissionCardData> _fallbackMissions() {
+  return const <HomeMissionCardData>[
+    HomeMissionCardData(
+      title: 'Complete one scene',
+      subtitle: 'Finish a short guided conversation today.',
+      current: 0,
+      target: 1,
+      xpReward: 50,
+    ),
+    HomeMissionCardData(
+      title: 'Take three turns',
+      subtitle: 'Reply naturally for three guided turns.',
+      current: 1,
+      target: 3,
+      xpReward: 30,
+    ),
+  ];
+}
+
+List<SceneEntity> _fallbackScenes() {
+  return const <SceneEntity>[
+    SceneEntity(
+      id: 'fallback-cafe-small-talk',
+      title: 'Cafe small talk',
+      category: SceneCategory.dailyLife,
+      difficulty: SceneDifficulty.a2,
+      estimatedMinutes: 6,
+      characterName: 'Mia',
+      characterRole: 'Friendly barista',
+      description:
+          'Order a drink, answer a follow-up question, and close the conversation naturally.',
+      mission:
+          'Complete a smooth cafe order from greeting to payment without losing confidence.',
+      vocabularyPreview: <String>['iced latte', 'for here', 'receipt'],
+      starterPrompt:
+          'Hi there. Welcome in. What can I get started for you today?',
+      aiReplyPool: <String>[
+        'Great choice. Would you like that hot or iced?',
+        'Absolutely. Anything to eat with your drink today?',
+        'Perfect. That will be ready in a couple of minutes.',
+      ],
+    ),
+    SceneEntity(
+      id: 'fallback-airport-check-in',
+      title: 'Airport check-in',
+      category: SceneCategory.travel,
+      difficulty: SceneDifficulty.a2,
+      estimatedMinutes: 8,
+      characterName: 'David',
+      characterRole: 'Check-in staff',
+      description:
+          'Answer travel questions clearly and respond to quick airport instructions.',
+      mission:
+          'Check in for your flight, confirm baggage details, and ask one useful follow-up question.',
+      vocabularyPreview: <String>['passport', 'boarding pass', 'checked bag'],
+      starterPrompt:
+          'Good afternoon. May I see your passport and booking confirmation, please?',
+      aiReplyPool: <String>[
+        'Thank you. Are you checking in any bags today?',
+        'Your seat is near the window. Is that okay for you?',
+        'Perfect. Here is your boarding pass.',
+      ],
+    ),
+    SceneEntity(
+      id: 'fallback-job-interview',
+      title: 'Job interview',
+      category: SceneCategory.work,
+      difficulty: SceneDifficulty.b1,
+      estimatedMinutes: 10,
+      characterName: 'Sarah',
+      characterRole: 'Interviewer',
+      description:
+          'Introduce yourself, describe your strengths, and answer follow-up questions with calm structure.',
+      mission:
+          'Deliver a clear self-introduction and handle a short interview exchange with confidence.',
+      vocabularyPreview: <String>['experience', 'strengths', 'responsibility'],
+      starterPrompt:
+          'Thanks for joining us today. Could you start by telling me a little about yourself?',
+      aiReplyPool: <String>[
+        'That sounds good. What would you say is one strength you bring to a team?',
+        'Can you give me a quick example from your previous work or study experience?',
+        'Thank you. Do you have any questions for me before we finish?',
+      ],
+    ),
+  ];
 }

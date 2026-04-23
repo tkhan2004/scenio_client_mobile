@@ -227,8 +227,7 @@ class HomeScenesTab extends StatelessWidget {
       return;
     }
 
-    viewModel.startOrResumeScene(scene);
-    viewModel.openPracticeSession();
+    viewModel.beginScenePractice(scene);
   }
 }
 
@@ -588,6 +587,8 @@ IconData _sceneIcon(SceneEntity scene) {
       return Icons.flight_takeoff_rounded;
     case SceneCategory.work:
       return Icons.work_rounded;
+    case SceneCategory.social:
+      return Icons.groups_rounded;
     case SceneCategory.service:
       return Icons.hotel_rounded;
   }
@@ -601,6 +602,8 @@ Color _sceneTint(SceneEntity scene) {
       return AppColors.primary800;
     case SceneCategory.work:
       return AppColors.secondary500;
+    case SceneCategory.social:
+      return AppColors.primary500;
     case SceneCategory.service:
       return AppColors.primary700;
   }

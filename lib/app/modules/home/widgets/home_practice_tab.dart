@@ -40,6 +40,8 @@ class HomePracticeTab extends StatelessWidget {
             else
               _PracticeEmptyState(viewModel: viewModel),
             SizedBox(height: AppDimensions.xl),
+            _CustomPracticeCard(viewModel: viewModel),
+            SizedBox(height: AppDimensions.xl),
             Text(AppStrings.scenesRecommendedSection, style: AppTextStyles.h2),
             const SizedBox(height: AppDimensions.md),
             ...viewModel.recommendedScenes.map(
@@ -314,6 +316,133 @@ class _PracticeEmptyState extends StatelessWidget {
   }
 }
 
+class _CustomPracticeCard extends StatelessWidget {
+  const _CustomPracticeCard({required this.viewModel});
+
+  final HomeViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppDimensions.xl),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            Colors.white.withValues(alpha: 0.96),
+            AppColors.primary50.withValues(alpha: 0.92),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.92)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.primary900.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[AppColors.primary800, AppColors.primary700],
+                  ),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: AppDimensions.iconLg,
+                ),
+              ),
+              const SizedBox(width: AppDimensions.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Create your own practice'.tr,
+                      style: AppTextStyles.h2,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Shape a conversation around your real goal, role, and context.'
+                          .tr,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.lg),
+          Wrap(
+            spacing: AppDimensions.sm,
+            runSpacing: AppDimensions.sm,
+            children: const <String>[
+              'Interview',
+              'Phone call',
+              'Travel',
+              'Customer service',
+            ].map((String label) => _PromptTag(label: label)).toList(),
+          ),
+          if (viewModel.hasActiveSession) ...<Widget>[
+            const SizedBox(height: AppDimensions.md),
+            Text(
+              'You already have an active session. Starting a custom one will replace it.'
+                  .tr,
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.warning),
+            ),
+          ],
+          const SizedBox(height: AppDimensions.lg),
+          ElevatedButton(
+            onPressed: viewModel.openCustomPractice,
+            child: Text('Start custom practice'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PromptTag extends StatelessWidget {
+  const _PromptTag({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.md,
+        vertical: AppDimensions.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.84),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        border: Border.all(color: AppColors.primary200),
+      ),
+      child: Text(
+        label.tr,
+        style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary800),
+      ),
+    );
+  }
+}
+
 class _QuickStartSceneTile extends StatelessWidget {
   const _QuickStartSceneTile({required this.scene, required this.onTap});
 
@@ -377,6 +506,8 @@ IconData _iconForScene(SceneEntity scene) {
       return Icons.flight_takeoff_rounded;
     case SceneCategory.work:
       return Icons.work_rounded;
+    case SceneCategory.social:
+      return Icons.groups_rounded;
     case SceneCategory.service:
       return Icons.hotel_rounded;
   }

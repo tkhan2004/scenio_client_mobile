@@ -43,11 +43,11 @@ class HomeView extends GetView<HomeViewModel> {
                     viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
-                  VocabularyView(bottomPadding: contentBottomPadding),
                   HomePracticeTab(
                     viewModel: controller,
                     bottomPadding: contentBottomPadding,
                   ),
+                  VocabularyView(bottomPadding: contentBottomPadding),
                   ProfileView(bottomPadding: contentBottomPadding),
                 ],
               ),
@@ -849,6 +849,8 @@ IconData _iconForScene(SceneEntity scene) {
       return Icons.flight_takeoff_rounded;
     case SceneCategory.work:
       return Icons.work_rounded;
+    case SceneCategory.social:
+      return Icons.groups_rounded;
     case SceneCategory.service:
       return Icons.hotel_rounded;
   }
@@ -862,6 +864,8 @@ Color _sceneTint(SceneEntity scene) {
       return AppColors.primary800;
     case SceneCategory.work:
       return AppColors.secondary500;
+    case SceneCategory.social:
+      return AppColors.primary500;
     case SceneCategory.service:
       return AppColors.primary700;
   }
