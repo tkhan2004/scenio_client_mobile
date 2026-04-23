@@ -59,15 +59,6 @@ abstract class AppStrings {
   static String get authNameHint => 'authNameHint'.tr;
   static String get authEmailLabel => 'authEmailLabel'.tr;
   static String get authEmailHint => 'authEmailHint'.tr;
-  static String get authPhoneLabel => 'authPhoneLabel'.tr;
-  static String get authPhoneHint => 'authPhoneHint'.tr;
-  static String get authPhoneCode => 'authPhoneCode'.tr;
-  static String get authDateOfBirthLabel => 'authDateOfBirthLabel'.tr;
-  static String get authDateOfBirthHint => 'authDateOfBirthHint'.tr;
-  static String get authGenderLabel => 'authGenderLabel'.tr;
-  static String get authGenderFemale => 'authGenderFemale'.tr;
-  static String get authGenderMale => 'authGenderMale'.tr;
-  static String get authGenderOther => 'authGenderOther'.tr;
   static String get authRegisterStepOneTitle => 'authRegisterStepOneTitle'.tr;
   static String get authRegisterStepOneCaption =>
       'authRegisterStepOneCaption'.tr;
@@ -78,6 +69,9 @@ abstract class AppStrings {
   static String get authNextButton => 'authNextButton'.tr;
   static String get authBackButton => 'authBackButton'.tr;
   static String get authRegisterButton => 'authRegisterButton'.tr;
+  static String get authLearningGoalLabel => 'authLearningGoalLabel'.tr;
+  static String get authStudyFrequencyLabel => 'authStudyFrequencyLabel'.tr;
+  static String get authSelfAssessmentLabel => 'authSelfAssessmentLabel'.tr;
 
   static String get authRequiredFieldMessage => 'authRequiredFieldMessage'.tr;
   static String get authInvalidEmailMessage => 'authInvalidEmailMessage'.tr;
@@ -90,6 +84,8 @@ abstract class AppStrings {
   static String get authForgotPasswordMessage => 'authForgotPasswordMessage'.tr;
   static String get authGoogleReadyMessage => 'authGoogleReadyMessage'.tr;
   static String get authFacebookReadyMessage => 'authFacebookReadyMessage'.tr;
+  static String get authLevelTestPendingMessage =>
+      'authLevelTestPendingMessage'.tr;
 
   static String get homeTabHome => 'homeTabHome'.tr;
   static String get homeTabScenes => 'homeTabScenes'.tr;
