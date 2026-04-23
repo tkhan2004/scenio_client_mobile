@@ -1,0 +1,37 @@
+abstract class ApiEndpoints {
+  static const String authLogin = '/auth/login';
+  static const String authRegister = '/auth/register';
+  static const String authRefresh = '/auth/refresh';
+  static const String authLogout = '/auth/logout';
+  static const String authVerifyToken = '/auth/verify-token';
+
+  static const String homeDashboard = '/home/dashboard';
+  static const String scenes = '/scenes';
+
+  static const String usersMe = '/users/me';
+  static const String usersOnboarding = '/users/me/onboarding';
+  static const String usersProgress = '/users/progress';
+  static const String usersBadges = '/users/badges';
+  static const String vocabulary = '/vocabulary';
+  static const String vocabularyDecks = '/vocabulary/decks';
+
+  static String sceneDetail(String sceneId) => '/scenes/$sceneId';
+  static String vocabularyDeckDetail(String sessionId) =>
+      '/vocabulary/decks/$sessionId';
+  static String vocabularyReview(String vocabularyId) =>
+      '/vocabulary/$vocabularyId/review';
+
+  static const String startSession = '/sessions/start';
+  static const String startCustomSession = '/sessions/start-custom';
+  static String sessionMessage(String sessionId) =>
+      '/sessions/$sessionId/message';
+  static String sessionComplete(String sessionId) =>
+      '/sessions/$sessionId/complete';
+  static String sessionResult(String sessionId) =>
+      '/sessions/$sessionId/result';
+  static String sessionAbandon(String sessionId) =>
+      '/sessions/$sessionId/abandon';
+  static String sessionHint(String sessionId) => '/sessions/$sessionId/hint';
+  static String sessionRealtimeToken(String sessionId) =>
+      '/sessions/$sessionId/realtime-token';
+}
