@@ -57,9 +57,7 @@ class SplashView extends GetView<SplashViewModel> {
           SafeArea(
             child: Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppDimensions.xxxl,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: AppDimensions.xxxl),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: 280),
                   child: SvgPicture.asset(
