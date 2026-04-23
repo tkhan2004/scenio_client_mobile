@@ -6,7 +6,6 @@ import '../../../core/constants/app_text_styles.dart';
 import '../auth_viewmodel.dart';
 import '../widgets/auth_primary_button.dart';
 import '../widgets/auth_text_field.dart';
-import '../widgets/social_login_button.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key, required this.viewModel});
@@ -88,36 +87,6 @@ class LoginFooter extends StatelessWidget {
           label: AppStrings.authLoginButton,
           onPressed: viewModel.submitLogin,
         ),
-        SizedBox(height: AppDimensions.xl),
-        _SocialDivider(label: AppStrings.authSocialDivider),
-        SizedBox(height: AppDimensions.xl),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: SocialLoginButton(
-                label: AppStrings.authGoogle,
-                leading: const _LetterBadge(
-                  letter: 'G',
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xFFDB4437),
-                ),
-                onPressed: viewModel.handleGoogleSignIn,
-              ),
-            ),
-            SizedBox(width: AppDimensions.md),
-            Expanded(
-              child: SocialLoginButton(
-                label: AppStrings.authFacebook,
-                leading: const Icon(
-                  Icons.facebook_rounded,
-                  color: Color(0xFF1877F2),
-                  size: AppDimensions.iconLg,
-                ),
-                onPressed: viewModel.handleFacebookSignIn,
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -162,59 +131,6 @@ class _RememberMeToggle extends StatelessWidget {
           SizedBox(width: AppDimensions.md),
           Text(AppStrings.authRememberMe, style: AppTextStyles.bodyMedium),
         ],
-      ),
-    );
-  }
-}
-
-class _SocialDivider extends StatelessWidget {
-  const _SocialDivider({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
-          child: Text(label, style: AppTextStyles.bodySmall),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    );
-  }
-}
-
-class _LetterBadge extends StatelessWidget {
-  const _LetterBadge({
-    required this.letter,
-    required this.backgroundColor,
-    required this.foregroundColor,
-  });
-
-  final String letter;
-  final Color backgroundColor;
-  final Color foregroundColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        shape: BoxShape.circle,
-        border: Border.all(color: foregroundColor.withValues(alpha: 0.16)),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        letter,
-        style: AppTextStyles.labelLarge.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w700,
-        ),
       ),
     );
   }

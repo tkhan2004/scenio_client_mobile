@@ -6,6 +6,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/utils/scenio_alerts.dart';
 import '../../home/widgets/scenio_icon_badge.dart';
+import '../profile_viewmodel.dart';
 
 class ProfileActionTile extends StatelessWidget {
   const ProfileActionTile({required this.action, super.key});
@@ -14,6 +15,7 @@ class ProfileActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ProfileViewModel controller = Get.find<ProfileViewModel>();
     final Color accentColor = action.isDestructive
         ? AppColors.error
         : AppColors.primary800;
@@ -22,9 +24,13 @@ class ProfileActionTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        onTap: () {
+        onTap: () async {
           if (action.id == 'language') {
             _showLanguageBottomSheet(context);
+            return;
+          }
+          if (action.isDestructive) {
+            await controller.logout();
             return;
           }
           ScenioAlert.show(
@@ -79,7 +85,9 @@ class ProfileActionTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimensions.xl),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusXl)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppDimensions.radiusXl),
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -89,7 +97,9 @@ class ProfileActionTile extends StatelessWidget {
             const SizedBox(height: AppDimensions.lg),
             ListTile(
               title: const Text('English (US)'),
-              trailing: Get.locale?.languageCode == 'en' ? Icon(Icons.check_circle, color: AppColors.primary700) : null,
+              trailing: Get.locale?.languageCode == 'en'
+                  ? Icon(Icons.check_circle, color: AppColors.primary700)
+                  : null,
               onTap: () {
                 Get.updateLocale(const Locale('en', 'US'));
                 Get.back();
@@ -97,7 +107,9 @@ class ProfileActionTile extends StatelessWidget {
             ),
             ListTile(
               title: const Text('Tiếng Việt'),
-              trailing: Get.locale?.languageCode == 'vi' ? Icon(Icons.check_circle, color: AppColors.primary700) : null,
+              trailing: Get.locale?.languageCode == 'vi'
+                  ? Icon(Icons.check_circle, color: AppColors.primary700)
+                  : null,
               onTap: () {
                 Get.updateLocale(const Locale('vi', 'VN'));
                 Get.back();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_strings.dart';
@@ -60,12 +61,12 @@ class RegisterFooter extends StatelessWidget {
           transitionBuilder: _buildRegisterFadeTransition,
           child: isStepOne
               ? AuthPrimaryButton(
-                  key: ValueKey<String>('register_footer_next'),
+                  key: const ValueKey<String>('register_footer_next'),
                   label: AppStrings.authNextButton,
                   onPressed: viewModel.nextRegisterStep,
                 )
               : Row(
-                  key: ValueKey<String>('register_footer_submit'),
+                  key: const ValueKey<String>('register_footer_submit'),
                   children: <Widget>[
                     Expanded(
                       child: AuthSecondaryButton(
@@ -220,19 +221,6 @@ class _RegisterStepOneFields extends StatelessWidget {
         ),
         SizedBox(height: AppDimensions.md),
         _LabeledField(
-          label: AppStrings.authPhoneLabel,
-          child: AuthTextField(
-            controller: viewModel.phoneController,
-            hintText: AppStrings.authPhoneHint,
-            keyboardType: TextInputType.phone,
-            textInputAction: TextInputAction.next,
-            validator: viewModel.validatePhone,
-            prefix: _PhonePrefix(),
-            autofillHints: const <String>[AutofillHints.telephoneNumber],
-          ),
-        ),
-        SizedBox(height: AppDimensions.md),
-        _LabeledField(
           label: AppStrings.authPasswordLabel,
           child: Obx(
             () => AuthTextField(
@@ -263,80 +251,78 @@ class _RegisterStepTwoFields extends StatelessWidget {
       key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _LabeledField(
-          label: AppStrings.authDateOfBirthLabel,
-          child: AuthTextField(
-            controller: viewModel.birthDateController,
-            hintText: AppStrings.authDateOfBirthHint,
-            readOnly: true,
-            validator: viewModel.validateBirthDate,
-            suffix: const Icon(
-              Icons.calendar_month_rounded,
-              color: AppColors.primary500,
-            ),
-            onTap: () async {
-              final DateTime now = DateTime.now();
-              final DateTime initialDate = DateTime(
-                now.year - 18,
-                now.month,
-                now.day,
-              );
-              final DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: initialDate,
-                firstDate: DateTime(1950),
-                lastDate: now,
-              );
-
-              if (pickedDate != null) {
-                viewModel.setBirthDate(pickedDate);
-              }
-            },
-          ),
+        _ChoiceSection(
+          label: AppStrings.authLearningGoalLabel,
+          selectedValue: viewModel.selectedLearningGoal.value,
+          errorText: viewModel.learningGoalError.value,
+          options: const <_ChoiceOption>[
+            _ChoiceOption(label: 'Work', value: 'WORK'),
+            _ChoiceOption(label: 'Travel', value: 'TRAVEL'),
+            _ChoiceOption(label: 'Daily life', value: 'DAILY'),
+            _ChoiceOption(label: 'Mixed', value: 'ALL'),
+          ],
+          onSelected: viewModel.selectLearningGoal,
         ),
         const SizedBox(height: AppDimensions.md),
-        _GenderSelector(
-          selectedGender: viewModel.selectedGender.value,
-          errorText: viewModel.genderError.value,
-          onSelected: viewModel.selectGender,
+        _ChoiceSection(
+          label: AppStrings.authStudyFrequencyLabel,
+          selectedValue: viewModel.selectedStudyFrequency.value,
+          errorText: viewModel.studyFrequencyError.value,
+          options: const <_ChoiceOption>[
+            _ChoiceOption(label: 'Light', value: 'LIGHT'),
+            _ChoiceOption(label: 'Regular', value: 'REGULAR'),
+            _ChoiceOption(label: 'Intensive', value: 'INTENSIVE'),
+          ],
+          onSelected: viewModel.selectStudyFrequency,
+        ),
+        const SizedBox(height: AppDimensions.md),
+        _ChoiceSection(
+          label: AppStrings.authSelfAssessmentLabel,
+          selectedValue: viewModel.selectedSelfAssessment.value,
+          errorText: viewModel.selfAssessmentError.value,
+          options: const <_ChoiceOption>[
+            _ChoiceOption(label: 'Vocabulary', value: 'VOCABULARY'),
+            _ChoiceOption(label: 'Grammar', value: 'GRAMMAR'),
+            _ChoiceOption(label: 'Naturalness', value: 'NATURALNESS'),
+            _ChoiceOption(label: 'Confidence', value: 'CONFIDENCE'),
+          ],
+          onSelected: viewModel.selectSelfAssessment,
         ),
       ],
     );
   }
 }
 
-class _GenderSelector extends StatelessWidget {
-  const _GenderSelector({
-    required this.selectedGender,
+class _ChoiceSection extends StatelessWidget {
+  const _ChoiceSection({
+    required this.label,
+    required this.selectedValue,
     required this.errorText,
+    required this.options,
     required this.onSelected,
   });
 
-  final String selectedGender;
+  final String label;
+  final String selectedValue;
   final String errorText;
+  final List<_ChoiceOption> options;
   final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final List<String> genderOptions = <String>[
-      AppStrings.authGenderFemale,
-      AppStrings.authGenderMale,
-      AppStrings.authGenderOther,
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(AppStrings.authGenderLabel, style: AppTextStyles.labelLarge),
+        Text(label, style: AppTextStyles.labelLarge),
         const SizedBox(height: AppDimensions.sm),
         Wrap(
           spacing: AppDimensions.sm,
           runSpacing: AppDimensions.sm,
-          children: genderOptions.map((String gender) {
-            final bool isSelected = selectedGender == gender;
+          children: options.map((_ChoiceOption option) {
+            final bool isSelected = selectedValue == option.value;
 
             return InkWell(
-              onTap: () => onSelected(gender),
+              onTap: () => onSelected(option.value),
               borderRadius: BorderRadius.circular(18),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
@@ -358,7 +344,7 @@ class _GenderSelector extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  gender,
+                  option.label,
                   style: AppTextStyles.labelLarge.copyWith(
                     color: isSelected
                         ? AppColors.primary800
@@ -406,28 +392,9 @@ class _LabeledField extends StatelessWidget {
   }
 }
 
-class _PhonePrefix extends StatelessWidget {
-  const _PhonePrefix();
+class _ChoiceOption {
+  const _ChoiceOption({required this.label, required this.value});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: AppDimensions.lg, right: 6),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text('VN', style: AppTextStyles.labelLarge),
-          SizedBox(width: AppDimensions.xs),
-          Text(AppStrings.authPhoneCode, style: AppTextStyles.bodyMedium),
-          const SizedBox(width: AppDimensions.xs),
-          const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: AppDimensions.iconMd,
-          ),
-          const SizedBox(width: AppDimensions.sm),
-          Container(width: 1, height: 20, color: const Color(0xFFDBEEFB)),
-        ],
-      ),
-    );
-  }
+  final String label;
+  final String value;
 }
