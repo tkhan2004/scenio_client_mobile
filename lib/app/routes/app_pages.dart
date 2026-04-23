@@ -7,6 +7,8 @@ import '../modules/auth/auth_binding.dart';
 import '../modules/auth/auth_view.dart';
 import '../modules/chat/chat_binding.dart';
 import '../modules/chat/chat_view.dart';
+import '../modules/custom_practice/custom_practice_binding.dart';
+import '../modules/custom_practice/custom_practice_view.dart';
 import '../modules/home/home_binding.dart';
 import '../modules/home/home_view.dart';
 import '../modules/scene_detail/scene_detail_binding.dart';
@@ -35,6 +37,11 @@ final List<GetPage<dynamic>> appPages = <GetPage<dynamic>>[
     name: Routes.home,
     page: () => const HomeView(),
     binding: HomeBinding(),
+  ),
+  GetPage<dynamic>(
+    name: Routes.customPractice,
+    page: () => const CustomPracticeView(),
+    binding: CustomPracticeBinding(),
   ),
   GetPage<dynamic>(
     name: Routes.sceneDetail,

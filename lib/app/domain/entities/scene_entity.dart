@@ -1,6 +1,6 @@
-enum SceneCategory { dailyLife, travel, work, service }
+enum SceneCategory { dailyLife, travel, work, social, service }
 
-enum SceneDifficulty { a1, a2, b1 }
+enum SceneDifficulty { a1, a2, b1, b2 }
 
 extension SceneCategoryX on SceneCategory {
   String get label {
@@ -11,6 +11,8 @@ extension SceneCategoryX on SceneCategory {
         return 'Travel';
       case SceneCategory.work:
         return 'Work';
+      case SceneCategory.social:
+        return 'Social';
       case SceneCategory.service:
         return 'Service';
     }
@@ -26,6 +28,8 @@ extension SceneDifficultyX on SceneDifficulty {
         return 'A2';
       case SceneDifficulty.b1:
         return 'B1';
+      case SceneDifficulty.b2:
+        return 'B2';
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -63,11 +65,7 @@ class ChatViewModel extends GetxController {
   }
 
   void showHint() {
-    ScenioAlert.show(
-      title: AppStrings.practiceHintButton,
-      message: '${scene.mission}\n\n${AppStrings.practiceHintSnackbar}',
-      icon: Icons.lightbulb_outline_rounded,
-    );
+    homeViewModel.requestHint();
   }
 
   void showVoiceComingSoon() {
@@ -79,16 +77,25 @@ class ChatViewModel extends GetxController {
 
   void leaveSession() {
     homeViewModel.abandonCurrentSession();
-    ScenioAlert.show(
-      title: 'Scenio',
-      message: AppStrings.practiceLeaveSnackbar,
-    );
     Get.offAllNamed(Routes.home);
   }
 
   void finishSession() {
-    final SessionResultEntity result = homeViewModel.completeCurrentSession();
-    Get.offNamed(Routes.sessionResult, arguments: result);
+    unawaited(_finishSession());
+  }
+
+  Future<void> _finishSession() async {
+    try {
+      final SessionResultEntity result = await homeViewModel
+          .completeCurrentSession();
+      Get.offNamed(Routes.sessionResult, arguments: result);
+    } catch (_) {
+      ScenioAlert.show(
+        title: 'Scenio',
+        message: 'Chưa thể hoàn tất buổi luyện lúc này.',
+        isError: true,
+      );
+    }
   }
 
   String labelForState(PracticeRealtimeState state) {

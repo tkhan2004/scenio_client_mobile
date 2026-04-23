@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,6 +28,11 @@ class SceneDetailViewModel extends GetxController {
   void onInit() {
     super.onInit();
     final Object? rawArgument = Get.arguments;
+    if (rawArgument is SceneEntity) {
+      scene = rawArgument;
+      return;
+    }
+
     final String? sceneId = rawArgument is String ? rawArgument : null;
     scene = sceneId == null
         ? homeViewModel.scenes.first
@@ -38,13 +45,15 @@ class SceneDetailViewModel extends GetxController {
       return;
     }
 
-    homeViewModel.startOrResumeScene(scene);
-    homeViewModel.openPracticeSession();
+    homeViewModel.beginScenePractice(scene);
   }
 
   void forceStartNew() {
-    homeViewModel.startOrResumeScene(scene, forceNew: true);
-    homeViewModel.openPracticeSession();
+    unawaited(
+      Future<void>.microtask(
+        () => homeViewModel.beginScenePractice(scene, forceNew: true),
+      ),
+    );
   }
 
   IconData iconForScene() {
@@ -55,6 +64,8 @@ class SceneDetailViewModel extends GetxController {
         return Icons.flight_takeoff_rounded;
       case SceneCategory.work:
         return Icons.work_rounded;
+      case SceneCategory.social:
+        return Icons.groups_rounded;
       case SceneCategory.service:
         return Icons.hotel_rounded;
     }
