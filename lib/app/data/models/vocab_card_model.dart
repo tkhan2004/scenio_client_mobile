@@ -72,4 +72,33 @@ class VocabCardModel {
       'isMastered': isMastered,
     };
   }
+
+  factory VocabCardModel.fromApiMap(
+    Map<String, dynamic> json, {
+    required String deckId,
+  }) {
+    final String definition = json['definition'] as String? ?? '';
+    final String example =
+        json['sampleSentence'] as String? ??
+        json['example'] as String? ??
+        definition;
+    final String hint =
+        json['example'] as String? ??
+        json['sampleSentence'] as String? ??
+        definition;
+
+    return VocabCardModel(
+      id: json['vocabularyId'] as String? ?? json['id'] as String? ?? '',
+      deckId: deckId,
+      word: json['word'] as String? ?? '',
+      phonetic: json['phonetic'] as String? ?? '',
+      translation: definition.isNotEmpty
+          ? definition
+          : (json['word'] as String? ?? ''),
+      partOfSpeech: json['partOfSpeech'] as String? ?? '',
+      sampleSentence: example,
+      hintSentence: hint,
+      isMastered: json['isMastered'] as bool? ?? false,
+    );
+  }
 }

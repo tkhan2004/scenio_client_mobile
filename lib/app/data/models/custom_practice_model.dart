@@ -1,0 +1,215 @@
+import '../../domain/entities/message_entity.dart';
+import '../../domain/entities/scene_entity.dart';
+import '../../domain/entities/session_entity.dart';
+import 'scene_api_model.dart';
+
+class CustomPracticeDraft {
+  const CustomPracticeDraft({
+    required this.practiceGoal,
+    required this.successOutcome,
+    required this.topicSummary,
+    required this.contextType,
+    required this.location,
+    required this.conversationChannel,
+    required this.userRole,
+    required this.userIntent,
+    required this.aiRole,
+    required this.aiDisplayName,
+    required this.aiBehaviorStyle,
+    required this.aiPrimaryGoal,
+    required this.aiGenderPresentation,
+    required this.aiVoiceTone,
+    required this.aiAccentPreference,
+    required this.difficulty,
+    required this.customInstructions,
+    this.specialConditions = const <String>[],
+  });
+
+  final String practiceGoal;
+  final String successOutcome;
+  final String topicSummary;
+  final String contextType;
+  final String location;
+  final String conversationChannel;
+  final String userRole;
+  final String userIntent;
+  final String aiRole;
+  final String aiDisplayName;
+  final String aiBehaviorStyle;
+  final String aiPrimaryGoal;
+  final String aiGenderPresentation;
+  final String aiVoiceTone;
+  final String aiAccentPreference;
+  final String difficulty;
+  final String customInstructions;
+  final List<String> specialConditions;
+
+  Map<String, dynamic> toRequestMap() {
+    return <String, dynamic>{
+      'practiceGoal': practiceGoal.trim(),
+      'successOutcome': successOutcome.trim().isEmpty
+          ? null
+          : successOutcome.trim(),
+      'topicSummary': topicSummary.trim(),
+      'context': <String, dynamic>{
+        'contextType': contextType,
+        'location': location.trim().isEmpty ? null : location.trim(),
+        'conversationChannel': conversationChannel,
+        'specialConditions': specialConditions
+            .where((String item) => item.trim().isNotEmpty)
+            .map((String item) => item.trim())
+            .toList(),
+      },
+      'userProfile': <String, dynamic>{
+        'userRole': userRole.trim(),
+        'userIntent': userIntent.trim().isEmpty ? null : userIntent.trim(),
+        'userEnglishLevel': difficulty,
+      },
+      'aiPersona': <String, dynamic>{
+        'aiRole': aiRole.trim(),
+        'aiDisplayName': aiDisplayName.trim(),
+        'aiPrimaryGoal': aiPrimaryGoal.trim().isEmpty
+            ? null
+            : aiPrimaryGoal.trim(),
+        'aiBehaviorStyle': aiBehaviorStyle.trim().isEmpty
+            ? null
+            : aiBehaviorStyle.trim(),
+        'aiGenderPresentation': aiGenderPresentation,
+        'aiVoiceTone': aiVoiceTone,
+        'aiAccentPreference': aiAccentPreference.trim().isEmpty
+            ? null
+            : aiAccentPreference.trim(),
+      },
+      'learningConfig': <String, dynamic>{
+        'difficulty': difficulty,
+        'conversationLength': 'MEDIUM',
+        'correctionStyle': 'END_ONLY',
+        'hintFrequency': 'LOW',
+        'responseComplexity': 'BALANCED',
+        'focusSkills': const <String>[],
+        'mustUseVocabulary': const <String>[],
+        'avoidTopics': const <String>[],
+        'customInstructions': customInstructions.trim().isEmpty
+            ? null
+            : customInstructions.trim(),
+      },
+      'modality': 'TEXT',
+    };
+  }
+}
+
+class CustomPracticeStartModel {
+  const CustomPracticeStartModel({
+    required this.sessionId,
+    required this.openingMessage,
+    required this.displayTitle,
+    required this.displaySubtitle,
+    required this.missionText,
+    required this.difficulty,
+    required this.aiDisplayName,
+    required this.aiRole,
+    required this.contextType,
+    required this.topicSummary,
+    required this.estimatedMinutes,
+  });
+
+  factory CustomPracticeStartModel.fromMap(Map<String, dynamic> map) {
+    final Map<String, dynamic> customMap =
+        map['customPractice'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final Map<String, dynamic> aiPersonaMap =
+        customMap['aiPersona'] as Map<String, dynamic>? ?? <String, dynamic>{};
+
+    return CustomPracticeStartModel(
+      sessionId: map['sessionId'] as String? ?? '',
+      openingMessage: map['openingMessage'] as String? ?? '',
+      displayTitle: customMap['displayTitle'] as String? ?? 'Custom Practice',
+      displaySubtitle:
+          customMap['displaySubtitle'] as String? ??
+          'A focused session built from your goal.',
+      missionText: customMap['missionText'] as String? ?? '',
+      difficulty: customMap['difficulty'] as String? ?? 'A2',
+      aiDisplayName: aiPersonaMap['displayName'] as String? ?? 'AI',
+      aiRole: aiPersonaMap['role'] as String? ?? 'Conversation partner',
+      contextType: customMap['contextType'] as String? ?? 'OTHER',
+      topicSummary: customMap['topicSummary'] as String? ?? '',
+      estimatedMinutes: (customMap['estimatedMinutes'] as num?)?.toInt() ?? 8,
+    );
+  }
+
+  final String sessionId;
+  final String openingMessage;
+  final String displayTitle;
+  final String displaySubtitle;
+  final String missionText;
+  final String difficulty;
+  final String aiDisplayName;
+  final String aiRole;
+  final String contextType;
+  final String topicSummary;
+  final int estimatedMinutes;
+
+  SceneEntity toSyntheticScene() {
+    return SceneEntity(
+      id: 'custom-$sessionId',
+      title: displayTitle,
+      category: _mapContextTypeToSceneCategory(contextType),
+      difficulty: mapSceneDifficulty(difficulty),
+      estimatedMinutes: estimatedMinutes,
+      characterName: aiDisplayName,
+      characterRole: aiRole,
+      description: topicSummary.isEmpty ? displaySubtitle : topicSummary,
+      mission: missionText.isEmpty ? displaySubtitle : missionText,
+      vocabularyPreview: const <String>[],
+      starterPrompt: openingMessage,
+      aiReplyPool: buildFallbackAiReplyPool(
+        characterName: aiDisplayName,
+        characterRole: aiRole,
+      ),
+    );
+  }
+
+  SessionEntity toSessionEntity(SceneEntity scene) {
+    return SessionEntity(
+      id: sessionId,
+      sceneId: scene.id,
+      sceneTitle: scene.title,
+      characterName: scene.characterName,
+      characterRole: scene.characterRole,
+      difficultyLabel: scene.difficultyLabel,
+      mission: scene.mission,
+      startedAt: DateTime.now(),
+      status: SessionStatus.active,
+      completedTurns: 0,
+      targetTurns: 3,
+    );
+  }
+
+  MessageEntity toOpeningMessage() {
+    return MessageEntity(
+      id: '$sessionId-opening',
+      sessionId: sessionId,
+      author: MessageAuthor.ai,
+      text: openingMessage,
+      createdAt: DateTime.now(),
+    );
+  }
+}
+
+SceneCategory _mapContextTypeToSceneCategory(String raw) {
+  switch (raw.toUpperCase()) {
+    case 'INTERVIEW':
+    case 'WORK':
+      return SceneCategory.work;
+    case 'TRAVEL':
+      return SceneCategory.travel;
+    case 'CUSTOMER_SERVICE':
+    case 'MEDICAL':
+      return SceneCategory.service;
+    case 'SOCIAL':
+      return SceneCategory.social;
+    case 'PHONE_CALL':
+    case 'OTHER':
+    default:
+      return SceneCategory.dailyLife;
+  }
+}
