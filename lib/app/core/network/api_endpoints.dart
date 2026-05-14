@@ -1,11 +1,14 @@
 abstract class ApiEndpoints {
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
+  static const String authGoogle = '/auth/google';
   static const String authRefresh = '/auth/refresh';
   static const String authLogout = '/auth/logout';
   static const String authVerifyToken = '/auth/verify-token';
 
   static const String homeDashboard = '/home/dashboard';
+  static const String learningPlanCurrent = '/learning-plan/current';
+  static const String learningPlanRefresh = '/learning-plan/refresh';
   static const String scenes = '/scenes';
 
   static const String usersMe = '/users/me';
@@ -16,6 +19,8 @@ abstract class ApiEndpoints {
   static const String vocabularyDecks = '/vocabulary/decks';
 
   static String sceneDetail(String sceneId) => '/scenes/$sceneId';
+  static String learningPlanStepComplete(String stepId) =>
+      '/learning-plan/steps/$stepId/complete';
   static String vocabularyDeckDetail(String sessionId) =>
       '/vocabulary/decks/$sessionId';
   static String vocabularyReview(String vocabularyId) =>

@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
+import '../config/app_env.dart';
 import '../storage/storage_service.dart';
+import 'api_endpoints.dart';
 import 'api_response.dart';
 
 class ApiClient extends GetxService {
@@ -10,6 +12,7 @@ class ApiClient extends GetxService {
     : _storageService = storageService;
 
   final StorageService _storageService;
+  Future<void>? _refreshingToken;
 
   static final String _defaultBaseUrl = _resolveBaseUrl();
 
@@ -39,14 +42,54 @@ class ApiClient extends GetxService {
                   }
                   handler.next(options);
                 },
+            onError:
+                (
+                  dio.DioException error,
+                  dio.ErrorInterceptorHandler handler,
+                ) async {
+                  if (!_shouldAttemptTokenRefresh(error)) {
+                    handler.next(error);
+                    return;
+                  }
+
+                  try {
+                    final Future<void> refreshTask = _refreshingToken ??=
+                        _refreshAccessToken();
+                    await refreshTask;
+                    _refreshingToken = null;
+
+                    final String? accessToken = _storageService.accessToken;
+                    if (accessToken == null || accessToken.isEmpty) {
+                      handler.next(error);
+                      return;
+                    }
+
+                    final dio.RequestOptions retryOptions =
+                        error.requestOptions;
+                    retryOptions.extra[_retriedAfterRefreshKey] = true;
+                    retryOptions.headers['Authorization'] =
+                        'Bearer $accessToken';
+
+                    final dio.Response<dynamic> response = await _dio.fetch(
+                      retryOptions,
+                    );
+                    handler.resolve(response);
+                  } catch (_) {
+                    _refreshingToken = null;
+                    await _storageService.clearSession();
+                    handler.next(error);
+                  }
+                },
           ),
         );
+
+  static const String _retriedAfterRefreshKey = '_retriedAfterRefresh';
 
   String get baseUrl => _dio.options.baseUrl;
 
   static String _resolveBaseUrl() {
-    const String envBaseUrl = String.fromEnvironment('SCENIO_API_BASE_URL');
-    if (envBaseUrl.isNotEmpty) {
+    final String? envBaseUrl = AppEnv.maybeGet('SCENIO_API_BASE_URL');
+    if (envBaseUrl != null) {
       return envBaseUrl;
     }
 
@@ -156,5 +199,69 @@ class ApiClient extends GetxService {
         );
 
     return envelope.data;
+  }
+
+  bool _shouldAttemptTokenRefresh(dio.DioException error) {
+    if (error.response?.statusCode != 401) {
+      return false;
+    }
+
+    if (error.requestOptions.extra[_retriedAfterRefreshKey] == true) {
+      return false;
+    }
+
+    final String? refreshToken = _storageService.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return false;
+    }
+
+    final String path = error.requestOptions.path;
+    return path != ApiEndpoints.authLogin &&
+        path != ApiEndpoints.authRegister &&
+        path != ApiEndpoints.authGoogle &&
+        path != ApiEndpoints.authRefresh &&
+        path != ApiEndpoints.authLogout;
+  }
+
+  Future<void> _refreshAccessToken() async {
+    final String? refreshToken = _storageService.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      throw const ApiException(message: 'Refresh token không tồn tại.');
+    }
+
+    final dio.Dio refreshDio = dio.Dio(
+      dio.BaseOptions(
+        baseUrl: _dio.options.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 20),
+        headers: const <String, String>{
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    );
+
+    final dio.Response<dynamic> response = await refreshDio.post<dynamic>(
+      ApiEndpoints.authRefresh,
+      data: <String, dynamic>{'refreshToken': refreshToken},
+    );
+
+    final dynamic payload = response.data;
+    if (payload is! Map<String, dynamic>) {
+      throw const ApiException(message: 'Refresh token response không hợp lệ.');
+    }
+
+    final dynamic data = payload['data'];
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(message: 'Refresh token data không hợp lệ.');
+    }
+
+    final String accessToken = data['accessToken'] as String? ?? '';
+    if (accessToken.isEmpty) {
+      throw const ApiException(message: 'Access token mới không hợp lệ.');
+    }
+
+    await _storageService.saveAccessToken(accessToken);
   }
 }

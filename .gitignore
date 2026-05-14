@@ -46,3 +46,10 @@ app.*.map.json
 
 # Scenio Documentation
 SKILLS.md
+
+# Local environment / OAuth config
+.env
+.env.local
+.env.*.local
+ios/Flutter/GoogleSignIn.xcconfig
+!ios/Flutter/GoogleSignIn.xcconfig.example

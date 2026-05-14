@@ -1,0 +1,4 @@
+// Copy these values from Firebase / Google Cloud for iOS Google Sign-In.
+SCENIO_IOS_GOOGLE_CLIENT_ID=your-ios-client-id.apps.googleusercontent.com
+SCENIO_IOS_GOOGLE_SERVER_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+SCENIO_IOS_GOOGLE_REVERSED_CLIENT_ID=com.googleusercontent.apps.your-ios-client-id

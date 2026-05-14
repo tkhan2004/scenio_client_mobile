@@ -10,12 +10,31 @@ class ScenioAlert {
     required String message,
     IconData? icon,
     bool isError = false,
+    bool isSuccess = false,
   }) {
+    final bool showSuccess = isSuccess && !isError;
+    final Color accentColor = isError
+        ? AppColors.error
+        : showSuccess
+        ? AppColors.success
+        : AppColors.accent500;
+    final IconData alertIcon =
+        icon ??
+        (isError
+            ? Icons.error_outline_rounded
+            : showSuccess
+            ? Icons.check_circle_outline_rounded
+            : Icons.info_outline_rounded);
+
     Get.rawSnackbar(
       titleText: Text(
         title,
         style: AppTextStyles.labelLarge.copyWith(
-          color: isError ? AppColors.error : AppColors.primary800,
+          color: isError
+              ? AppColors.error
+              : showSuccess
+              ? AppColors.success
+              : AppColors.primary800,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -25,14 +44,7 @@ class ScenioAlert {
           color: isError ? AppColors.error : AppColors.textSecondary,
         ),
       ),
-      icon: Icon(
-        icon ??
-            (isError
-                ? Icons.error_outline_rounded
-                : Icons.info_outline_rounded),
-        color: isError ? AppColors.error : AppColors.accent500,
-        size: 28,
-      ),
+      icon: Icon(alertIcon, color: accentColor, size: 28),
       snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(AppDimensions.lg),
       padding: const EdgeInsets.symmetric(
@@ -47,9 +59,13 @@ class ScenioAlert {
       borderWidth: 1.5,
       boxShadows: [
         BoxShadow(
-          color: (isError ? AppColors.error : AppColors.primary500).withValues(
-            alpha: isError ? 0.2 : 0.1,
-          ),
+          color:
+              (isError
+                      ? AppColors.error
+                      : showSuccess
+                      ? AppColors.success
+                      : AppColors.primary500)
+                  .withValues(alpha: isError ? 0.2 : 0.1),
           blurRadius: 24,
           offset: const Offset(0, 8),
         ),

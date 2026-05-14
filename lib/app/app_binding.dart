@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
+import 'core/auth/google_sign_in_service.dart';
 import 'core/network/api_client.dart';
+import 'core/realtime/realtime_conversation_service.dart';
 import 'core/storage/storage_service.dart';
 import 'data/providers/auth_provider.dart';
 import 'data/providers/learning_provider.dart';
@@ -20,6 +22,11 @@ class AppBinding extends Bindings {
       ApiClient(storageService: Get.find<StorageService>()),
       permanent: true,
     );
+    Get.put<GoogleSignInService>(GoogleSignInService(), permanent: true);
+    Get.put<RealtimeConversationService>(
+      RealtimeConversationService(),
+      permanent: true,
+    );
 
     Get.lazyPut<AuthProvider>(
       () => AuthProvider(apiClient: Get.find<ApiClient>()),
@@ -29,6 +36,7 @@ class AppBinding extends Bindings {
       () => AuthRepositoryImpl(
         provider: Get.find<AuthProvider>(),
         storageService: Get.find<StorageService>(),
+        googleSignInService: Get.find<GoogleSignInService>(),
       ),
       fenix: true,
     );
