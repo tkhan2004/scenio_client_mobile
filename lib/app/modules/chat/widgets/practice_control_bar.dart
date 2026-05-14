@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../domain/entities/session_entity.dart';
 
 class PracticeControlBar extends StatelessWidget {
   const PracticeControlBar({
@@ -12,9 +13,15 @@ class PracticeControlBar extends StatelessWidget {
     required this.onSend,
     required this.onHint,
     required this.onMicTap,
+    required this.onMuteTap,
     required this.onFinish,
     required this.isSending,
     required this.sendEnabled,
+    required this.voiceActive,
+    required this.voiceConnecting,
+    required this.micMuted,
+    required this.voiceStatusText,
+    required this.practiceState,
     super.key,
   });
 
@@ -23,13 +30,24 @@ class PracticeControlBar extends StatelessWidget {
   final VoidCallback onSend;
   final VoidCallback onHint;
   final VoidCallback onMicTap;
+  final VoidCallback onMuteTap;
   final VoidCallback onFinish;
   final bool isSending;
   final bool sendEnabled;
+  final bool voiceActive;
+  final bool voiceConnecting;
+  final bool micMuted;
+  final String voiceStatusText;
+  final PracticeRealtimeState practiceState;
 
   @override
   Widget build(BuildContext context) {
     final double bottomInset = MediaQuery.paddingOf(context).bottom;
+    final bool userSpeaking =
+        practiceState == PracticeRealtimeState.userSpeaking;
+    final bool aiSpeaking =
+        practiceState == PracticeRealtimeState.aiThinking ||
+        practiceState == PracticeRealtimeState.aiSpeaking;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -62,35 +80,13 @@ class PracticeControlBar extends StatelessWidget {
                 onTap: onHint,
               ),
               const Spacer(),
-              GestureDetector(
+              _ReactiveMicButton(
+                active: voiceActive,
+                connecting: voiceConnecting,
+                muted: micMuted,
+                userSpeaking: userSpeaking,
+                aiSpeaking: aiSpeaking,
                 onTap: onMicTap,
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: <Color>[
-                        AppColors.primary800,
-                        AppColors.primary700,
-                      ],
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: AppColors.primary800.withValues(alpha: 0.18),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.mic_none_rounded,
-                    size: AppDimensions.iconLg,
-                    color: Colors.white,
-                  ),
-                ),
               ),
               Spacer(),
               _SecondaryControlChip(
@@ -101,11 +97,55 @@ class PracticeControlBar extends StatelessWidget {
             ],
           ),
           SizedBox(height: AppDimensions.sm),
-          Text(
-            AppStrings.practiceVoiceComingSoon,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Flexible(
+                child: Text(
+                  aiSpeaking
+                      ? 'AI đang nói, mic tạm khóa'
+                      : userSpeaking
+                      ? 'Mic đang nghe bạn nói'
+                      : voiceStatusText,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: voiceActive
+                        ? AppColors.secondary700
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              if (voiceActive) ...<Widget>[
+                const SizedBox(width: AppDimensions.sm),
+                InkWell(
+                  onTap: onMuteTap,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppDimensions.xs),
+                    decoration: BoxDecoration(
+                      color: micMuted
+                          ? AppColors.warningBg
+                          : AppColors.primary50,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: micMuted
+                            ? AppColors.warning
+                            : AppColors.primary200,
+                      ),
+                    ),
+                    child: Icon(
+                      micMuted
+                          ? Icons.mic_off_rounded
+                          : Icons.graphic_eq_rounded,
+                      size: AppDimensions.iconSm,
+                      color: micMuted
+                          ? AppColors.warning
+                          : AppColors.primary800,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: AppDimensions.sm),
           Row(
@@ -151,6 +191,135 @@ class PracticeControlBar extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ReactiveMicButton extends StatefulWidget {
+  const _ReactiveMicButton({
+    required this.active,
+    required this.connecting,
+    required this.muted,
+    required this.userSpeaking,
+    required this.aiSpeaking,
+    required this.onTap,
+  });
+
+  final bool active;
+  final bool connecting;
+  final bool muted;
+  final bool userSpeaking;
+  final bool aiSpeaking;
+  final VoidCallback onTap;
+
+  @override
+  State<_ReactiveMicButton> createState() => _ReactiveMicButtonState();
+}
+
+class _ReactiveMicButtonState extends State<_ReactiveMicButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 780),
+    );
+    if (widget.userSpeaking) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReactiveMicButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.userSpeaking && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+      return;
+    }
+
+    if (!widget.userSpeaking && _controller.isAnimating) {
+      _controller.stop();
+      _controller.animateTo(0, duration: const Duration(milliseconds: 180));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          final double pulse = widget.userSpeaking ? _controller.value : 0.0;
+          final double size = widget.active ? 70 + pulse * 10 : 62;
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: <Color>[
+                  widget.aiSpeaking
+                      ? AppColors.neutral300
+                      : widget.active
+                      ? AppColors.error
+                      : AppColors.primary800,
+                  widget.aiSpeaking
+                      ? AppColors.primary200
+                      : widget.active
+                      ? AppColors.accent500
+                      : AppColors.primary700,
+                ],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color:
+                      (widget.userSpeaking
+                              ? AppColors.secondary500
+                              : AppColors.primary800)
+                          .withValues(alpha: widget.userSpeaking ? 0.30 : 0.18),
+                  blurRadius: widget.userSpeaking ? 24 : 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: widget.connecting
+                ? const Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                : Icon(
+                    widget.aiSpeaking
+                        ? Icons.lock_rounded
+                        : widget.active
+                        ? Icons.call_end_rounded
+                        : Icons.mic_none_rounded,
+                    size: AppDimensions.iconLg,
+                    color: Colors.white,
+                  ),
+          );
+        },
       ),
     );
   }

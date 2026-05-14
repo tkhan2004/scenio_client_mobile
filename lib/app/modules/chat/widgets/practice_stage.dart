@@ -9,160 +9,196 @@ import '../../../domain/entities/session_entity.dart';
 
 class PracticeStage extends StatelessWidget {
   const PracticeStage({
-    required this.userInitials,
     required this.aiInitials,
     required this.aiName,
     required this.aiRole,
     required this.stateLabel,
     required this.state,
+    required this.voiceActive,
     super.key,
   });
 
-  final String userInitials;
   final String aiInitials;
   final String aiName;
   final String aiRole;
   final String stateLabel;
   final PracticeRealtimeState state;
+  final bool voiceActive;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.lg),
+    final bool aiActive =
+        state == PracticeRealtimeState.aiThinking ||
+        state == PracticeRealtimeState.aiSpeaking;
+    final bool userActive = state == PracticeRealtimeState.userSpeaking;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        AppDimensions.lg,
+        AppDimensions.lg,
+        AppDimensions.lg,
+        AppDimensions.md,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.76),
+        color: Colors.white.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         border: Border.all(color: Colors.white.withValues(alpha: 0.72)),
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                child: _ParticipantCard(
-                  label: 'You',
-                  role:
-                      state == PracticeRealtimeState.userTyping ||
-                          state == PracticeRealtimeState.userListening
-                      ? stateLabel
-                      : 'Ready',
-                  initials: userInitials,
-                  accent: AppColors.primary700,
-                  isHighlighted:
-                      state == PracticeRealtimeState.userTyping ||
-                      state == PracticeRealtimeState.userListening,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.sm),
-              Expanded(
-                child: _AiPresenceCard(
-                  initials: aiInitials,
-                  name: aiName,
-                  role: aiRole,
-                  stateLabel: stateLabel,
-                  state: state,
-                ),
-              ),
-            ],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.primary900.withValues(alpha: 0.08),
+            blurRadius: voiceActive ? 30 : 18,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ParticipantCard extends StatelessWidget {
-  const _ParticipantCard({
-    required this.label,
-    required this.role,
-    required this.initials,
-    required this.accent,
-    required this.isHighlighted,
-  });
-
-  final String label;
-  final String role;
-  final String initials;
-  final Color accent;
-  final bool isHighlighted;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(
-          color: accent.withValues(alpha: isHighlighted ? 0.34 : 0.18),
-        ),
-      ),
       child: Column(
         children: <Widget>[
-          SizedBox(
-            height: 72,
-            child: Center(
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[
-                      AppColors.primary50,
-                      accent.withValues(alpha: 0.22),
-                    ],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  initials,
-                  style: AppTextStyles.h2.copyWith(color: accent),
-                ),
-              ),
-            ),
+          _ConversationStatusPill(
+            label: stateLabel,
+            voiceActive: voiceActive,
+            state: state,
           ),
-          const SizedBox(height: AppDimensions.sm),
-          Text(label, style: AppTextStyles.labelLarge),
-          const SizedBox(height: 2),
+          const SizedBox(height: AppDimensions.md),
+          _AiVoiceOrb(
+            initials: aiInitials,
+            active: aiActive,
+            speaking: state == PracticeRealtimeState.aiSpeaking,
+          ),
+          const SizedBox(height: AppDimensions.md),
           Text(
-            role,
-            textAlign: TextAlign.center,
+            aiName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption.copyWith(
+            textAlign: TextAlign.center,
+            style: AppTextStyles.h2,
+          ),
+          const SizedBox(height: AppDimensions.xs),
+          Text(
+            aiRole,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
+          const SizedBox(height: AppDimensions.md),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.md,
+              vertical: AppDimensions.sm,
+            ),
+            decoration: BoxDecoration(
+              color: userActive ? AppColors.secondary50 : AppColors.primary50,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+              border: Border.all(
+                color: userActive
+                    ? AppColors.secondary300
+                    : AppColors.primary200,
+              ),
+            ),
+            child: Text(
+              userActive
+                  ? 'Mic đang nghe giọng của bạn'
+                  : 'AI nói thì mic tự khóa, AI xong sẽ mở lại',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: userActive
+                    ? AppColors.secondary700
+                    : AppColors.primary800,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _AiPresenceCard extends StatefulWidget {
-  const _AiPresenceCard({
-    required this.initials,
-    required this.name,
-    required this.role,
-    required this.stateLabel,
+class _ConversationStatusPill extends StatelessWidget {
+  const _ConversationStatusPill({
+    required this.label,
+    required this.voiceActive,
     required this.state,
   });
 
-  final String initials;
-  final String name;
-  final String role;
-  final String stateLabel;
+  final String label;
+  final bool voiceActive;
   final PracticeRealtimeState state;
 
   @override
-  State<_AiPresenceCard> createState() => _AiPresenceCardState();
+  Widget build(BuildContext context) {
+    final bool isError = state == PracticeRealtimeState.error;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.md,
+        vertical: AppDimensions.sm,
+      ),
+      decoration: BoxDecoration(
+        color: isError
+            ? AppColors.errorBg
+            : voiceActive
+            ? AppColors.secondary50
+            : AppColors.primary50,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        border: Border.all(
+          color: isError
+              ? AppColors.error.withValues(alpha: 0.26)
+              : voiceActive
+              ? AppColors.secondary300
+              : AppColors.primary200,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isError
+                  ? AppColors.error
+                  : voiceActive
+                  ? AppColors.secondary500
+                  : AppColors.primary500,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: AppDimensions.sm),
+          Text(
+            label,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: isError ? AppColors.error : AppColors.primary900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _AiPresenceCardState extends State<_AiPresenceCard>
+class _AiVoiceOrb extends StatefulWidget {
+  const _AiVoiceOrb({
+    required this.initials,
+    required this.active,
+    required this.speaking,
+  });
+
+  final String initials;
+  final bool active;
+  final bool speaking;
+
+  @override
+  State<_AiVoiceOrb> createState() => _AiVoiceOrbState();
+}
+
+class _AiVoiceOrbState extends State<_AiVoiceOrb>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -171,8 +207,25 @@ class _AiPresenceCardState extends State<_AiPresenceCard>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 1450),
+    );
+    if (widget.active) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _AiVoiceOrb oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+      return;
+    }
+
+    if (!widget.active && _controller.isAnimating) {
+      _controller.stop();
+      _controller.animateTo(0, duration: const Duration(milliseconds: 260));
+    }
   }
 
   @override
@@ -183,118 +236,97 @@ class _AiPresenceCardState extends State<_AiPresenceCard>
 
   @override
   Widget build(BuildContext context) {
-    final bool isSpeaking = widget.state == PracticeRealtimeState.aiSpeaking;
-    final bool isThinking = widget.state == PracticeRealtimeState.aiThinking;
-    final double orbitScale = isSpeaking
-        ? 1.0
-        : isThinking
-        ? 0.62
-        : 0.24;
+    return SizedBox(
+      width: 132,
+      height: 132,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          final double wave = widget.active ? _controller.value : 0.0;
+          final double breath = widget.speaking ? wave : wave * 0.55;
+          final double rotation = wave * math.pi * 2;
 
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Colors.white, AppColors.primary50],
-        ),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
-      ),
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 72,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (BuildContext context, Widget? child) {
-                final double wave = 0.94 + (_controller.value * 0.14);
-                final double rotation = _controller.value * math.pi * 2;
-
-                return Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Transform.scale(
-                      scale: wave * (0.9 + orbitScale * 0.22),
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: <Color>[
-                              AppColors.primary300.withValues(alpha: 0.32),
-                              AppColors.primary500.withValues(alpha: 0.06),
-                              Colors.transparent,
-                            ],
-                          ),
+          return Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              for (int index = 0; index < 3; index++)
+                Transform.scale(
+                  scale: 0.88 + (index * 0.18) + (breath * 0.16),
+                  child: Container(
+                    width: 94,
+                    height: 94,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primary500.withValues(
+                          alpha: widget.active ? 0.20 - index * 0.04 : 0.08,
                         ),
                       ),
                     ),
-                    Transform.rotate(
-                      angle: rotation * 0.28,
-                      child: Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.primary500.withValues(
-                              alpha: 0.24 + orbitScale * 0.24,
-                            ),
-                            width: 2,
-                          ),
-                        ),
-                      ),
+                  ),
+                ),
+              Transform.rotate(
+                angle: rotation * 0.16,
+                child: Container(
+                  width: 98,
+                  height: 98,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: SweepGradient(
+                      colors: <Color>[
+                        AppColors.primary800.withValues(alpha: 0.95),
+                        AppColors.primary500,
+                        AppColors.secondary500.withValues(alpha: 0.92),
+                        AppColors.primary800.withValues(alpha: 0.95),
+                      ],
                     ),
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: <Color>[
-                            AppColors.primary800,
-                            AppColors.primary700,
-                          ],
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color: AppColors.primary800.withValues(
+                          alpha: widget.active ? 0.26 : 0.14,
                         ),
-                        shape: BoxShape.circle,
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.primary800.withValues(
-                              alpha: 0.16 + orbitScale * 0.18,
-                            ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        blurRadius: widget.active ? 34 : 18,
+                        offset: const Offset(0, 12),
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        widget.initials,
-                        style: AppTextStyles.h2.copyWith(color: Colors.white),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                width: 78,
+                height: 78,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    center: const Alignment(-0.3, -0.4),
+                    colors: <Color>[
+                      Colors.white.withValues(alpha: 0.82),
+                      AppColors.primary50.withValues(alpha: 0.42),
+                      AppColors.primary800.withValues(alpha: 0.24),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    width: 1.4,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  widget.initials,
+                  style: AppTextStyles.h2.copyWith(
+                    color: Colors.white,
+                    shadows: <Shadow>[
+                      Shadow(
+                        color: AppColors.primary900.withValues(alpha: 0.3),
+                        blurRadius: 10,
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: AppDimensions.sm),
-          Text(widget.name, style: AppTextStyles.labelLarge),
-          const SizedBox(height: 2),
-          Text(
-            '${widget.stateLabel} • AI',
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

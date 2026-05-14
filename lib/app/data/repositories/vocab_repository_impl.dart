@@ -11,7 +11,8 @@ class VocabRepositoryImpl implements VocabRepository {
   @override
   Future<List<VocabDeckModel>> fetchDecks() async {
     final Map<String, dynamic> map = await _provider.fetchDecks();
-    final List<dynamic> rawDecks = map['decks'] as List<dynamic>? ?? <dynamic>[];
+    final List<dynamic> rawDecks =
+        map['decks'] as List<dynamic>? ?? <dynamic>[];
 
     return rawDecks
         .whereType<Map<String, dynamic>>()
@@ -22,12 +23,33 @@ class VocabRepositoryImpl implements VocabRepository {
   @override
   Future<List<VocabCardModel>> fetchDeckCards(String deckId) async {
     final Map<String, dynamic> map = await _provider.fetchDeckCards(deckId);
-    final List<dynamic> rawCards = map['words'] as List<dynamic>? ?? <dynamic>[];
+    final List<dynamic> rawCards =
+        map['words'] as List<dynamic>? ?? <dynamic>[];
 
     return rawCards
         .whereType<Map<String, dynamic>>()
-        .map((Map<String, dynamic> item) => VocabCardModel.fromApiMap(item, deckId: deckId))
+        .map(
+          (Map<String, dynamic> item) =>
+              VocabCardModel.fromApiMap(item, deckId: deckId),
+        )
         .toList();
+  }
+
+  @override
+  Future<void> saveManualVocabulary({
+    required String word,
+    required String definition,
+    required String sourceSessionId,
+    required String sampleSentence,
+    String? sourceMessageId,
+  }) async {
+    await _provider.saveManualVocabulary(
+      word: word,
+      definition: definition,
+      sourceSessionId: sourceSessionId,
+      sampleSentence: sampleSentence,
+      sourceMessageId: sourceMessageId,
+    );
   }
 
   @override

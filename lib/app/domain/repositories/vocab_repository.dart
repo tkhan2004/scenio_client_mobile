@@ -6,5 +6,13 @@ abstract class VocabRepository {
 
   Future<List<VocabCardModel>> fetchDeckCards(String deckId);
 
+  Future<void> saveManualVocabulary({
+    required String word,
+    required String definition,
+    required String sourceSessionId,
+    required String sampleSentence,
+    String? sourceMessageId,
+  });
+
   Future<void> markWordAsDone(String wordId);
 }

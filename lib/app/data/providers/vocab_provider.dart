@@ -14,6 +14,26 @@ class VocabProvider {
     return _apiClient.get(ApiEndpoints.vocabularyDeckDetail(deckId));
   }
 
+  Future<Map<String, dynamic>> saveManualVocabulary({
+    required String word,
+    required String definition,
+    required String sourceSessionId,
+    required String sampleSentence,
+    String? sourceMessageId,
+  }) {
+    return _apiClient.post(
+      ApiEndpoints.vocabulary,
+      data: <String, dynamic>{
+        'word': word,
+        'definition': definition,
+        'sourceSessionId': sourceSessionId,
+        'sampleSentence': sampleSentence,
+        if (sourceMessageId != null && sourceMessageId.isNotEmpty)
+          'sourceMessageId': sourceMessageId,
+      },
+    );
+  }
+
   Future<Map<String, dynamic>> markWordAsDone(String wordId) {
     return _apiClient.post(
       ApiEndpoints.vocabularyReview(wordId),
