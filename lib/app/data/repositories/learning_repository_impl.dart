@@ -3,6 +3,8 @@ import '../../domain/entities/message_entity.dart';
 import '../../domain/entities/scene_entity.dart';
 import '../../domain/repositories/learning_repository.dart';
 import '../models/home_dashboard_model.dart';
+import '../models/learning_plan_model.dart';
+import '../models/realtime_token_model.dart';
 import '../models/scene_api_model.dart';
 import '../models/session_flow_model.dart';
 import '../providers/learning_provider.dart';
@@ -16,6 +18,29 @@ class LearningRepositoryImpl implements LearningRepository {
   @override
   Future<HomeDashboardModel> fetchDashboard() async {
     return HomeDashboardModel.fromMap(await _provider.fetchDashboard());
+  }
+
+  @override
+  Future<LearningPlanResponseModel> fetchCurrentLearningPlan() async {
+    return LearningPlanResponseModel.fromMap(
+      await _provider.fetchCurrentLearningPlan(),
+    );
+  }
+
+  @override
+  Future<LearningPlanResponseModel> refreshLearningPlan() async {
+    return LearningPlanResponseModel.fromMap(
+      await _provider.refreshLearningPlan(),
+    );
+  }
+
+  @override
+  Future<LearningPlanResponseModel> completeLearningPlanStep(
+    String stepId,
+  ) async {
+    return LearningPlanResponseModel.fromMap(
+      await _provider.completeLearningPlanStep(stepId),
+    );
   }
 
   @override
@@ -46,9 +71,24 @@ class LearningRepositoryImpl implements LearningRepository {
   }
 
   @override
-  Future<SessionStartModel> startSession({required String sceneId}) async {
+  Future<SessionStartModel> startSession({
+    required String sceneId,
+    String modality = 'TEXT',
+    String? voiceProfileId,
+  }) async {
     return SessionStartModel.fromMap(
-      await _provider.startSession(sceneId: sceneId),
+      await _provider.startSession(
+        sceneId: sceneId,
+        modality: modality,
+        voiceProfileId: voiceProfileId,
+      ),
+    );
+  }
+
+  @override
+  Future<RealtimeTokenModel> createRealtimeToken(String sessionId) async {
+    return RealtimeTokenModel.fromMap(
+      await _provider.createRealtimeToken(sessionId),
     );
   }
 
@@ -66,13 +106,19 @@ class LearningRepositoryImpl implements LearningRepository {
     required String sessionId,
     required String source,
     required String content,
-    required int turnIndex,
+    int? turnIndex,
+    String? providerEventId,
+    int? audioStartMs,
+    int? audioEndMs,
   }) async {
     await _provider.syncMessage(
       sessionId: sessionId,
       source: source,
       content: content,
       turnIndex: turnIndex,
+      providerEventId: providerEventId,
+      audioStartMs: audioStartMs,
+      audioEndMs: audioEndMs,
     );
   }
 

@@ -45,7 +45,7 @@ class CustomPracticeDraft {
   final List<String> specialConditions;
 
   Map<String, dynamic> toRequestMap() {
-    return <String, dynamic>{
+    return _withoutNullValues(<String, dynamic>{
       'practiceGoal': practiceGoal.trim(),
       'successOutcome': successOutcome.trim().isEmpty
           ? null
@@ -94,8 +94,40 @@ class CustomPracticeDraft {
             : customInstructions.trim(),
       },
       'modality': 'TEXT',
-    };
+    });
   }
+}
+
+Map<String, dynamic> _withoutNullValues(Map<String, dynamic> map) {
+  final Map<String, dynamic> sanitized = <String, dynamic>{};
+
+  map.forEach((String key, dynamic value) {
+    if (value == null) {
+      return;
+    }
+
+    if (value is Map<String, dynamic>) {
+      sanitized[key] = _withoutNullValues(value);
+      return;
+    }
+
+    if (value is List<dynamic>) {
+      sanitized[key] = value
+          .map<dynamic>((dynamic item) {
+            if (item is Map<String, dynamic>) {
+              return _withoutNullValues(item);
+            }
+            return item;
+          })
+          .where((dynamic item) => item != null)
+          .toList();
+      return;
+    }
+
+    sanitized[key] = value;
+  });
+
+  return sanitized;
 }
 
 class CustomPracticeStartModel {

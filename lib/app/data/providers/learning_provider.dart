@@ -11,6 +11,21 @@ class LearningProvider {
     return _apiClient.get(ApiEndpoints.homeDashboard);
   }
 
+  Future<Map<String, dynamic>> fetchCurrentLearningPlan() {
+    return _apiClient.get(ApiEndpoints.learningPlanCurrent);
+  }
+
+  Future<Map<String, dynamic>> refreshLearningPlan() {
+    return _apiClient.post(
+      ApiEndpoints.learningPlanRefresh,
+      data: <String, dynamic>{},
+    );
+  }
+
+  Future<Map<String, dynamic>> completeLearningPlanStep(String stepId) {
+    return _apiClient.patch(ApiEndpoints.learningPlanStepComplete(stepId));
+  }
+
   Future<Map<String, dynamic>> fetchScenes({
     String? category,
     String? difficulty,
@@ -30,16 +45,30 @@ class LearningProvider {
     return _apiClient.get(ApiEndpoints.sceneDetail(sceneId));
   }
 
-  Future<Map<String, dynamic>> startSession({required String sceneId}) {
+  Future<Map<String, dynamic>> startSession({
+    required String sceneId,
+    String modality = 'TEXT',
+    String? voiceProfileId,
+  }) {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'sceneId': sceneId,
+      'modality': modality,
+    };
+    if (voiceProfileId != null) {
+      data['voiceProfileId'] = voiceProfileId;
+    }
+
+    return _apiClient.post(ApiEndpoints.startSession, data: data);
+  }
+
+  Future<Map<String, dynamic>> createRealtimeToken(String sessionId) {
     return _apiClient.post(
-      ApiEndpoints.startSession,
-      data: <String, dynamic>{'sceneId': sceneId, 'modality': 'TEXT'},
+      ApiEndpoints.sessionRealtimeToken(sessionId),
+      data: <String, dynamic>{},
     );
   }
 
-  Future<Map<String, dynamic>> startCustomSession(
-    CustomPracticeDraft draft,
-  ) {
+  Future<Map<String, dynamic>> startCustomSession(CustomPracticeDraft draft) {
     return _apiClient.post(
       ApiEndpoints.startCustomSession,
       data: draft.toRequestMap(),
@@ -50,17 +79,30 @@ class LearningProvider {
     required String sessionId,
     required String source,
     required String content,
-    required int turnIndex,
+    int? turnIndex,
+    String? providerEventId,
+    int? audioStartMs,
+    int? audioEndMs,
   }) {
-    return _apiClient.post(
-      ApiEndpoints.sessionMessage(sessionId),
-      data: <String, dynamic>{
-        'source': source,
-        'content': content,
-        'turnIndex': turnIndex,
-        'isFinal': true,
-      },
-    );
+    final Map<String, dynamic> data = <String, dynamic>{
+      'source': source,
+      'content': content,
+      'isFinal': true,
+    };
+    if (turnIndex != null) {
+      data['turnIndex'] = turnIndex;
+    }
+    if (providerEventId != null) {
+      data['providerEventId'] = providerEventId;
+    }
+    if (audioStartMs != null) {
+      data['audioStartMs'] = audioStartMs;
+    }
+    if (audioEndMs != null) {
+      data['audioEndMs'] = audioEndMs;
+    }
+
+    return _apiClient.post(ApiEndpoints.sessionMessage(sessionId), data: data);
   }
 
   Future<Map<String, dynamic>> completeSession(String sessionId) {

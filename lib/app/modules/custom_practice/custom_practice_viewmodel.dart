@@ -359,7 +359,11 @@ class CustomPracticeViewModel extends GetxController {
   }
 
   void _showStepMessage(String message) {
-    ScenioAlert.show(title: 'Scenio', message: message, isError: true);
+    ScenioAlert.show(
+      title: AppStrings.appName,
+      message: message,
+      isError: true,
+    );
   }
 
   void _applyPreset(CustomPracticePreset preset) {

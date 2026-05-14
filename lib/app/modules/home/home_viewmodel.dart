@@ -9,6 +9,8 @@ import '../../core/storage/storage_service.dart';
 import '../../core/utils/scenio_alerts.dart';
 import '../../data/models/custom_practice_model.dart';
 import '../../data/models/home_dashboard_model.dart';
+import '../../data/models/learning_plan_model.dart';
+import '../../data/models/realtime_token_model.dart';
 import '../../data/models/session_flow_model.dart';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/entities/scene_entity.dart';
@@ -87,8 +89,11 @@ class HomeViewModel extends GetxController {
   final Rxn<SessionResultEntity> lastCompletedResult =
       Rxn<SessionResultEntity>();
   final Rxn<UserEntity> currentUser = Rxn<UserEntity>();
+  final Rxn<LearningPlanResponseModel> learningPlan =
+      Rxn<LearningPlanResponseModel>();
   final RxBool isLoadingDashboard = false.obs;
   final RxBool isLoadingScenes = false.obs;
+  final RxBool isRefreshingLearningPlan = false.obs;
 
   final RxList<SceneEntity> _scenes = <SceneEntity>[..._fallbackScenes()].obs;
   final RxList<SceneEntity> _recommendedScenes = <SceneEntity>[
@@ -153,6 +158,15 @@ class HomeViewModel extends GetxController {
 
   List<HomeMissionCardData> get todayMissions => _todayMissions;
   List<SceneEntity> get scenes => _scenes;
+  LearningPlanResponseModel? get currentLearningPlan => learningPlan.value;
+  bool get hasLearningPlan => learningPlan.value != null;
+  String get learningPlanFocusLabel =>
+      _labelForFocusSkill(learningPlan.value?.plan.focusSkill);
+  String get learningPlanProgressLabel {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    if (plan == null) return '0/0 steps';
+    return '${plan.completedSteps}/${plan.totalSteps} steps';
+  }
 
   List<SceneCategory?> get sceneCategoryFilters => <SceneCategory?>[
     null,
@@ -256,6 +270,7 @@ class HomeViewModel extends GetxController {
     try {
       final HomeDashboardModel dashboard = await _repository.fetchDashboard();
       currentUser.value = dashboard.user;
+      await _loadLearningPlanQuietly();
       _todayMissions.assignAll(
         dashboard.missions
             .map(
@@ -290,6 +305,14 @@ class HomeViewModel extends GetxController {
     } finally {
       isLoadingDashboard.value = false;
       isLoadingScenes.value = false;
+    }
+  }
+
+  Future<void> _loadLearningPlanQuietly() async {
+    try {
+      learningPlan.value = await _repository.fetchCurrentLearningPlan();
+    } catch (_) {
+      // Home vẫn dùng được nếu learning plan đang tạm lỗi hoặc backend chưa seed.
     }
   }
 
@@ -372,6 +395,86 @@ class HomeViewModel extends GetxController {
     openSceneDetails(heroScene);
   }
 
+  void handleLearningPlanTap() {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    final LearningPlanNextStepModel? nextStep = plan?.nextStep;
+    final String? sceneId = nextStep?.sceneId;
+
+    if (sceneId == null || sceneId.isEmpty) {
+      refreshLearningPlan();
+      return;
+    }
+
+    final LearningPlanStepModel? matchingStep = _findPlanStepById(
+      plan,
+      nextStep?.id,
+    );
+
+    if (matchingStep?.scene != null) {
+      openSceneDetails(matchingStep!.scene!);
+      return;
+    }
+
+    unawaited(_openSceneById(sceneId));
+  }
+
+  Future<void> _openSceneById(String sceneId) async {
+    try {
+      final SceneEntity scene = await _repository.fetchSceneDetail(sceneId);
+      _replaceOrInsertScene(scene);
+      await Get.toNamed(Routes.sceneDetail, arguments: scene);
+    } catch (_) {
+      final SceneEntity? fallback = _findSceneById(sceneId);
+      if (fallback != null) {
+        await Get.toNamed(Routes.sceneDetail, arguments: fallback);
+        return;
+      }
+      _showError('Không thể mở bước học tiếp theo lúc này.');
+    }
+  }
+
+  LearningPlanStepModel? _findPlanStepById(
+    LearningPlanResponseModel? plan,
+    String? stepId,
+  ) {
+    if (plan == null || stepId == null) return null;
+    for (final LearningPlanStepModel step in plan.steps) {
+      if (step.id == stepId) return step;
+    }
+    return null;
+  }
+
+  SceneEntity? _findSceneById(String sceneId) {
+    for (final SceneEntity scene in _scenes) {
+      if (scene.id == sceneId) return scene;
+    }
+    return null;
+  }
+
+  void refreshLearningPlan() {
+    unawaited(_refreshLearningPlan());
+  }
+
+  Future<void> _refreshLearningPlan() async {
+    if (isRefreshingLearningPlan.value) return;
+
+    isRefreshingLearningPlan.value = true;
+    try {
+      learningPlan.value = await _repository.refreshLearningPlan();
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: 'Đã làm mới lộ trình học của bạn.',
+        isSuccess: true,
+      );
+    } on ApiException catch (error) {
+      _showError(error.message);
+    } catch (_) {
+      _showError('Không thể làm mới lộ trình lúc này.');
+    } finally {
+      isRefreshingLearningPlan.value = false;
+    }
+  }
+
   void openPracticeSession() {
     if (!hasActiveSession) return;
     Get.toNamed(Routes.practiceSession, arguments: currentSession!.id);
@@ -416,6 +519,7 @@ class HomeViewModel extends GetxController {
     try {
       final SessionStartModel start = await _repository.startSession(
         sceneId: scene.id,
+        modality: 'VOICE',
       );
       activeSession.value = start.toSessionEntity(scene);
       activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
@@ -638,6 +742,63 @@ class HomeViewModel extends GetxController {
     }
   }
 
+  Future<RealtimeTokenModel> createRealtimeTokenForCurrentSession() {
+    final SessionEntity? session = currentSession;
+    if (session == null) {
+      throw StateError('No active session');
+    }
+    return _repository.createRealtimeToken(session.id);
+  }
+
+  void appendRealtimeTranscriptMessage({
+    required MessageAuthor author,
+    required String content,
+    String? providerEventId,
+  }) {
+    final SessionEntity? session = currentSession;
+    if (session == null || content.trim().isEmpty) return;
+
+    final int nextTurn = author == MessageAuthor.user
+        ? (session.completedTurns + 1).clamp(0, session.targetTurns).toInt()
+        : session.completedTurns;
+
+    activeMessages.add(
+      MessageEntity(
+        id:
+            providerEventId ??
+            '${session.id}-${author.name}-${DateTime.now().millisecondsSinceEpoch}',
+        sessionId: session.id,
+        author: author,
+        text: content.trim(),
+        createdAt: DateTime.now(),
+      ),
+    );
+
+    if (author == MessageAuthor.user) {
+      activeSession.value = session.copyWith(completedTurns: nextTurn);
+    }
+  }
+
+  Future<void> syncAudioTranscript({
+    required MessageAuthor author,
+    required String content,
+    String? providerEventId,
+    int? audioStartMs,
+    int? audioEndMs,
+  }) async {
+    final SessionEntity? session = currentSession;
+    if (session == null || content.trim().isEmpty) return;
+
+    await _repository.syncMessage(
+      sessionId: session.id,
+      source: author == MessageAuthor.user ? 'USER_AUDIO' : 'AI_AUDIO',
+      content: content,
+      providerEventId: providerEventId,
+      audioStartMs: audioStartMs,
+      audioEndMs: audioEndMs,
+    );
+  }
+
   void requestHint() {
     unawaited(_requestHint());
   }
@@ -711,8 +872,10 @@ class HomeViewModel extends GetxController {
       practiceState.value = PracticeRealtimeState.idle;
       if (showAlert) {
         ScenioAlert.show(
-          title: 'Scenio',
+          title: AppStrings.appName,
           message: AppStrings.practiceLeaveSnackbar,
+          icon: Icons.check_circle_outline_rounded,
+          isSuccess: true,
         );
       }
     }
@@ -748,7 +911,26 @@ class HomeViewModel extends GetxController {
   }
 
   void _showError(String message) {
-    ScenioAlert.show(title: 'Scenio', message: message, isError: true);
+    ScenioAlert.show(
+      title: AppStrings.appName,
+      message: message,
+      isError: true,
+    );
+  }
+
+  String _labelForFocusSkill(String? raw) {
+    switch (raw?.toUpperCase()) {
+      case 'GRAMMAR':
+        return AppStrings.profileSkillGrammar;
+      case 'VOCABULARY':
+        return AppStrings.profileSkillVocabulary;
+      case 'NATURALNESS':
+        return AppStrings.profileSkillNaturalness;
+      case 'CONFIDENCE':
+        return Get.locale?.languageCode == 'vi' ? 'Tự tin' : 'Confidence';
+      default:
+        return Get.locale?.languageCode == 'vi' ? 'Cá nhân hóa' : 'Personal';
+    }
   }
 
   String _formatSessionStart(DateTime time) {

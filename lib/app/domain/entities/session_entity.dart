@@ -5,12 +5,19 @@ enum SessionStatus { active, completed, abandoned }
 enum PracticeRealtimeState {
   idle,
   starting,
+  requestingPermission,
+  connecting,
   active,
   userTyping,
   userListening,
+  userSpeaking,
   aiThinking,
   aiSpeaking,
+  reconnecting,
   paused,
+  finishing,
+  completed,
+  error,
 }
 
 class SessionEntity {
@@ -82,6 +89,8 @@ class SessionResultEntity {
     required this.completedTurns,
     required this.targetTurns,
     required this.transcript,
+    this.spokenCoaching,
+    this.nextLearningAction,
   });
 
   final String sessionId;
@@ -95,4 +104,72 @@ class SessionResultEntity {
   final int completedTurns;
   final int targetTurns;
   final List<MessageEntity> transcript;
+  final SessionSpokenCoachingEntity? spokenCoaching;
+  final SessionNextLearningActionEntity? nextLearningAction;
+}
+
+class SessionSpokenCoachingEntity {
+  const SessionSpokenCoachingEntity({
+    required this.available,
+    required this.mode,
+    required this.summary,
+    required this.expressionScore,
+    required this.clarityScore,
+    required this.confidenceScore,
+    required this.strengths,
+    required this.improvements,
+    required this.turnHighlights,
+    required this.note,
+  });
+
+  final bool available;
+  final String mode;
+  final String summary;
+  final int expressionScore;
+  final int clarityScore;
+  final int confidenceScore;
+  final List<String> strengths;
+  final List<String> improvements;
+  final List<SessionTurnHighlightEntity> turnHighlights;
+  final String note;
+}
+
+class SessionTurnHighlightEntity {
+  const SessionTurnHighlightEntity({
+    required this.messageId,
+    required this.turnIndex,
+    required this.content,
+    required this.status,
+    required this.focus,
+    required this.note,
+    this.suggestion,
+  });
+
+  final String messageId;
+  final int turnIndex;
+  final String content;
+  final String status;
+  final String focus;
+  final String note;
+  final String? suggestion;
+
+  bool get isPositive => status.toUpperCase() == 'GOOD';
+}
+
+class SessionNextLearningActionEntity {
+  const SessionNextLearningActionEntity({
+    required this.type,
+    required this.focus,
+    required this.title,
+    required this.reason,
+    required this.ctaLabel,
+    required this.suggestedSceneQuery,
+  });
+
+  final String type;
+  final String focus;
+  final String title;
+  final String reason;
+  final String ctaLabel;
+  final String suggestedSceneQuery;
 }

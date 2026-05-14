@@ -25,6 +25,9 @@ class HomeDashboardModel {
         streakDays: (userMap['streakDays'] as num?)?.toInt() ?? 0,
         needsLevelTest: false,
         needsOnboarding: false,
+        learningGoal: userMap['learningGoal'] as String?,
+        studyFrequency: userMap['studyFrequency'] as String?,
+        selfAssessment: userMap['selfAssessment'] as String?,
       ),
       missions: (map['missions'] as List<dynamic>? ?? const <dynamic>[])
           .whereType<Map<String, dynamic>>()

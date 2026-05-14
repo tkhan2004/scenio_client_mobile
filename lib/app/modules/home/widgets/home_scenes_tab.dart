@@ -358,7 +358,12 @@ class _RecommendedSceneCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppDimensions.lg),
-            Text(scene.title, style: AppTextStyles.h2),
+            Text(
+              scene.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.h2,
+            ),
             const SizedBox(height: AppDimensions.xs),
             Text(
               scene.description,
@@ -371,11 +376,15 @@ class _RecommendedSceneCard extends StatelessWidget {
             const Spacer(),
             Text(
               '${scene.characterName} • ${scene.characterRole}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.labelLarge.copyWith(color: tint),
             ),
             const SizedBox(height: AppDimensions.xs),
             Text(
               '${scene.categoryLabel} • ${scene.estimatedMinutes} min',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.labelMedium,
             ),
             SizedBox(height: AppDimensions.md),
@@ -436,7 +445,12 @@ class _SceneLibraryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(scene.title, style: AppTextStyles.h3),
+                    Text(
+                      scene.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.h3,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       scene.description,
@@ -464,6 +478,8 @@ class _SceneLibraryCard extends StatelessWidget {
           const SizedBox(height: AppDimensions.md),
           Text(
             '${scene.characterName} • ${scene.characterRole}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelLarge.copyWith(color: tint),
           ),
           const SizedBox(height: AppDimensions.xs),

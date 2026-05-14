@@ -187,11 +187,15 @@ class _ActivePracticeCard extends StatelessWidget {
           const SizedBox(height: AppDimensions.sm),
           Text(
             scene.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.displayMedium.copyWith(color: Colors.white),
           ),
           const SizedBox(height: AppDimensions.xs),
           Text(
             '${scene.characterName} • ${scene.characterRole}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.bodyMedium.copyWith(
               color: Colors.white.withValues(alpha: 0.88),
             ),
@@ -217,6 +221,8 @@ class _ActivePracticeCard extends StatelessWidget {
                 const SizedBox(height: AppDimensions.xs),
                 Text(
                   scene.mission,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
                 ),
                 SizedBox(height: AppDimensions.md),
@@ -475,10 +481,17 @@ class _QuickStartSceneTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(scene.title, style: AppTextStyles.h3),
+                  Text(
+                    scene.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h3,
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     '${scene.characterName} • ${scene.difficultyLabel} • ${scene.estimatedMinutes} min',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),

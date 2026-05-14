@@ -21,6 +21,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ProfileViewModel>(
       () => ProfileViewModel(
         authRepository: Get.find<AuthRepository>(),
+        learningRepository: Get.find<LearningRepository>(),
         userRepository: Get.find<UserRepository>(),
       ),
     );
