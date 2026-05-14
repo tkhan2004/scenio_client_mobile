@@ -7,20 +7,15 @@ import '../../core/network/api_response.dart';
 import '../../core/utils/scenio_alerts.dart';
 import '../../data/models/auth_session_model.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../domain/repositories/user_repository.dart';
 import '../../routes/app_routes.dart';
 
 enum AuthMode { login, register }
 
 class AuthViewModel extends GetxController {
-  AuthViewModel({
-    required AuthRepository repository,
-    required UserRepository userRepository,
-  }) : _repository = repository,
-       _userRepository = userRepository;
+  AuthViewModel({required AuthRepository repository})
+    : _repository = repository;
 
   final AuthRepository _repository;
-  final UserRepository _userRepository;
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
 
@@ -34,40 +29,27 @@ class AuthViewModel extends GetxController {
       TextEditingController();
 
   final Rx<AuthMode> mode = AuthMode.login.obs;
-  final RxInt registerStep = 0.obs;
   final RxBool rememberMe = true.obs;
   final RxBool obscureLoginPassword = true.obs;
   final RxBool obscureRegisterPassword = true.obs;
-  final RxString selectedLearningGoal = ''.obs;
-  final RxString selectedStudyFrequency = ''.obs;
-  final RxString selectedSelfAssessment = ''.obs;
-  final RxString learningGoalError = ''.obs;
-  final RxString studyFrequencyError = ''.obs;
-  final RxString selfAssessmentError = ''.obs;
   final RxBool isSubmittingLogin = false.obs;
   final RxBool isSubmittingRegister = false.obs;
+  final RxBool isSubmittingGoogle = false.obs;
 
   bool get isLogin => mode.value == AuthMode.login;
   bool get isRegister => mode.value == AuthMode.register;
-  bool get isRegisterStepOne => registerStep.value == 0;
-  bool get isRegisterStepTwo => registerStep.value == 1;
-  int get registerStepCount => 2;
-  String get registerStepTitle => isRegisterStepOne
-      ? AppStrings.authRegisterStepOneTitle
-      : AppStrings.authRegisterStepTwoTitle;
-  String get registerStepCaption => isRegisterStepOne
-      ? AppStrings.authRegisterStepOneCaption
-      : AppStrings.authRegisterStepTwoCaption;
+  bool get isGoogleSignInAvailable => _repository.isGoogleSignInAvailable;
+  String get googleSignInHint =>
+      _repository.googleSignInUnavailableMessage ??
+      AppStrings.authGoogleReadyMessage;
 
   void showLogin() {
     _dismissKeyboard();
-    _resetRegisterStep();
     mode.value = AuthMode.login;
   }
 
   void showRegister() {
     _dismissKeyboard();
-    _resetRegisterStep();
     mode.value = AuthMode.register;
   }
 
@@ -83,43 +65,8 @@ class AuthViewModel extends GetxController {
     obscureRegisterPassword.value = !obscureRegisterPassword.value;
   }
 
-  void nextRegisterStep() {
-    final FormState? formState = registerFormKey.currentState;
-    if (formState == null || !formState.validate()) return;
-
-    _dismissKeyboard();
-    registerStep.value = 1;
-  }
-
-  void previousRegisterStep() {
-    _dismissKeyboard();
-    if (registerStep.value > 0) {
-      registerStep.value -= 1;
-    }
-  }
-
   void handleRegisterBackNavigation() {
-    if (isRegisterStepTwo) {
-      previousRegisterStep();
-      return;
-    }
-
     showLogin();
-  }
-
-  void selectLearningGoal(String value) {
-    selectedLearningGoal.value = value;
-    learningGoalError.value = '';
-  }
-
-  void selectStudyFrequency(String value) {
-    selectedStudyFrequency.value = value;
-    studyFrequencyError.value = '';
-  }
-
-  void selectSelfAssessment(String value) {
-    selectedSelfAssessment.value = value;
-    selfAssessmentError.value = '';
   }
 
   String? validateIdentifier(String? value) {
@@ -165,7 +112,10 @@ class AuthViewModel extends GetxController {
         email: loginIdentifierController.text.trim(),
         password: loginPasswordController.text.trim(),
       );
-      _handleAuthenticatedSession(session);
+      _handleAuthenticatedSession(
+        session,
+        successMessage: AppStrings.authLoginSuccessMessage,
+      );
     } catch (error) {
       _showError(error);
     } finally {
@@ -180,7 +130,6 @@ class AuthViewModel extends GetxController {
   Future<void> _submitRegister() async {
     final FormState? formState = registerFormKey.currentState;
     if (formState == null || !formState.validate()) return;
-    if (!_validateOnboardingSelections()) return;
 
     isSubmittingRegister.value = true;
     try {
@@ -192,12 +141,10 @@ class AuthViewModel extends GetxController {
         password: registerPasswordController.text.trim(),
         displayName: displayName,
       );
-      await _userRepository.completeOnboarding(
-        learningGoal: selectedLearningGoal.value,
-        studyFrequency: selectedStudyFrequency.value,
-        selfAssessment: selectedSelfAssessment.value,
+      _handleAuthenticatedSession(
+        session,
+        successMessage: AppStrings.authRegisterSuccessMessage,
       );
-      _handleAuthenticatedSession(session, ignoreOnboardingFlag: true);
     } catch (error) {
       _showError(error);
     } finally {
@@ -210,7 +157,32 @@ class AuthViewModel extends GetxController {
   }
 
   void handleGoogleSignIn() {
-    _showNotice(AppStrings.authGoogleReadyMessage);
+    unawaited(_handleGoogleSignIn());
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    if (isSubmittingGoogle.value) {
+      return;
+    }
+
+    if (!isGoogleSignInAvailable) {
+      _showNotice(googleSignInHint);
+      return;
+    }
+
+    _dismissKeyboard();
+    isSubmittingGoogle.value = true;
+    try {
+      final AuthSessionModel session = await _repository.loginWithGoogle();
+      _handleAuthenticatedSession(
+        session,
+        successMessage: AppStrings.authGoogleSuccessMessage,
+      );
+    } catch (error) {
+      _showError(error);
+    } finally {
+      isSubmittingGoogle.value = false;
+    }
   }
 
   String? _validateRequired(String? value) {
@@ -220,70 +192,62 @@ class AuthViewModel extends GetxController {
     return null;
   }
 
-  bool _validateOnboardingSelections() {
-    bool isValid = true;
-
-    if (selectedLearningGoal.value.isEmpty) {
-      learningGoalError.value = AppStrings.authRequiredFieldMessage;
-      isValid = false;
-    } else {
-      learningGoalError.value = '';
-    }
-
-    if (selectedStudyFrequency.value.isEmpty) {
-      studyFrequencyError.value = AppStrings.authRequiredFieldMessage;
-      isValid = false;
-    } else {
-      studyFrequencyError.value = '';
-    }
-
-    if (selectedSelfAssessment.value.isEmpty) {
-      selfAssessmentError.value = AppStrings.authRequiredFieldMessage;
-      isValid = false;
-    } else {
-      selfAssessmentError.value = '';
-    }
-
-    return isValid;
-  }
-
-  void _resetRegisterStep() {
-    registerStep.value = 0;
-    learningGoalError.value = '';
-    studyFrequencyError.value = '';
-    selfAssessmentError.value = '';
-  }
-
   void _dismissKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void _handleAuthenticatedSession(
     AuthSessionModel session, {
-    bool ignoreOnboardingFlag = false,
+    required String successMessage,
   }) {
     _dismissKeyboard();
+    _showSuccess(successMessage);
 
-    if (!ignoreOnboardingFlag && session.needsOnboarding) {
-      Get.offAllNamed(Routes.onboarding);
+    if (session.needsOnboarding) {
+      Get.offAllNamed(Routes.accountOnboarding);
       return;
     }
 
     if (session.needsLevelTest) {
-      _showNotice(AppStrings.authLevelTestPendingMessage);
+      _showLevelTestNoticeAfterSuccess();
     }
 
     Get.offAllNamed(Routes.home);
   }
+
   void _showNotice(String message) {
-    ScenioAlert.show(title: 'Scenio', message: message);
+    ScenioAlert.show(title: AppStrings.appName, message: message);
+  }
+
+  void _showSuccess(String message) {
+    ScenioAlert.show(
+      title: AppStrings.appName,
+      message: message,
+      icon: Icons.check_circle_outline_rounded,
+      isSuccess: true,
+    );
+  }
+
+  void _showLevelTestNoticeAfterSuccess() {
+    Future<void>.delayed(const Duration(milliseconds: 3200), () {
+      if (Get.currentRoute != Routes.home) return;
+
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: AppStrings.authLevelTestPendingMessage,
+      );
+    });
   }
 
   void _showError(Object error) {
     final String message = error is ApiException
         ? error.message
         : error.toString().replaceFirst('Exception: ', '');
-    ScenioAlert.show(title: 'Scenio', message: message, isError: true);
+    ScenioAlert.show(
+      title: AppStrings.appName,
+      message: message,
+      isError: true,
+    );
   }
 
   @override

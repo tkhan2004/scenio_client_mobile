@@ -26,6 +26,7 @@ const Map<String, String> enUS = {
   'authLoginButton': 'Log In',
   'authSocialDivider': 'Or continue with',
   'authGoogle': 'Google',
+  'authGoogleButton': 'Continue with Google',
   'authFacebook': 'Facebook',
   'authFirstNameLabel': 'First Name',
   'authLastNameLabel': 'Last Name',
@@ -51,11 +52,61 @@ const Map<String, String> enUS = {
   'authLoginReadyMessage': 'Login flow UI is ready for API integration.',
   'authRegisterReadyMessage':
       'Registration flow UI is ready for API integration.',
+  'authLoginSuccessMessage': 'Signed in successfully. Welcome back to Scenio.',
+  'authRegisterSuccessMessage':
+      'Account created. Let us set up your learning path.',
+  'authGoogleSuccessMessage': 'Google sign-in completed successfully.',
   'authForgotPasswordMessage': 'Forgot password flow will be connected next.',
   'authGoogleReadyMessage': 'Google sign-in will be connected next.',
   'authFacebookReadyMessage': 'Facebook sign-in will be connected next.',
   'authLevelTestPendingMessage':
       'Level test will be connected next. You can continue exploring scenes for now.',
+  'accountOnboardingEyebrow': 'Learning setup',
+  'accountOnboardingTitle': 'Personalize how Scenio guides you',
+  'accountOnboardingSubtitle':
+      'These three choices help Scenio build your learning plan, recommend scenes, and focus feedback.',
+  'accountOnboardingGoalTitle': 'Why are you practicing English?',
+  'accountOnboardingGoalSubtitle':
+      'Your goal shapes the first scenes Scenio recommends.',
+  'accountOnboardingGoalWork': 'Work',
+  'accountOnboardingGoalWorkCaption':
+      'Meetings, interviews, and progress updates.',
+  'accountOnboardingGoalTravel': 'Travel',
+  'accountOnboardingGoalTravelCaption':
+      'Airport, hotel, and asking for directions.',
+  'accountOnboardingGoalDaily': 'Daily life',
+  'accountOnboardingGoalDailyCaption':
+      'Small talk, shopping, and everyday replies.',
+  'accountOnboardingGoalMixed': 'Mixed',
+  'accountOnboardingGoalMixedCaption':
+      'Let Scenio balance the right topics for you.',
+  'accountOnboardingFrequencyTitle': 'What practice rhythm feels realistic?',
+  'accountOnboardingFrequencySubtitle':
+      'Backend uses this rhythm to set your learning plan weekly target.',
+  'accountOnboardingFrequencyLight': 'Light',
+  'accountOnboardingFrequencyLightCaption': 'Around 2 sessions each week.',
+  'accountOnboardingFrequencyRegular': 'Regular',
+  'accountOnboardingFrequencyRegularCaption': 'Around 3 sessions each week.',
+  'accountOnboardingFrequencyIntensive': 'Intensive',
+  'accountOnboardingFrequencyIntensiveCaption': 'Around 5 sessions each week.',
+  'accountOnboardingFocusTitle': 'What feels hardest right now?',
+  'accountOnboardingFocusSubtitle':
+      'Scenio will prioritize feedback and next steps around this.',
+  'accountOnboardingFocusVocabulary': 'Vocabulary',
+  'accountOnboardingFocusVocabularyCaption': 'Finding useful phrases quickly.',
+  'accountOnboardingFocusGrammar': 'Grammar',
+  'accountOnboardingFocusGrammarCaption':
+      'Making sentences clearer and correct.',
+  'accountOnboardingFocusNaturalness': 'Naturalness',
+  'accountOnboardingFocusNaturalnessCaption':
+      'Sounding closer to real conversation.',
+  'accountOnboardingFocusConfidence': 'Confidence',
+  'accountOnboardingFocusConfidenceCaption':
+      'Starting without freezing or overthinking.',
+  'accountOnboardingSubmitButton': 'Create my learning plan',
+  'accountOnboardingSavingButton': 'Creating your plan...',
+  'accountOnboardingSuccessMessage':
+      'Learning setup saved. Scenio will use it to shape your next path.',
   'homeTabHome': 'Home',
   'homeTabScenes': 'Scenes',
   'homeTabVocabulary': 'Vocabulary',
@@ -77,6 +128,9 @@ const Map<String, String> enUS = {
   'homeMomentumSection': 'Your momentum',
   'homeMissionsSection': 'Today\'s missions',
   'homeRecommendedSection': 'Recommended scenes',
+  'homeLearningPlanSection': 'Your Learning Plan',
+  'homeLearningPlanNextStep': 'Next step',
+  'homeLearningPlanRefresh': 'Refresh',
   'homeSeeAll': 'See all',
   'homeStatXp': 'Total XP',
   'homeStatStreak': 'Streak',
@@ -173,6 +227,7 @@ const Map<String, String> enUS = {
       'Tune how many replies or scenes you want each day.',
   'profileActionLogout': 'Log out',
   'profileActionLogoutSubtitle': 'Sign out safely from this device.',
+  'profileLogoutSuccessMessage': 'You have been signed out from this device.',
   'homeTabPractice': 'Practice',
   'homeContinueResumeLabel': 'Continue practice',
   'homeContinueStartLabel': 'Suggested scene',
@@ -260,6 +315,13 @@ const Map<String, String> enUS = {
   'practiceTranscriptTitle': 'Transcript',
   'practiceTranscriptShow': 'Show transcript',
   'practiceTranscriptHide': 'Hide transcript',
+  'practiceVocabularyTooltip': 'Tap to save "{word}" to vocabulary',
+  'practiceVocabularyPopupTitle': 'Save this word?',
+  'practiceVocabularyPopupContext': 'Context',
+  'practiceVocabularySaveAction': 'Save for review',
+  'practiceVocabularySaved': 'Saved "{word}" to vocabulary station.',
+  'practiceVocabularySaveError':
+      'Could not save this word yet. Try again later.',
   'practiceCaptionAi': 'AI',
   'practiceCaptionYou': 'You',
   'practiceComposerHint': 'Type your next reply',
@@ -269,11 +331,24 @@ const Map<String, String> enUS = {
   'practiceControlMic': 'Mic',
   'practiceControlEnd': 'Finish',
   'practiceStateIdle': 'Idle',
+  'practiceStateRequestingMic': 'Requesting mic',
+  'practiceStateConnecting': 'Connecting',
   'practiceStateListening': 'Listening',
+  'practiceStateUserSpeaking': 'You are speaking',
   'practiceStateThinking': 'Thinking',
   'practiceStateSpeaking': 'Speaking',
+  'practiceStateReconnecting': 'Reconnecting',
   'practiceStatePaused': 'Paused',
   'practiceStateTyping': 'Typing',
+  'practiceStateFinishing': 'Finishing',
+  'practiceStateCompleted': 'Completed',
+  'practiceStateVoiceError': 'Voice error',
+  'practiceVoiceStatusIdle': 'Tap mic to speak with {name}',
+  'practiceVoiceStatusLive': 'Voice conversation is live',
+  'practiceVoiceStatusMuted': 'Mic is muted',
+  'practiceVoiceReadySnackbar': 'Voice realtime is ready.',
+  'practiceVoiceFallbackError':
+      'Could not start voice realtime. You can still practice with text.',
   'practiceHintSnackbar':
       'Focus on the mission and keep the reply short, natural, and confident.',
   'practiceVoiceSnackbar':
@@ -288,6 +363,28 @@ const Map<String, String> enUS = {
   'sessionResultVocabulary': 'Vocabulary',
   'sessionResultNaturalness': 'Naturalness',
   'sessionResultTranscriptTitle': 'Transcript highlights',
+  'sessionResultCoachTitle': 'AI coaching',
+  'sessionResultExpression': 'Expression',
+  'sessionResultClarity': 'Clarity',
+  'sessionResultConfidence': 'Confidence',
+  'sessionResultStrengthsTitle': 'What is working',
+  'sessionResultImprovementsTitle': 'What to improve next',
+  'sessionResultHighlightsTitle': 'Key turns to review',
+  'sessionResultNextStepTitle': 'Recommended next step',
+  'sessionResultNextStepGrammarTitle':
+      'Focus on sentence structure and grammar next',
+  'sessionResultNextStepVocabularyTitle':
+      'Focus on stronger vocabulary in context next',
+  'sessionResultNextStepNaturalnessTitle': 'Focus on more natural replies next',
+  'sessionResultNextStepGrammarBody':
+      'Choose a similar scene and keep the next replies short, clear, and structurally clean.',
+  'sessionResultNextStepVocabularyBody':
+      'Practice the same topic again and push for more specific words, phrases, and varied expressions.',
+  'sessionResultNextStepNaturalnessBody':
+      'Retry a related scene and focus on phrasing the idea naturally instead of translating word by word.',
+  'sessionResultNextStepGrammarButton': 'Practice grammar next',
+  'sessionResultNextStepVocabularyButton': 'Review vocabulary next',
+  'sessionResultNextStepNaturalnessButton': 'Practice natural replies',
   'sessionResultPrimaryButton': 'Back to home',
   'sessionResultSecondaryButton': 'View scene again',
   'profileActionLanguage': 'Language Settings',

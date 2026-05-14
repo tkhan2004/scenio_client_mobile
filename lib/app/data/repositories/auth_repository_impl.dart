@@ -1,3 +1,4 @@
+import '../../core/auth/google_sign_in_service.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/network/api_response.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -8,11 +9,26 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthProvider provider,
     required StorageService storageService,
+    required GoogleSignInService googleSignInService,
   }) : _provider = provider,
-       _storageService = storageService;
+       _storageService = storageService,
+       _googleSignInService = googleSignInService;
 
   final AuthProvider _provider;
   final StorageService _storageService;
+  final GoogleSignInService _googleSignInService;
+  bool _needsAccountOnboarding = false;
+
+  @override
+  bool get needsAccountOnboarding => _needsAccountOnboarding;
+
+  @override
+  bool get isGoogleSignInAvailable =>
+      _googleSignInService.isConfiguredForCurrentPlatform;
+
+  @override
+  String? get googleSignInUnavailableMessage =>
+      isGoogleSignInAvailable ? null : _googleSignInService.unavailableMessage;
 
   @override
   bool get hasSession => _storageService.hasSession;
@@ -25,6 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final AuthSessionModel session = AuthSessionModel.fromMap(
       await _provider.login(email: email, password: password),
     );
+    _needsAccountOnboarding = session.needsOnboarding;
     await _storageService.saveSession(
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
@@ -45,6 +62,21 @@ class AuthRepositoryImpl implements AuthRepository {
         displayName: displayName,
       ),
     );
+    _needsAccountOnboarding = session.needsOnboarding;
+    await _storageService.saveSession(
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+    );
+    return session;
+  }
+
+  @override
+  Future<AuthSessionModel> loginWithGoogle() async {
+    final String idToken = await _googleSignInService.signInAndGetIdToken();
+    final AuthSessionModel session = AuthSessionModel.fromMap(
+      await _provider.googleLogin(idToken: idToken),
+    );
+    _needsAccountOnboarding = session.needsOnboarding;
     await _storageService.saveSession(
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
@@ -59,7 +91,10 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     try {
-      await _provider.verifyToken();
+      final Map<String, dynamic> verification = await _provider.verifyToken();
+      final Map<String, dynamic> userMap =
+          verification['user'] as Map<String, dynamic>? ?? <String, dynamic>{};
+      _needsAccountOnboarding = userMap['needsOnboarding'] == true;
       return true;
     } on ApiException catch (error) {
       if (error.statusCode != 401) {
@@ -76,8 +111,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final Map<String, dynamic> refreshed = await _provider.refresh(
           refreshToken: refreshToken,
         );
-        final String newAccessToken =
-            refreshed['accessToken'] as String? ?? '';
+        final String newAccessToken = refreshed['accessToken'] as String? ?? '';
         if (newAccessToken.isEmpty) {
           await clearSession();
           return false;
@@ -101,12 +135,14 @@ class AuthRepositoryImpl implements AuthRepository {
         await _provider.logout(refreshToken: refreshToken);
       }
     } finally {
+      await _googleSignInService.signOut();
       await clearSession();
     }
   }
 
   @override
   Future<void> clearSession() {
+    _needsAccountOnboarding = false;
     return _storageService.clearSession();
   }
 }

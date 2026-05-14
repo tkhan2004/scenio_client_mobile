@@ -6,82 +6,102 @@ import '../../../data/models/profile_model.dart';
 import '../../home/widgets/scenio_icon_badge.dart';
 
 class ProfileHistoryCard extends StatelessWidget {
-  const ProfileHistoryCard({required this.item, super.key});
+  const ProfileHistoryCard({required this.item, this.onTap, super.key});
 
   final ProfileHistoryItem item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.lg),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: Container(
+          padding: const EdgeInsets.all(AppDimensions.lg),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(
+              color: AppColors.primary200.withValues(alpha: 0.9),
+            ),
+          ),
+          child: Column(
             children: <Widget>[
-              ScenioIconBadge(
-                icon: item.icon,
-                tint: AppColors.primary700,
-                size: 44,
-              ),
-              const SizedBox(width: AppDimensions.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(item.title, style: AppTextStyles.h3),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.meta,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ScenioIconBadge(
+                    icon: item.icon,
+                    tint: AppColors.primary700,
+                    size: 44,
+                  ),
+                  const SizedBox(width: AppDimensions.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(item.title, style: AppTextStyles.h3),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.meta,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.md,
+                      vertical: AppDimensions.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary50,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusFull,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.md,
-                  vertical: AppDimensions.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary50,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-                ),
-                child: Text(
-                  '${item.averageScore}',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: AppColors.primary800,
+                    child: Text(
+                      '${item.averageScore}',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: AppColors.primary800,
+                      ),
+                    ),
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: AppDimensions.md),
+              Row(
+                children: <Widget>[
+                  Text(
+                    item.dateLabel,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '+${item.xpEarned} XP',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: AppColors.secondary500,
+                    ),
+                  ),
+                  if (onTap != null) ...<Widget>[
+                    const SizedBox(width: AppDimensions.sm),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textSecondary,
+                      size: AppDimensions.iconSm,
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.md),
-          Row(
-            children: <Widget>[
-              Text(
-                item.dateLabel,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '+${item.xpEarned} XP',
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: AppColors.secondary500,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

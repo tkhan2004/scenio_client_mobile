@@ -71,12 +71,7 @@ class AuthView extends GetView<AuthViewModel> {
                     Positioned.fill(
                       top: sheetTop,
                       child: _AuthSheet(
-                        header: isLogin
-                            ? null
-                            : _RegisterSheetHeader(viewModel: controller),
-                        contentTopPadding: isLogin
-                            ? AppDimensions.xxl
-                            : AppDimensions.sm,
+                        contentTopPadding: AppDimensions.xxl,
                         content: isLogin
                             ? KeyedSubtree(
                                 key: const ValueKey<String>(
@@ -118,13 +113,11 @@ class AuthView extends GetView<AuthViewModel> {
 
 class _AuthSheet extends StatelessWidget {
   const _AuthSheet({
-    this.header,
     required this.contentTopPadding,
     required this.content,
     required this.footer,
   });
 
-  final Widget? header;
   final double contentTopPadding;
   final Widget content;
   final Widget footer;
@@ -152,16 +145,6 @@ class _AuthSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          if (header != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppDimensions.xxl,
-                AppDimensions.lg,
-                AppDimensions.xxl,
-                0,
-              ),
-              child: header!,
-            ),
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -194,58 +177,6 @@ class _AuthSheet extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RegisterSheetHeader extends StatelessWidget {
-  const _RegisterSheetHeader({required this.viewModel});
-
-  final AuthViewModel viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(
-      () => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          RegisterProgressHeader(
-            currentStep: viewModel.registerStep.value,
-            totalSteps: viewModel.registerStepCount,
-          ),
-          const SizedBox(height: AppDimensions.lg),
-          SizedBox(
-            height: 56,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 180),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              layoutBuilder: _buildTopAlignedSwitcherLayout,
-              transitionBuilder: _buildFadeSwitcherTransition,
-              child: _RegisterStepCopy(
-                key: ValueKey<String>(
-                  'register_sheet_header_${viewModel.registerStep.value}',
-                ),
-                title: viewModel.registerStepTitle,
-                caption: viewModel.registerStepCaption,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Widget _buildTopAlignedSwitcherLayout(
-  Widget? currentChild,
-  List<Widget> previousChildren,
-) {
-  return Stack(
-    alignment: Alignment.topLeft,
-    children: <Widget>[
-      ...previousChildren,
-      if (currentChild case final Widget child) child,
-    ],
-  );
 }
 
 Widget _buildCenteredSwitcherLayout(
@@ -361,34 +292,6 @@ class _AuthHero extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _RegisterStepCopy extends StatelessWidget {
-  const _RegisterStepCopy({
-    super.key,
-    required this.title,
-    required this.caption,
-  });
-
-  final String title;
-  final String caption;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(title, style: AppTextStyles.h2),
-        const SizedBox(height: 2),
-        Text(
-          caption,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );

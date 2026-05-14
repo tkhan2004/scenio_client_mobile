@@ -50,7 +50,7 @@ class ProfileHeroCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'K',
+                  controller.avatarInitial,
                   style: AppTextStyles.displayMedium.copyWith(
                     color: Colors.white,
                   ),

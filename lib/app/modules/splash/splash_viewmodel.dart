@@ -36,6 +36,10 @@ class SplashViewModel extends GetxController {
         Get.offNamed(Routes.auth);
         return;
       }
+      if (_authRepository.needsAccountOnboarding) {
+        Get.offNamed(Routes.accountOnboarding);
+        return;
+      }
       Get.offNamed(Routes.home);
       return;
     }

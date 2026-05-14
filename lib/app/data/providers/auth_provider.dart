@@ -31,6 +31,13 @@ class AuthProvider {
     );
   }
 
+  Future<Map<String, dynamic>> googleLogin({required String idToken}) {
+    return _apiClient.post(
+      ApiEndpoints.authGoogle,
+      data: <String, dynamic>{'idToken': idToken},
+    );
+  }
+
   Future<Map<String, dynamic>> refresh({
     required String refreshToken,
   }) {

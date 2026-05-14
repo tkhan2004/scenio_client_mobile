@@ -3,6 +3,8 @@ import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
 import '../modules/onboarding/onboarding_binding.dart';
 import '../modules/onboarding/onboarding_view.dart';
+import '../modules/account_onboarding/account_onboarding_binding.dart';
+import '../modules/account_onboarding/account_onboarding_view.dart';
 import '../modules/auth/auth_binding.dart';
 import '../modules/auth/auth_view.dart';
 import '../modules/chat/chat_binding.dart';
@@ -27,6 +29,11 @@ final List<GetPage<dynamic>> appPages = <GetPage<dynamic>>[
     name: Routes.onboarding,
     page: () => const OnboardingView(),
     binding: OnboardingBinding(),
+  ),
+  GetPage<dynamic>(
+    name: Routes.accountOnboarding,
+    page: () => const AccountOnboardingView(),
+    binding: AccountOnboardingBinding(),
   ),
   GetPage<dynamic>(
     name: Routes.auth,

@@ -53,6 +53,7 @@ class ProfileBadgeData {
 
 class ProfileHistoryItem {
   const ProfileHistoryItem({
+    required this.sessionId,
     required this.title,
     required this.meta,
     required this.dateLabel,
@@ -61,6 +62,7 @@ class ProfileHistoryItem {
     required this.icon,
   });
 
+  final String sessionId;
   final String title;
   final String meta;
   final String dateLabel;

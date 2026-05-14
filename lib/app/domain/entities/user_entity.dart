@@ -9,6 +9,9 @@ class UserEntity {
     required this.streakDays,
     required this.needsLevelTest,
     required this.needsOnboarding,
+    this.learningGoal,
+    this.studyFrequency,
+    this.selfAssessment,
   });
 
   final String id;
@@ -20,6 +23,9 @@ class UserEntity {
   final int streakDays;
   final bool needsLevelTest;
   final bool needsOnboarding;
+  final String? learningGoal;
+  final String? studyFrequency;
+  final String? selfAssessment;
 
   String get effectiveDisplayName {
     if (displayName != null && displayName!.trim().isNotEmpty) {

@@ -12,10 +12,12 @@ class AuthPrimaryButton extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final bool isEnabled = onPressed != null;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -25,7 +27,10 @@ class AuthPrimaryButton extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: <Color>[AppColors.primary800, AppColors.primary700],
+              colors: <Color>[
+                isEnabled ? AppColors.primary800 : AppColors.neutral300,
+                isEnabled ? AppColors.primary700 : AppColors.neutral200,
+              ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
@@ -34,7 +39,8 @@ class AuthPrimaryButton extends StatelessWidget {
             ),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: AppColors.primary800.withValues(alpha: 0.24),
+                color: (isEnabled ? AppColors.primary800 : AppColors.neutral300)
+                    .withValues(alpha: 0.24),
                 blurRadius: 24,
                 offset: const Offset(0, 12),
               ),

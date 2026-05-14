@@ -38,6 +38,7 @@ const Map<String, String> viVN = {
   'authLoginButton': 'Đăng nhập',
   'authSocialDivider': 'Hoặc đăng nhập với',
   'authGoogle': 'Google',
+  'authGoogleButton': 'Tiếp tục với Google',
   'authFacebook': 'Facebook',
 
   'authFirstNameLabel': 'Tên',
@@ -65,11 +66,58 @@ const Map<String, String> viVN = {
 
   'authLoginReadyMessage': 'Giao diện đã sẵn sàng kết nối API.',
   'authRegisterReadyMessage': 'Giao diện đã sẵn sàng kết nối API.',
+  'authLoginSuccessMessage':
+      'Đăng nhập thành công. Chào mừng bạn trở lại Scenio.',
+  'authRegisterSuccessMessage':
+      'Tạo tài khoản thành công. Cùng thiết lập lộ trình học của bạn.',
+  'authGoogleSuccessMessage': 'Đăng nhập Google thành công.',
   'authForgotPasswordMessage': 'Tính năng Quên mật khẩu sẽ sớm ra mắt.',
   'authGoogleReadyMessage': 'Đăng nhập bằng Google sẽ sớm ra mắt.',
   'authFacebookReadyMessage': 'Đăng nhập bằng Facebook sẽ sớm ra mắt.',
   'authLevelTestPendingMessage':
       'Bài kiểm tra trình độ sẽ được nối ở bước tiếp theo. Hiện bạn vẫn có thể vào app để tiếp tục khám phá.',
+
+  'accountOnboardingEyebrow': 'Thiết lập lộ trình',
+  'accountOnboardingTitle': 'Cá nhân hóa cách Scenio đồng hành với bạn',
+  'accountOnboardingSubtitle':
+      'Ba lựa chọn ngắn này giúp Scenio tạo lộ trình học, gợi ý ngữ cảnh và chọn kỹ năng cần ưu tiên.',
+  'accountOnboardingGoalTitle': 'Bạn muốn luyện tiếng Anh để làm gì?',
+  'accountOnboardingGoalSubtitle':
+      'Mục tiêu này sẽ định hướng các ngữ cảnh đầu tiên.',
+  'accountOnboardingGoalWork': 'Công việc',
+  'accountOnboardingGoalWorkCaption': 'Họp, phỏng vấn, báo cáo tiến độ.',
+  'accountOnboardingGoalTravel': 'Du lịch',
+  'accountOnboardingGoalTravelCaption': 'Sân bay, khách sạn, hỏi đường.',
+  'accountOnboardingGoalDaily': 'Đời sống',
+  'accountOnboardingGoalDailyCaption':
+      'Chào hỏi, mua sắm, trò chuyện hằng ngày.',
+  'accountOnboardingGoalMixed': 'Kết hợp',
+  'accountOnboardingGoalMixedCaption': 'Để Scenio tự cân bằng chủ đề phù hợp.',
+  'accountOnboardingFrequencyTitle': 'Bạn muốn học với nhịp độ nào?',
+  'accountOnboardingFrequencySubtitle':
+      'Backend sẽ dùng nhịp này để đặt weekly target cho learning plan.',
+  'accountOnboardingFrequencyLight': 'Nhẹ nhàng',
+  'accountOnboardingFrequencyLightCaption': 'Khoảng 2 buổi mỗi tuần.',
+  'accountOnboardingFrequencyRegular': 'Đều đặn',
+  'accountOnboardingFrequencyRegularCaption': 'Khoảng 3 buổi mỗi tuần.',
+  'accountOnboardingFrequencyIntensive': 'Tập trung',
+  'accountOnboardingFrequencyIntensiveCaption': 'Khoảng 5 buổi mỗi tuần.',
+  'accountOnboardingFocusTitle': 'Điểm nào đang làm bạn vướng nhất?',
+  'accountOnboardingFocusSubtitle':
+      'Scenio sẽ ưu tiên feedback và gợi ý bài theo điểm này.',
+  'accountOnboardingFocusVocabulary': 'Từ vựng',
+  'accountOnboardingFocusVocabularyCaption': 'Thiếu cụm từ để phản xạ nhanh.',
+  'accountOnboardingFocusGrammar': 'Ngữ pháp',
+  'accountOnboardingFocusGrammarCaption': 'Muốn nói câu rõ và đúng hơn.',
+  'accountOnboardingFocusNaturalness': 'Tự nhiên',
+  'accountOnboardingFocusNaturalnessCaption':
+      'Muốn câu nói giống người thật hơn.',
+  'accountOnboardingFocusConfidence': 'Tự tin',
+  'accountOnboardingFocusConfidenceCaption': 'Dễ ngập ngừng khi bắt đầu nói.',
+  'accountOnboardingSubmitButton': 'Tạo lộ trình của tôi',
+  'accountOnboardingSavingButton': 'Đang tạo lộ trình...',
+  'accountOnboardingSuccessMessage':
+      'Đã lưu thiết lập học tập. Scenio sẽ dùng thông tin này để tạo lộ trình phù hợp.',
 
   'homeTabHome': 'Trang chủ',
   'homeTabScenes': 'Ngữ cảnh',
@@ -92,6 +140,9 @@ const Map<String, String> viVN = {
   'homeMomentumSection': 'Thành tích của bạn',
   'homeMissionsSection': 'Nhiệm vụ hôm nay',
   'homeRecommendedSection': 'Gợi ý cho bạn',
+  'homeLearningPlanSection': 'Lộ trình học của bạn',
+  'homeLearningPlanNextStep': 'Bước tiếp theo',
+  'homeLearningPlanRefresh': 'Làm mới',
   'homeSeeAll': 'Xem tất cả',
   'homeStatXp': 'Tổng XP',
   'homeStatStreak': 'Chuỗi ngày',
@@ -195,6 +246,7 @@ const Map<String, String> viVN = {
   'profileActionLanguageSubtitle': 'Chuyển đổi Tiếng Việt và English.',
   'profileActionLogout': 'Đăng xuất',
   'profileActionLogoutSubtitle': 'Đăng xuất tài khoản khỏi thiết bị.',
+  'profileLogoutSuccessMessage': 'Đã đăng xuất khỏi thiết bị này.',
 
   'homeTabPractice': 'Thực hành',
   'homeContinueResumeLabel': 'Tiếp tục ngay',
@@ -453,6 +505,12 @@ const Map<String, String> viVN = {
   'practiceTranscriptTitle': 'Bản dịch chi tiết',
   'practiceTranscriptShow': 'Hiện bản dịch',
   'practiceTranscriptHide': 'Ẩn bản dịch',
+  'practiceVocabularyTooltip': 'Chạm để lưu "{word}" vào từ vựng',
+  'practiceVocabularyPopupTitle': 'Lưu từ này?',
+  'practiceVocabularyPopupContext': 'Ngữ cảnh',
+  'practiceVocabularySaveAction': 'Lưu để ôn lại',
+  'practiceVocabularySaved': 'Đã lưu "{word}" vào trạm từ vựng.',
+  'practiceVocabularySaveError': 'Chưa thể lưu từ này. Thử lại sau.',
   'practiceCaptionAi': 'AI',
   'practiceCaptionYou': 'Bạn',
   'practiceComposerHint': 'Nhập câu trả lời của bạn...',
@@ -462,11 +520,24 @@ const Map<String, String> viVN = {
   'practiceControlMic': 'Ghi âm',
   'practiceControlEnd': 'Xong',
   'practiceStateIdle': 'Đang chờ',
+  'practiceStateRequestingMic': 'Đang xin quyền mic',
+  'practiceStateConnecting': 'Đang kết nối',
   'practiceStateListening': 'AI Đang nghe',
+  'practiceStateUserSpeaking': 'Bạn đang nói',
   'practiceStateThinking': 'AI Đang xét',
   'practiceStateSpeaking': 'AI Đang phản hồi',
+  'practiceStateReconnecting': 'Đang kết nối lại',
   'practiceStatePaused': 'Tạm dừng',
   'practiceStateTyping': 'Bạn đang nhập',
+  'practiceStateFinishing': 'Đang hoàn tất',
+  'practiceStateCompleted': 'Đã hoàn tất',
+  'practiceStateVoiceError': 'Lỗi voice',
+  'practiceVoiceStatusIdle': 'Bấm mic để nói với {name}',
+  'practiceVoiceStatusLive': 'Đang đàm thoại realtime',
+  'practiceVoiceStatusMuted': 'Mic đang tắt',
+  'practiceVoiceReadySnackbar': 'Voice realtime đã sẵn sàng.',
+  'practiceVoiceFallbackError':
+      'Không thể mở voice realtime. Bạn vẫn có thể luyện bằng text.',
   'practiceHintSnackbar':
       'Mẹo: Hãy thoải mái trả lời ngắn gọn và sử dụng vốn từ của bạn.',
   'practiceVoiceSnackbar': 'Tính năng trò chuyện bằng giọng nói sẽ sớm ra mắt.',
@@ -481,6 +552,28 @@ const Map<String, String> viVN = {
   'sessionResultVocabulary': 'Từ vựng',
   'sessionResultNaturalness': 'Độ tự nhiên',
   'sessionResultTranscriptTitle': 'Chi tiết cuộc gọi',
+  'sessionResultCoachTitle': 'AI nhận xét',
+  'sessionResultExpression': 'Diễn đạt',
+  'sessionResultClarity': 'Độ rõ',
+  'sessionResultConfidence': 'Tự tin',
+  'sessionResultStrengthsTitle': 'Điểm đang làm tốt',
+  'sessionResultImprovementsTitle': 'Nên cải thiện tiếp',
+  'sessionResultHighlightsTitle': 'Các lượt đáng chú ý',
+  'sessionResultNextStepTitle': 'Bước luyện tiếp theo',
+  'sessionResultNextStepGrammarTitle': 'Ưu tiên luyện câu và ngữ pháp',
+  'sessionResultNextStepVocabularyTitle':
+      'Ưu tiên mở rộng từ vựng theo đúng ngữ cảnh',
+  'sessionResultNextStepNaturalnessTitle':
+      'Ưu tiên luyện cách nói tự nhiên hơn',
+  'sessionResultNextStepGrammarBody':
+      'Hãy chọn một scene gần với chủ đề vừa học và tập trung nói câu ngắn, rõ, đúng cấu trúc trước.',
+  'sessionResultNextStepVocabularyBody':
+      'Hãy luyện lại cùng chủ đề nhưng cố dùng thêm từ cụ thể, collocation và cách diễn đạt đa dạng hơn.',
+  'sessionResultNextStepNaturalnessBody':
+      'Hãy luyện tiếp một scene tương tự và ưu tiên nói theo ý tự nhiên, tránh dịch từng chữ từ tiếng Việt.',
+  'sessionResultNextStepGrammarButton': 'Luyện ngữ pháp tiếp',
+  'sessionResultNextStepVocabularyButton': 'Luyện từ vựng tiếp',
+  'sessionResultNextStepNaturalnessButton': 'Luyện nói tự nhiên hơn',
   'sessionResultPrimaryButton': 'Về màn hình chính',
-  'sessionResultSecondaryButton': 'Xem lại lịch sử',
+  'sessionResultSecondaryButton': 'Xem lại scene',
 };

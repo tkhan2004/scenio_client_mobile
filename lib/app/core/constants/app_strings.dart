@@ -52,6 +52,7 @@ abstract class AppStrings {
   static String get authLoginButton => 'authLoginButton'.tr;
   static String get authSocialDivider => 'authSocialDivider'.tr;
   static String get authGoogle => 'authGoogle'.tr;
+  static String get authGoogleButton => 'authGoogleButton'.tr;
   static String get authFacebook => 'authFacebook'.tr;
 
   static String get authFirstNameLabel => 'authFirstNameLabel'.tr;
@@ -81,11 +82,80 @@ abstract class AppStrings {
 
   static String get authLoginReadyMessage => 'authLoginReadyMessage'.tr;
   static String get authRegisterReadyMessage => 'authRegisterReadyMessage'.tr;
+  static String get authLoginSuccessMessage => 'authLoginSuccessMessage'.tr;
+  static String get authRegisterSuccessMessage =>
+      'authRegisterSuccessMessage'.tr;
+  static String get authGoogleSuccessMessage => 'authGoogleSuccessMessage'.tr;
   static String get authForgotPasswordMessage => 'authForgotPasswordMessage'.tr;
   static String get authGoogleReadyMessage => 'authGoogleReadyMessage'.tr;
   static String get authFacebookReadyMessage => 'authFacebookReadyMessage'.tr;
   static String get authLevelTestPendingMessage =>
       'authLevelTestPendingMessage'.tr;
+
+  static String get accountOnboardingEyebrow => 'accountOnboardingEyebrow'.tr;
+  static String get accountOnboardingTitle => 'accountOnboardingTitle'.tr;
+  static String get accountOnboardingSubtitle => 'accountOnboardingSubtitle'.tr;
+  static String get accountOnboardingGoalTitle =>
+      'accountOnboardingGoalTitle'.tr;
+  static String get accountOnboardingGoalSubtitle =>
+      'accountOnboardingGoalSubtitle'.tr;
+  static String get accountOnboardingGoalWork => 'accountOnboardingGoalWork'.tr;
+  static String get accountOnboardingGoalWorkCaption =>
+      'accountOnboardingGoalWorkCaption'.tr;
+  static String get accountOnboardingGoalTravel =>
+      'accountOnboardingGoalTravel'.tr;
+  static String get accountOnboardingGoalTravelCaption =>
+      'accountOnboardingGoalTravelCaption'.tr;
+  static String get accountOnboardingGoalDaily =>
+      'accountOnboardingGoalDaily'.tr;
+  static String get accountOnboardingGoalDailyCaption =>
+      'accountOnboardingGoalDailyCaption'.tr;
+  static String get accountOnboardingGoalMixed =>
+      'accountOnboardingGoalMixed'.tr;
+  static String get accountOnboardingGoalMixedCaption =>
+      'accountOnboardingGoalMixedCaption'.tr;
+  static String get accountOnboardingFrequencyTitle =>
+      'accountOnboardingFrequencyTitle'.tr;
+  static String get accountOnboardingFrequencySubtitle =>
+      'accountOnboardingFrequencySubtitle'.tr;
+  static String get accountOnboardingFrequencyLight =>
+      'accountOnboardingFrequencyLight'.tr;
+  static String get accountOnboardingFrequencyLightCaption =>
+      'accountOnboardingFrequencyLightCaption'.tr;
+  static String get accountOnboardingFrequencyRegular =>
+      'accountOnboardingFrequencyRegular'.tr;
+  static String get accountOnboardingFrequencyRegularCaption =>
+      'accountOnboardingFrequencyRegularCaption'.tr;
+  static String get accountOnboardingFrequencyIntensive =>
+      'accountOnboardingFrequencyIntensive'.tr;
+  static String get accountOnboardingFrequencyIntensiveCaption =>
+      'accountOnboardingFrequencyIntensiveCaption'.tr;
+  static String get accountOnboardingFocusTitle =>
+      'accountOnboardingFocusTitle'.tr;
+  static String get accountOnboardingFocusSubtitle =>
+      'accountOnboardingFocusSubtitle'.tr;
+  static String get accountOnboardingFocusVocabulary =>
+      'accountOnboardingFocusVocabulary'.tr;
+  static String get accountOnboardingFocusVocabularyCaption =>
+      'accountOnboardingFocusVocabularyCaption'.tr;
+  static String get accountOnboardingFocusGrammar =>
+      'accountOnboardingFocusGrammar'.tr;
+  static String get accountOnboardingFocusGrammarCaption =>
+      'accountOnboardingFocusGrammarCaption'.tr;
+  static String get accountOnboardingFocusNaturalness =>
+      'accountOnboardingFocusNaturalness'.tr;
+  static String get accountOnboardingFocusNaturalnessCaption =>
+      'accountOnboardingFocusNaturalnessCaption'.tr;
+  static String get accountOnboardingFocusConfidence =>
+      'accountOnboardingFocusConfidence'.tr;
+  static String get accountOnboardingFocusConfidenceCaption =>
+      'accountOnboardingFocusConfidenceCaption'.tr;
+  static String get accountOnboardingSubmitButton =>
+      'accountOnboardingSubmitButton'.tr;
+  static String get accountOnboardingSavingButton =>
+      'accountOnboardingSavingButton'.tr;
+  static String get accountOnboardingSuccessMessage =>
+      'accountOnboardingSuccessMessage'.tr;
 
   static String get homeTabHome => 'homeTabHome'.tr;
   static String get homeTabScenes => 'homeTabScenes'.tr;
@@ -108,6 +178,9 @@ abstract class AppStrings {
   static String get homeMomentumSection => 'homeMomentumSection'.tr;
   static String get homeMissionsSection => 'homeMissionsSection'.tr;
   static String get homeRecommendedSection => 'homeRecommendedSection'.tr;
+  static String get homeLearningPlanSection => 'homeLearningPlanSection'.tr;
+  static String get homeLearningPlanNextStep => 'homeLearningPlanNextStep'.tr;
+  static String get homeLearningPlanRefresh => 'homeLearningPlanRefresh'.tr;
   static String get homeSeeAll => 'homeSeeAll'.tr;
   static String get homeStatXp => 'homeStatXp'.tr;
   static String get homeStatStreak => 'homeStatStreak'.tr;
@@ -217,6 +290,8 @@ abstract class AppStrings {
   static String get profileActionLogout => 'profileActionLogout'.tr;
   static String get profileActionLogoutSubtitle =>
       'profileActionLogoutSubtitle'.tr;
+  static String get profileLogoutSuccessMessage =>
+      'profileLogoutSuccessMessage'.tr;
 
   static String get homeTabPractice => 'homeTabPractice'.tr;
   static String get homeContinueResumeLabel => 'homeContinueResumeLabel'.tr;
@@ -310,6 +385,16 @@ abstract class AppStrings {
   static String get practiceTranscriptTitle => 'practiceTranscriptTitle'.tr;
   static String get practiceTranscriptShow => 'practiceTranscriptShow'.tr;
   static String get practiceTranscriptHide => 'practiceTranscriptHide'.tr;
+  static String get practiceVocabularyTooltip => 'practiceVocabularyTooltip'.tr;
+  static String get practiceVocabularyPopupTitle =>
+      'practiceVocabularyPopupTitle'.tr;
+  static String get practiceVocabularyPopupContext =>
+      'practiceVocabularyPopupContext'.tr;
+  static String get practiceVocabularySaveAction =>
+      'practiceVocabularySaveAction'.tr;
+  static String get practiceVocabularySaved => 'practiceVocabularySaved'.tr;
+  static String get practiceVocabularySaveError =>
+      'practiceVocabularySaveError'.tr;
   static String get practiceCaptionAi => 'practiceCaptionAi'.tr;
   static String get practiceCaptionYou => 'practiceCaptionYou'.tr;
   static String get practiceComposerHint => 'practiceComposerHint'.tr;
@@ -319,11 +404,26 @@ abstract class AppStrings {
   static String get practiceControlMic => 'practiceControlMic'.tr;
   static String get practiceControlEnd => 'practiceControlEnd'.tr;
   static String get practiceStateIdle => 'practiceStateIdle'.tr;
+  static String get practiceStateRequestingMic =>
+      'practiceStateRequestingMic'.tr;
+  static String get practiceStateConnecting => 'practiceStateConnecting'.tr;
   static String get practiceStateListening => 'practiceStateListening'.tr;
+  static String get practiceStateUserSpeaking => 'practiceStateUserSpeaking'.tr;
   static String get practiceStateThinking => 'practiceStateThinking'.tr;
   static String get practiceStateSpeaking => 'practiceStateSpeaking'.tr;
+  static String get practiceStateReconnecting => 'practiceStateReconnecting'.tr;
   static String get practiceStatePaused => 'practiceStatePaused'.tr;
   static String get practiceStateTyping => 'practiceStateTyping'.tr;
+  static String get practiceStateFinishing => 'practiceStateFinishing'.tr;
+  static String get practiceStateCompleted => 'practiceStateCompleted'.tr;
+  static String get practiceStateVoiceError => 'practiceStateVoiceError'.tr;
+  static String get practiceVoiceStatusIdle => 'practiceVoiceStatusIdle'.tr;
+  static String get practiceVoiceStatusLive => 'practiceVoiceStatusLive'.tr;
+  static String get practiceVoiceStatusMuted => 'practiceVoiceStatusMuted'.tr;
+  static String get practiceVoiceReadySnackbar =>
+      'practiceVoiceReadySnackbar'.tr;
+  static String get practiceVoiceFallbackError =>
+      'practiceVoiceFallbackError'.tr;
   static String get practiceHintSnackbar => 'practiceHintSnackbar'.tr;
   static String get practiceVoiceSnackbar => 'practiceVoiceSnackbar'.tr;
   static String get practiceLeaveSnackbar => 'practiceLeaveSnackbar'.tr;
@@ -337,6 +437,36 @@ abstract class AppStrings {
   static String get sessionResultNaturalness => 'sessionResultNaturalness'.tr;
   static String get sessionResultTranscriptTitle =>
       'sessionResultTranscriptTitle'.tr;
+  static String get sessionResultCoachTitle => 'sessionResultCoachTitle'.tr;
+  static String get sessionResultExpression => 'sessionResultExpression'.tr;
+  static String get sessionResultClarity => 'sessionResultClarity'.tr;
+  static String get sessionResultConfidence => 'sessionResultConfidence'.tr;
+  static String get sessionResultStrengthsTitle =>
+      'sessionResultStrengthsTitle'.tr;
+  static String get sessionResultImprovementsTitle =>
+      'sessionResultImprovementsTitle'.tr;
+  static String get sessionResultHighlightsTitle =>
+      'sessionResultHighlightsTitle'.tr;
+  static String get sessionResultNextStepTitle =>
+      'sessionResultNextStepTitle'.tr;
+  static String get sessionResultNextStepGrammarTitle =>
+      'sessionResultNextStepGrammarTitle'.tr;
+  static String get sessionResultNextStepVocabularyTitle =>
+      'sessionResultNextStepVocabularyTitle'.tr;
+  static String get sessionResultNextStepNaturalnessTitle =>
+      'sessionResultNextStepNaturalnessTitle'.tr;
+  static String get sessionResultNextStepGrammarBody =>
+      'sessionResultNextStepGrammarBody'.tr;
+  static String get sessionResultNextStepVocabularyBody =>
+      'sessionResultNextStepVocabularyBody'.tr;
+  static String get sessionResultNextStepNaturalnessBody =>
+      'sessionResultNextStepNaturalnessBody'.tr;
+  static String get sessionResultNextStepGrammarButton =>
+      'sessionResultNextStepGrammarButton'.tr;
+  static String get sessionResultNextStepVocabularyButton =>
+      'sessionResultNextStepVocabularyButton'.tr;
+  static String get sessionResultNextStepNaturalnessButton =>
+      'sessionResultNextStepNaturalnessButton'.tr;
   static String get sessionResultPrimaryButton =>
       'sessionResultPrimaryButton'.tr;
   static String get sessionResultSecondaryButton =>
