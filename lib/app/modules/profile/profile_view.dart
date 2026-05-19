@@ -6,6 +6,7 @@ import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/models/profile_model.dart';
+import '../../widgets/skeleton_component/scenio_skeleton.dart';
 import 'profile_viewmodel.dart';
 
 import 'widgets/profile_hero_card.dart';
@@ -26,8 +27,14 @@ class ProfileView extends GetView<ProfileViewModel> {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: Obx(
-        () => RefreshIndicator(
+      child: Obx(() {
+        final bool showInitialSkeleton =
+            controller.isLoadingProfile.value &&
+            controller.profileUser.value == null &&
+            controller.progress.value == null &&
+            controller.badges.value == null;
+
+        return RefreshIndicator(
           color: AppColors.primary700,
           onRefresh: controller.refreshProfile,
           child: ListView(
@@ -40,129 +47,268 @@ class ProfileView extends GetView<ProfileViewModel> {
               AppDimensions.xxl,
               bottomPadding,
             ),
+            children: showInitialSkeleton
+                ? const <Widget>[_ProfileSkeletonBody()]
+                : <Widget>[
+                    if (controller.isLoadingProfile.value) ...<Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusFull,
+                        ),
+                        child: const LinearProgressIndicator(
+                          minHeight: 4,
+                          backgroundColor: AppColors.primary50,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primary700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppDimensions.lg),
+                    ],
+                    ProfileHeroCard(controller: controller),
+                    const SizedBox(height: AppDimensions.xl),
+                    ProfileSectionTitle(
+                      title: AppStrings.profileOverviewSection,
+                    ),
+                    SizedBox(height: AppDimensions.md),
+                    ProfileOverviewGrid(stats: controller.profileOverviewStats),
+                    SizedBox(height: AppDimensions.xl),
+                    ProfileSectionCard(
+                      title: AppStrings.profileWeeklyXpSection,
+                      subtitle: AppStrings.profileWeeklyXpCaption,
+                      trailing: Text(
+                        '${controller.profileOverviewStats.first.value} XP',
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.primary700,
+                        ),
+                      ),
+                      child: ProfileWeeklyXpChart(
+                        points: controller.profileWeeklyXp,
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.xl),
+                    ProfileSectionCard(
+                      title: AppStrings.profileSkillBreakdownSection,
+                      subtitle:
+                          'Your strongest areas from recent completed sessions.',
+                      child: Column(
+                        children: controller.profileSkillScores
+                            .map(
+                              (ProfileSkillScore score) => Padding(
+                                padding: EdgeInsets.only(
+                                  bottom:
+                                      score ==
+                                          controller.profileSkillScores.last
+                                      ? 0
+                                      : AppDimensions.md,
+                                ),
+                                child: ProfileSkillScoreRow(score: score),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.xl),
+                    ProfileSectionTitle(
+                      title: AppStrings.profileBadgesSection,
+                      actionLabel: controller.profileBadgesEarnedLabel,
+                    ),
+                    const SizedBox(height: AppDimensions.md),
+                    if (controller.profileBadges.isEmpty)
+                      const _ProfileEmptyState(
+                        icon: Icons.emoji_events_outlined,
+                        title: 'No badges yet',
+                        subtitle:
+                            'Complete sessions to unlock achievements from the backend.',
+                      )
+                    else
+                      Column(
+                        children: controller.profileBadges
+                            .map(
+                              (ProfileBadgeData badge) => Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: badge == controller.profileBadges.last
+                                      ? 0
+                                      : AppDimensions.md,
+                                ),
+                                child: ProfileBadgeCard(badge: badge),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    SizedBox(height: AppDimensions.xl),
+                    ProfileSectionTitle(
+                      title: AppStrings.profileHistorySection,
+                      actionLabel: AppStrings.profileViewAll,
+                    ),
+                    const SizedBox(height: AppDimensions.md),
+                    if (controller.profileHistory.isEmpty)
+                      const _ProfileEmptyState(
+                        icon: Icons.history_rounded,
+                        title: 'No completed sessions',
+                        subtitle:
+                            'Your completed practice history will appear here after session result.',
+                      )
+                    else
+                      ...controller.profileHistory.map(
+                        (ProfileHistoryItem item) => Padding(
+                          padding: EdgeInsets.only(
+                            bottom: item == controller.profileHistory.last
+                                ? 0
+                                : AppDimensions.md,
+                          ),
+                          child: ProfileHistoryCard(
+                            item: item,
+                            onTap: () => controller.openHistorySession(item),
+                          ),
+                        ),
+                      ),
+                    SizedBox(height: AppDimensions.xl),
+                    ProfileSectionCard(
+                      title: AppStrings.profileAccountSection,
+                      subtitle:
+                          'Shortcuts for the account features we will connect next.',
+                      child: Column(
+                        children: controller.profileActions
+                            .map(
+                              (ProfileActionItem item) =>
+                                  ProfileActionTile(action: item),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _ProfileSkeletonBody extends StatelessWidget {
+  const _ProfileSkeletonBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        ScenioSkeletonCard(
+          radius: AppDimensions.radiusXl,
+          padding: const EdgeInsets.all(AppDimensions.xxl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (controller.isLoadingProfile.value) ...<Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-                  child: const LinearProgressIndicator(
-                    minHeight: 4,
-                    backgroundColor: AppColors.primary50,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.primary700,
-                    ),
+              const Row(
+                children: <Widget>[
+                  ScenioSkeletonBox(
+                    width: 72,
+                    height: 72,
+                    radius: AppDimensions.radiusFull,
                   ),
-                ),
-                const SizedBox(height: AppDimensions.lg),
-              ],
-              ProfileHeroCard(controller: controller),
+                  Spacer(),
+                  ScenioSkeletonBox(
+                    width: 122,
+                    height: 42,
+                    radius: AppDimensions.radiusFull,
+                  ),
+                ],
+              ),
               const SizedBox(height: AppDimensions.xl),
-              ProfileSectionTitle(title: AppStrings.profileOverviewSection),
-              SizedBox(height: AppDimensions.md),
-              ProfileOverviewGrid(stats: controller.profileOverviewStats),
-              SizedBox(height: AppDimensions.xl),
-              ProfileSectionCard(
-                title: AppStrings.profileWeeklyXpSection,
-                subtitle: AppStrings.profileWeeklyXpCaption,
-                trailing: Text(
-                  '${controller.profileOverviewStats.first.value} XP',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: AppColors.primary700,
-                  ),
-                ),
-                child: ProfileWeeklyXpChart(points: controller.profileWeeklyXp),
-              ),
-              SizedBox(height: AppDimensions.xl),
-              ProfileSectionCard(
-                title: AppStrings.profileSkillBreakdownSection,
-                subtitle:
-                    'Your strongest areas from recent completed sessions.',
-                child: Column(
-                  children: controller.profileSkillScores
-                      .map(
-                        (ProfileSkillScore score) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: score == controller.profileSkillScores.last
-                                ? 0
-                                : AppDimensions.md,
-                          ),
-                          child: ProfileSkillScoreRow(score: score),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-              SizedBox(height: AppDimensions.xl),
-              ProfileSectionTitle(
-                title: AppStrings.profileBadgesSection,
-                actionLabel: controller.profileBadgesEarnedLabel,
-              ),
-              const SizedBox(height: AppDimensions.md),
-              if (controller.profileBadges.isEmpty)
-                const _ProfileEmptyState(
-                  icon: Icons.emoji_events_outlined,
-                  title: 'No badges yet',
-                  subtitle:
-                      'Complete sessions to unlock achievements from the backend.',
-                )
-              else
-                Column(
-                  children: controller.profileBadges
-                      .map(
-                        (ProfileBadgeData badge) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: badge == controller.profileBadges.last
-                                ? 0
-                                : AppDimensions.md,
-                          ),
-                          child: ProfileBadgeCard(badge: badge),
-                        ),
-                      )
-                      .toList(),
-                ),
-              SizedBox(height: AppDimensions.xl),
-              ProfileSectionTitle(
-                title: AppStrings.profileHistorySection,
-                actionLabel: AppStrings.profileViewAll,
-              ),
-              const SizedBox(height: AppDimensions.md),
-              if (controller.profileHistory.isEmpty)
-                const _ProfileEmptyState(
-                  icon: Icons.history_rounded,
-                  title: 'No completed sessions',
-                  subtitle:
-                      'Your completed practice history will appear here after session result.',
-                )
-              else
-                ...controller.profileHistory.map(
-                  (ProfileHistoryItem item) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: item == controller.profileHistory.last
-                          ? 0
-                          : AppDimensions.md,
-                    ),
-                    child: ProfileHistoryCard(
-                      item: item,
-                      onTap: () => controller.openHistorySession(item),
-                    ),
-                  ),
-                ),
-              SizedBox(height: AppDimensions.xl),
-              ProfileSectionCard(
-                title: AppStrings.profileAccountSection,
-                subtitle:
-                    'Shortcuts for the account features we will connect next.',
-                child: Column(
-                  children: controller.profileActions
-                      .map(
-                        (ProfileActionItem item) =>
-                            ProfileActionTile(action: item),
-                      )
-                      .toList(),
-                ),
+              const ScenioSkeletonLine(widthFactor: 0.52, height: 14),
+              const SizedBox(height: AppDimensions.sm),
+              const ScenioSkeletonLine(widthFactor: 0.82, height: 32),
+              const SizedBox(height: AppDimensions.sm),
+              const ScenioSkeletonLine(widthFactor: 0.58, height: 14),
+              const SizedBox(height: AppDimensions.xl),
+              Wrap(
+                spacing: AppDimensions.sm,
+                runSpacing: AppDimensions.sm,
+                children: const <Widget>[
+                  ScenioSkeletonBox(width: 104, height: 36),
+                  ScenioSkeletonBox(width: 96, height: 36),
+                  ScenioSkeletonBox(width: 112, height: 36),
+                ],
               ),
             ],
           ),
         ),
+        const SizedBox(height: AppDimensions.xl),
+        const ScenioSkeletonLine(width: 130, height: 24),
+        const SizedBox(height: AppDimensions.md),
+        Row(
+          children: const <Widget>[
+            Expanded(child: _ProfileStatSkeleton()),
+            SizedBox(width: AppDimensions.md),
+            Expanded(child: _ProfileStatSkeleton()),
+          ],
+        ),
+        const SizedBox(height: AppDimensions.md),
+        Row(
+          children: const <Widget>[
+            Expanded(child: _ProfileStatSkeleton()),
+            SizedBox(width: AppDimensions.md),
+            Expanded(child: _ProfileStatSkeleton()),
+          ],
+        ),
+        const SizedBox(height: AppDimensions.xl),
+        const ScenioSkeletonCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ScenioSkeletonLine(widthFactor: 0.62, height: 18),
+              SizedBox(height: AppDimensions.sm),
+              ScenioSkeletonLine(widthFactor: 0.84, height: 12),
+              SizedBox(height: AppDimensions.xl),
+              ScenioSkeletonBox(
+                width: double.infinity,
+                height: 128,
+                radius: AppDimensions.radiusLg,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppDimensions.xl),
+        const ScenioSkeletonCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ScenioSkeletonLine(widthFactor: 0.7, height: 18),
+              SizedBox(height: AppDimensions.lg),
+              ScenioSkeletonLine(widthFactor: 1, height: 10),
+              SizedBox(height: AppDimensions.md),
+              ScenioSkeletonLine(widthFactor: 0.82, height: 10),
+              SizedBox(height: AppDimensions.md),
+              ScenioSkeletonLine(widthFactor: 0.68, height: 10),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileStatSkeleton extends StatelessWidget {
+  const _ProfileStatSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ScenioSkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ScenioSkeletonBox(
+            width: 42,
+            height: 42,
+            radius: AppDimensions.radiusLg,
+          ),
+          SizedBox(height: AppDimensions.lg),
+          ScenioSkeletonLine(widthFactor: 0.42, height: 28),
+          SizedBox(height: AppDimensions.sm),
+          ScenioSkeletonLine(widthFactor: 0.66, height: 14),
+          SizedBox(height: AppDimensions.xs),
+          ScenioSkeletonLine(widthFactor: 0.82, height: 12),
+        ],
       ),
     );
   }

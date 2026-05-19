@@ -52,7 +52,7 @@ class OnboardingView extends GetView<OnboardingViewModel> {
                                   maxWidth: 214,
                                 ),
                                 child: SvgPicture.asset(
-                                  'assets/logo/logo-onboarding.svg',
+                                  AppStrings.logoOnboardingAsset,
                                   fit: BoxFit.contain,
                                   semanticsLabel: 'Scenio onboarding logo',
                                 ),

@@ -18,6 +18,7 @@ import '../../domain/entities/session_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/learning_repository.dart';
+import '../../domain/repositories/notifications_repository.dart';
 import '../../routes/app_routes.dart';
 
 class HomeTabItem {
@@ -68,13 +69,16 @@ class HomeViewModel extends GetxController {
   HomeViewModel({
     required LearningRepository repository,
     required AuthRepository authRepository,
+    required NotificationsRepository notificationsRepository,
     required StorageService storageService,
   }) : _repository = repository,
        _authRepository = authRepository,
+       _notificationsRepository = notificationsRepository,
        _storageService = storageService;
 
   final LearningRepository _repository;
   final AuthRepository _authRepository;
+  final NotificationsRepository _notificationsRepository;
   final StorageService _storageService;
 
   final RxInt currentIndex = 0.obs;
@@ -94,6 +98,7 @@ class HomeViewModel extends GetxController {
   final RxBool isLoadingDashboard = false.obs;
   final RxBool isLoadingScenes = false.obs;
   final RxBool isRefreshingLearningPlan = false.obs;
+  final RxInt unreadNotificationsCount = 0.obs;
 
   final RxList<SceneEntity> _scenes = <SceneEntity>[..._fallbackScenes()].obs;
   final RxList<SceneEntity> _recommendedScenes = <SceneEntity>[
@@ -131,8 +136,24 @@ class HomeViewModel extends GetxController {
     ),
   ];
 
-  String get displayName =>
-      currentUser.value?.effectiveDisplayName ?? AppStrings.homeDisplayName;
+  String get displayName {
+    final String? currentName = currentUser.value?.effectiveDisplayName.trim();
+    if (currentName != null &&
+        currentName.isNotEmpty &&
+        !_isGenericDisplayName(currentName)) {
+      return currentName;
+    }
+
+    final String? storedName = _storageService.displayName?.trim();
+    if (storedName != null &&
+        storedName.isNotEmpty &&
+        !_isGenericDisplayName(storedName)) {
+      return storedName;
+    }
+
+    return AppStrings.homeDisplayName;
+  }
+
   String get greetingSubtitle => AppStrings.homeGreetingSubtitle;
 
   List<HomeQuickStat> get quickStats => <HomeQuickStat>[
@@ -270,6 +291,7 @@ class HomeViewModel extends GetxController {
     try {
       final HomeDashboardModel dashboard = await _repository.fetchDashboard();
       currentUser.value = dashboard.user;
+      unawaited(refreshNotificationSummary());
       await _loadLearningPlanQuietly();
       _todayMissions.assignAll(
         dashboard.missions
@@ -316,6 +338,18 @@ class HomeViewModel extends GetxController {
     }
   }
 
+  Future<void> refreshNotificationSummary() async {
+    try {
+      final page = await _notificationsRepository.fetchNotifications(
+        page: 1,
+        limit: 5,
+      );
+      unreadNotificationsCount.value = page.unreadCount;
+    } catch (_) {
+      // Badge lỗi không nên chặn Home.
+    }
+  }
+
   void _hydrateInProgressSession(InProgressSessionModel? inProgressSession) {
     if (inProgressSession == null || activeSession.value != null) {
       return;
@@ -356,6 +390,15 @@ class HomeViewModel extends GetxController {
   void selectTab(int index) {
     if (index < 0 || index >= tabs.length) return;
     currentIndex.value = index;
+  }
+
+  void openNotifications() {
+    unawaited(_openNotifications());
+  }
+
+  Future<void> _openNotifications() async {
+    await Get.toNamed(Routes.notifications);
+    await refreshNotificationSummary();
   }
 
   void updateSceneSearch(String value) {
@@ -897,6 +940,13 @@ class HomeViewModel extends GetxController {
     if (Get.currentRoute != Routes.auth) {
       Get.offAllNamed(Routes.auth);
     }
+  }
+
+  bool _isGenericDisplayName(String value) {
+    final String normalized = value.trim().toLowerCase();
+    return normalized == 'scenio learner' ||
+        normalized == 'learner' ||
+        normalized == 'user';
   }
 
   void _replaceOrInsertScene(SceneEntity scene) {

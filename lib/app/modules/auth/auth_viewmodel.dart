@@ -34,14 +34,9 @@ class AuthViewModel extends GetxController {
   final RxBool obscureRegisterPassword = true.obs;
   final RxBool isSubmittingLogin = false.obs;
   final RxBool isSubmittingRegister = false.obs;
-  final RxBool isSubmittingGoogle = false.obs;
 
   bool get isLogin => mode.value == AuthMode.login;
   bool get isRegister => mode.value == AuthMode.register;
-  bool get isGoogleSignInAvailable => _repository.isGoogleSignInAvailable;
-  String get googleSignInHint =>
-      _repository.googleSignInUnavailableMessage ??
-      AppStrings.authGoogleReadyMessage;
 
   void showLogin() {
     _dismissKeyboard();
@@ -154,35 +149,6 @@ class AuthViewModel extends GetxController {
 
   void handleForgotPassword() {
     _showNotice(AppStrings.authForgotPasswordMessage);
-  }
-
-  void handleGoogleSignIn() {
-    unawaited(_handleGoogleSignIn());
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    if (isSubmittingGoogle.value) {
-      return;
-    }
-
-    if (!isGoogleSignInAvailable) {
-      _showNotice(googleSignInHint);
-      return;
-    }
-
-    _dismissKeyboard();
-    isSubmittingGoogle.value = true;
-    try {
-      final AuthSessionModel session = await _repository.loginWithGoogle();
-      _handleAuthenticatedSession(
-        session,
-        successMessage: AppStrings.authGoogleSuccessMessage,
-      );
-    } catch (error) {
-      _showError(error);
-    } finally {
-      isSubmittingGoogle.value = false;
-    }
   }
 
   String? _validateRequired(String? value) {

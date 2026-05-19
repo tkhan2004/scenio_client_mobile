@@ -7,7 +7,6 @@ import '../../../core/constants/app_text_styles.dart';
 import '../auth_viewmodel.dart';
 import '../widgets/auth_primary_button.dart';
 import '../widgets/auth_text_field.dart';
-import '../widgets/social_login_button.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key, required this.viewModel});
@@ -91,51 +90,15 @@ class RegisterFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Column(
-        key: key,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          AuthPrimaryButton(
-            label: AppStrings.authRegisterButton,
-            onPressed: viewModel.submitRegister,
-          ),
-          const SizedBox(height: AppDimensions.lg),
-          Row(
-            children: <Widget>[
-              const Expanded(child: Divider(height: 1)),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.md,
-                ),
-                child: Text(
-                  AppStrings.authSocialDivider,
-                  style: AppTextStyles.labelMedium,
-                ),
-              ),
-              const Expanded(child: Divider(height: 1)),
-            ],
-          ),
-          const SizedBox(height: AppDimensions.lg),
-          SocialLoginButton(
-            label: AppStrings.authGoogleButton,
-            leading: const GoogleSocialMark(),
-            onPressed: viewModel.handleGoogleSignIn,
-            isLoading: viewModel.isSubmittingGoogle.value,
-            isEnabled: viewModel.isGoogleSignInAvailable,
-          ),
-          if (!viewModel.isGoogleSignInAvailable) ...<Widget>[
-            const SizedBox(height: AppDimensions.sm),
-            Text(
-              viewModel.googleSignInHint,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: const Color(0xFF7B8794),
-              ),
-            ),
-          ],
-        ],
-      ),
+    return Column(
+      key: key,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        AuthPrimaryButton(
+          label: AppStrings.authRegisterButton,
+          onPressed: viewModel.submitRegister,
+        ),
+      ],
     );
   }
 }

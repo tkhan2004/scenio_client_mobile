@@ -215,6 +215,7 @@ class ProfileViewModel extends GetxController {
       icon: Icons.language_rounded,
     ),
     ProfileActionItem(
+      id: 'notifications',
       title: AppStrings.profileActionNotifications,
       subtitle: AppStrings.profileActionNotificationsSubtitle,
       icon: Icons.notifications_active_outlined,

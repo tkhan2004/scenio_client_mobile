@@ -13,8 +13,8 @@ import 'widgets/auth_redirect_text.dart';
 class AuthView extends GetView<AuthViewModel> {
   const AuthView({super.key});
 
-  static const double _heroHeight = 292;
-  static const double _sheetOverlap = 28;
+  static const double _heroHeight = 236;
+  static const double _sheetOverlap = 32;
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +49,6 @@ class AuthView extends GetView<AuthViewModel> {
                       right: 0,
                       height: _heroHeight,
                       child: _AuthHero(
-                        title: isLogin
-                            ? AppStrings.authLoginTitle
-                            : AppStrings.authRegisterTitle,
-                        promptText: isLogin
-                            ? AppStrings.authLoginPrompt
-                            : AppStrings.authRegisterPrompt,
-                        promptAction: isLogin
-                            ? AppStrings.authLoginPromptAction
-                            : AppStrings.authRegisterPromptAction,
-                        onPromptTap: isLogin
-                            ? controller.showRegister
-                            : controller.showLogin,
                         showBrandLockup: isLogin,
                         showBackButton: controller.isRegister,
                         onBackTap: controller.isRegister
@@ -77,26 +65,43 @@ class AuthView extends GetView<AuthViewModel> {
                                 key: const ValueKey<String>(
                                   'auth_login_content',
                                 ),
-                                child: LoginView(viewModel: controller),
+                                child: _AuthFormContent(
+                                  title: AppStrings.authLoginTitle,
+                                  child: LoginView(viewModel: controller),
+                                ),
                               )
                             : KeyedSubtree(
                                 key: const ValueKey<String>(
                                   'auth_register_content',
                                 ),
-                                child: RegisterView(viewModel: controller),
+                                child: _AuthFormContent(
+                                  title: AppStrings.authRegisterTitle,
+                                  child: RegisterView(viewModel: controller),
+                                ),
                               ),
                         footer: isLogin
                             ? KeyedSubtree(
                                 key: const ValueKey<String>(
                                   'auth_login_footer',
                                 ),
-                                child: LoginFooter(viewModel: controller),
+                                child: _AuthFooterContent(
+                                  button: LoginFooter(viewModel: controller),
+                                  promptText: AppStrings.authLoginPrompt,
+                                  actionText: AppStrings.authLoginPromptAction,
+                                  onPromptTap: controller.showRegister,
+                                ),
                               )
                             : KeyedSubtree(
                                 key: const ValueKey<String>(
                                   'auth_register_footer',
                                 ),
-                                child: RegisterFooter(viewModel: controller),
+                                child: _AuthFooterContent(
+                                  button: RegisterFooter(viewModel: controller),
+                                  promptText: AppStrings.authRegisterPrompt,
+                                  actionText:
+                                      AppStrings.authRegisterPromptAction,
+                                  onPromptTap: controller.showLogin,
+                                ),
                               ),
                       ),
                     ),
@@ -142,38 +147,36 @@ class _AuthSheet extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                AppDimensions.xxl,
-                contentTopPadding,
-                AppDimensions.xxl,
-                AppDimensions.lg,
-              ),
-              child: content,
-            ),
-          ),
-          Padding(
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(
               AppDimensions.xxl,
-              AppDimensions.md,
+              contentTopPadding,
               AppDimensions.xxl,
               bottomSafeInset + AppDimensions.xl,
             ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 180),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              layoutBuilder: _buildCenteredSwitcherLayout,
-              transitionBuilder: _buildFadeSwitcherTransition,
-              child: footer,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  content,
+                  const SizedBox(height: AppDimensions.xxxl),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    layoutBuilder: _buildCenteredSwitcherLayout,
+                    transitionBuilder: _buildFadeSwitcherTransition,
+                    child: footer,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -198,19 +201,11 @@ Widget _buildFadeSwitcherTransition(Widget child, Animation<double> animation) {
 
 class _AuthHero extends StatelessWidget {
   const _AuthHero({
-    required this.title,
-    required this.promptText,
-    required this.promptAction,
-    required this.onPromptTap,
     required this.showBrandLockup,
     required this.showBackButton,
     this.onBackTap,
   });
 
-  final String title;
-  final String promptText;
-  final String promptAction;
-  final VoidCallback onPromptTap;
   final VoidCallback? onBackTap;
   final bool showBrandLockup;
   final bool showBackButton;
@@ -270,27 +265,71 @@ class _AuthHero extends StatelessWidget {
                 )
               else if (showBackButton)
                 _HeroBackButton(onTap: onBackTap),
-              const Spacer(),
-              Text(
-                title,
-                style: AppTextStyles.displayLarge.copyWith(
-                  color: Colors.white,
-                  height: 1.18,
-                ),
-              ),
-              const SizedBox(height: AppDimensions.md),
-              AuthRedirectText(
-                promptText: promptText,
-                actionText: promptAction,
-                onTap: onPromptTap,
-                promptStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: Colors.white.withValues(alpha: 0.74),
-                ),
-                actionStyle: AppTextStyles.labelLarge.copyWith(
-                  color: Colors.white,
-                ),
-              ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AuthFormContent extends StatelessWidget {
+  const _AuthFormContent({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          title,
+          style: AppTextStyles.displayMedium.copyWith(
+            color: AppColors.textPrimary,
+            height: 1.16,
+          ),
+        ),
+        const SizedBox(height: AppDimensions.xl),
+        child,
+      ],
+    );
+  }
+}
+
+class _AuthFooterContent extends StatelessWidget {
+  const _AuthFooterContent({
+    required this.button,
+    required this.promptText,
+    required this.actionText,
+    required this.onPromptTap,
+  });
+
+  final Widget button;
+  final String promptText;
+  final String actionText;
+  final VoidCallback onPromptTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        button,
+        const SizedBox(height: AppDimensions.lg),
+        AuthRedirectText(
+          promptText: promptText,
+          actionText: actionText,
+          onTap: onPromptTap,
+          alignment: WrapAlignment.center,
+          promptStyle: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          actionStyle: AppTextStyles.labelLarge.copyWith(
+            color: AppColors.primary800,
+            decoration: TextDecoration.underline,
+            decorationColor: AppColors.primary800,
           ),
         ),
       ],

@@ -5,6 +5,7 @@ import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../data/models/profile_model.dart';
 import '../../../core/utils/scenio_alerts.dart';
+import '../../../routes/app_routes.dart';
 import '../../home/widgets/scenio_icon_badge.dart';
 import '../profile_viewmodel.dart';
 
@@ -27,6 +28,10 @@ class ProfileActionTile extends StatelessWidget {
         onTap: () async {
           if (action.id == 'language') {
             _showLanguageBottomSheet(context);
+            return;
+          }
+          if (action.id == 'notifications') {
+            await Get.toNamed(Routes.notifications);
             return;
           }
           if (action.isDestructive) {

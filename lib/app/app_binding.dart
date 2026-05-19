@@ -6,12 +6,15 @@ import 'core/realtime/realtime_conversation_service.dart';
 import 'core/storage/storage_service.dart';
 import 'data/providers/auth_provider.dart';
 import 'data/providers/learning_provider.dart';
+import 'data/providers/notifications_provider.dart';
 import 'data/providers/user_provider.dart';
 import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/learning_repository_impl.dart';
+import 'data/repositories/notifications_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/learning_repository.dart';
+import 'domain/repositories/notifications_repository.dart';
 import 'domain/repositories/user_repository.dart';
 
 class AppBinding extends Bindings {
@@ -47,6 +50,17 @@ class AppBinding extends Bindings {
     );
     Get.lazyPut<LearningRepository>(
       () => LearningRepositoryImpl(provider: Get.find<LearningProvider>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<NotificationsProvider>(
+      () => NotificationsProvider(apiClient: Get.find<ApiClient>()),
+      fenix: true,
+    );
+    Get.lazyPut<NotificationsRepository>(
+      () => NotificationsRepositoryImpl(
+        provider: Get.find<NotificationsProvider>(),
+      ),
       fenix: true,
     );
 

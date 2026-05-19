@@ -45,6 +45,7 @@ class AuthRepositoryImpl implements AuthRepository {
     await _storageService.saveSession(
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
+      displayName: session.user.effectiveDisplayName,
     );
     return session;
   }
@@ -66,6 +67,7 @@ class AuthRepositoryImpl implements AuthRepository {
     await _storageService.saveSession(
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
+      displayName: session.user.effectiveDisplayName,
     );
     return session;
   }
@@ -80,6 +82,7 @@ class AuthRepositoryImpl implements AuthRepository {
     await _storageService.saveSession(
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
+      displayName: session.user.effectiveDisplayName,
     );
     return session;
   }

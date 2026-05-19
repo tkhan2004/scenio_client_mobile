@@ -18,6 +18,30 @@ class SceneDetailViewModel extends GetxController {
       homeViewModel.hasActiveSessionOutsideScene(scene.id);
   SessionEntity? get otherSession => homeViewModel.currentSession;
 
+  List<SceneLearningFocusItem> get learningFocusItems =>
+      <SceneLearningFocusItem>[
+        SceneLearningFocusItem(
+          icon: Icons.record_voice_over_rounded,
+          title: AppStrings.sceneDetailFocusRoleplayTitle,
+          subtitle: AppStrings.sceneDetailFocusRoleplaySubtitle.replaceAll(
+            '{name}',
+            scene.characterName,
+          ),
+        ),
+        SceneLearningFocusItem(
+          icon: Icons.flag_rounded,
+          title: AppStrings.sceneDetailFocusMissionTitle,
+          subtitle: scene.mission,
+        ),
+        SceneLearningFocusItem(
+          icon: Icons.auto_awesome_rounded,
+          title: AppStrings.sceneDetailFocusVocabTitle,
+          subtitle: scene.vocabularyPreview.isEmpty
+              ? AppStrings.sceneDetailFocusVocabFallback
+              : scene.vocabularyPreview.take(3).join(' • '),
+        ),
+      ];
+
   String get primaryCtaLabel => hasCurrentSceneActive
       ? AppStrings.sceneDetailContinueButton
       : hasAnotherActiveSession
@@ -70,4 +94,16 @@ class SceneDetailViewModel extends GetxController {
         return Icons.hotel_rounded;
     }
   }
+}
+
+class SceneLearningFocusItem {
+  const SceneLearningFocusItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
 }

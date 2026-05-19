@@ -6,6 +6,7 @@ import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../domain/entities/scene_entity.dart';
+import '../../../widgets/skeleton_component/scenio_skeleton.dart';
 import '../home_viewmodel.dart';
 import 'scenio_icon_badge.dart';
 
@@ -157,27 +158,36 @@ class HomeScenesTab extends StatelessWidget {
           SizedBox(height: AppDimensions.xl),
           _ScenesSectionHeader(title: AppStrings.scenesRecommendedSection),
           const SizedBox(height: AppDimensions.md),
-          SizedBox(
-            height: 280,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: viewModel.recommendedScenes.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(width: AppDimensions.md),
-              itemBuilder: (BuildContext context, int index) {
-                final SceneEntity scene = viewModel.recommendedScenes[index];
-                return _RecommendedSceneCard(
-                  scene: scene,
-                  onTap: () => viewModel.openSceneDetails(scene),
-                  onStart: () => _handleSceneStart(scene),
-                );
-              },
-            ),
+          Obx(
+            () => viewModel.isLoadingScenes.value
+                ? const _RecommendedScenesSkeleton()
+                : SizedBox(
+                    height: 280,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: viewModel.recommendedScenes.length,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          const SizedBox(width: AppDimensions.md),
+                      itemBuilder: (BuildContext context, int index) {
+                        final SceneEntity scene =
+                            viewModel.recommendedScenes[index];
+                        return _RecommendedSceneCard(
+                          scene: scene,
+                          onTap: () => viewModel.openSceneDetails(scene),
+                          onStart: () => _handleSceneStart(scene),
+                        );
+                      },
+                    ),
+                  ),
           ),
           SizedBox(height: AppDimensions.xl),
           _ScenesSectionHeader(title: AppStrings.scenesLibrarySection),
           const SizedBox(height: AppDimensions.md),
           Obx(() {
+            if (viewModel.isLoadingScenes.value) {
+              return const _SceneLibrarySkeleton();
+            }
+
             final List<SceneEntity> scenes = viewModel.filteredScenes;
 
             if (scenes.isEmpty) {
@@ -315,6 +325,101 @@ class _ScenesSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(title, style: AppTextStyles.h2);
+  }
+}
+
+class _RecommendedScenesSkeleton extends StatelessWidget {
+  const _RecommendedScenesSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 280,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 3,
+        separatorBuilder: (BuildContext context, int index) =>
+            const SizedBox(width: AppDimensions.md),
+        itemBuilder: (BuildContext context, int index) {
+          return const SizedBox(
+            width: 276,
+            child: ScenioSkeletonCard(
+              padding: EdgeInsets.all(AppDimensions.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      ScenioSkeletonBox(
+                        width: 44,
+                        height: 44,
+                        radius: AppDimensions.radiusFull,
+                      ),
+                      Spacer(),
+                      ScenioSkeletonLine(width: 58, height: 22),
+                    ],
+                  ),
+                  SizedBox(height: AppDimensions.lg),
+                  ScenioSkeletonLine(widthFactor: 0.88, height: 20),
+                  SizedBox(height: AppDimensions.sm),
+                  ScenioSkeletonLine(widthFactor: 0.62, height: 14),
+                  SizedBox(height: AppDimensions.lg),
+                  ScenioSkeletonLine(widthFactor: 1, height: 12),
+                  SizedBox(height: AppDimensions.sm),
+                  ScenioSkeletonLine(widthFactor: 0.76, height: 12),
+                  Spacer(),
+                  ScenioSkeletonBox(
+                    width: double.infinity,
+                    height: 44,
+                    radius: AppDimensions.radiusFull,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SceneLibrarySkeleton extends StatelessWidget {
+  const _SceneLibrarySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List<Widget>.generate(
+        5,
+        (int index) => const Padding(
+          padding: EdgeInsets.only(bottom: AppDimensions.md),
+          child: ScenioSkeletonCard(
+            child: Row(
+              children: <Widget>[
+                ScenioSkeletonBox(
+                  width: 44,
+                  height: 44,
+                  radius: AppDimensions.radiusFull,
+                ),
+                SizedBox(width: AppDimensions.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      ScenioSkeletonLine(widthFactor: 0.78, height: 16),
+                      SizedBox(height: AppDimensions.sm),
+                      ScenioSkeletonLine(widthFactor: 0.92, height: 12),
+                      SizedBox(height: AppDimensions.sm),
+                      ScenioSkeletonLine(widthFactor: 0.48, height: 12),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

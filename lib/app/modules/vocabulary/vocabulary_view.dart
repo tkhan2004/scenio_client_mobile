@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../widgets/skeleton_component/scenio_skeleton.dart';
 import 'vocabulary_viewmodel.dart';
 import 'widgets/vocab_deck_card.dart';
 
@@ -36,16 +37,24 @@ class VocabularyView extends GetView<VocabularyViewModel> {
                   children: <Widget>[
                     const _VocabularyIntroHeader(),
                     const SizedBox(height: AppDimensions.xl),
-                    _VocabularyHeroCard(controller: controller),
+                    if (isLoading && controller.decks.isEmpty)
+                      const _VocabularyHeroSkeleton()
+                    else
+                      _VocabularyHeroCard(controller: controller),
                   ],
                 ),
               ),
             ),
             if (isLoading)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary700),
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  AppDimensions.xxl,
+                  AppDimensions.lg,
+                  AppDimensions.xxl,
+                  bottomPadding,
+                ),
+                sliver: const SliverToBoxAdapter(
+                  child: _VocabularyDeckSkeletonList(),
                 ),
               )
             else if (controller.decks.isEmpty)
@@ -242,6 +251,98 @@ class _VocabularyHeroCard extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class _VocabularyHeroSkeleton extends StatelessWidget {
+  const _VocabularyHeroSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ScenioSkeletonCard(
+      radius: AppDimensions.radiusXl,
+      padding: EdgeInsets.all(AppDimensions.xl),
+      child: Row(
+        children: <Widget>[
+          ScenioSkeletonBox(
+            width: 80,
+            height: 80,
+            radius: AppDimensions.radiusFull,
+          ),
+          SizedBox(width: AppDimensions.xl),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ScenioSkeletonLine(widthFactor: 0.82, height: 16),
+                SizedBox(height: AppDimensions.md),
+                ScenioSkeletonLine(widthFactor: 0.62, height: 14),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VocabularyDeckSkeletonList extends StatelessWidget {
+  const _VocabularyDeckSkeletonList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List<Widget>.generate(
+        4,
+        (int index) => const Padding(
+          padding: EdgeInsets.only(bottom: AppDimensions.md),
+          child: ScenioSkeletonCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    ScenioSkeletonBox(
+                      width: 44,
+                      height: 44,
+                      radius: AppDimensions.radiusFull,
+                    ),
+                    SizedBox(width: AppDimensions.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          ScenioSkeletonLine(widthFactor: 0.72, height: 16),
+                          SizedBox(height: AppDimensions.sm),
+                          ScenioSkeletonLine(widthFactor: 0.54, height: 12),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: AppDimensions.md),
+                    ScenioSkeletonBox(
+                      width: 62,
+                      height: 30,
+                      radius: AppDimensions.radiusFull,
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppDimensions.lg),
+                ScenioSkeletonLine(widthFactor: 1, height: 8),
+                SizedBox(height: AppDimensions.sm),
+                Row(
+                  children: <Widget>[
+                    ScenioSkeletonLine(width: 72, height: 12),
+                    Spacer(),
+                    ScenioSkeletonLine(width: 58, height: 12),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

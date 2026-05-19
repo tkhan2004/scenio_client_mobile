@@ -13,6 +13,8 @@ import '../modules/custom_practice/custom_practice_binding.dart';
 import '../modules/custom_practice/custom_practice_view.dart';
 import '../modules/home/home_binding.dart';
 import '../modules/home/home_view.dart';
+import '../modules/notifications/notifications_binding.dart';
+import '../modules/notifications/notifications_view.dart';
 import '../modules/scene_detail/scene_detail_binding.dart';
 import '../modules/scene_detail/scene_detail_view.dart';
 import '../modules/session_result/session_result_binding.dart';
@@ -64,5 +66,10 @@ final List<GetPage<dynamic>> appPages = <GetPage<dynamic>>[
     name: Routes.sessionResult,
     page: () => const SessionResultView(),
     binding: SessionResultBinding(),
+  ),
+  GetPage<dynamic>(
+    name: Routes.notifications,
+    page: () => const NotificationsView(),
+    binding: NotificationsBinding(),
   ),
 ];

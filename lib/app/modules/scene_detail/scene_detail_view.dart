@@ -142,21 +142,13 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                               SizedBox(height: AppDimensions.xl),
                               _DetailSection(
                                 title: AppStrings.sceneDetailSceneMetaTitle,
-                                child: Wrap(
-                                  spacing: AppDimensions.sm,
-                                  runSpacing: AppDimensions.sm,
-                                  children: <Widget>[
-                                    _ScenePill(
-                                      label:
-                                          '${controller.scene.estimatedMinutes} min',
-                                    ),
-                                    _ScenePill(
-                                      label: controller.scene.categoryLabel,
-                                    ),
-                                    _ScenePill(
-                                      label: controller.scene.difficultyLabel,
-                                    ),
-                                  ],
+                                child: Column(
+                                  children: controller.learningFocusItems
+                                      .map(
+                                        (SceneLearningFocusItem item) =>
+                                            _LearningFocusTile(item: item),
+                                      )
+                                      .toList(growable: false),
                                 ),
                               ),
                               SizedBox(height: AppDimensions.lg),
@@ -342,6 +334,62 @@ class _VocabularyPill extends StatelessWidget {
         border: Border.all(color: AppColors.primary200),
       ),
       child: Text(label, style: AppTextStyles.labelMedium),
+    );
+  }
+}
+
+class _LearningFocusTile extends StatelessWidget {
+  const _LearningFocusTile({required this.item});
+
+  final SceneLearningFocusItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: AppDimensions.sm),
+      padding: const EdgeInsets.all(AppDimensions.md),
+      decoration: BoxDecoration(
+        color: AppColors.primary50.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: AppColors.primary200),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+              border: Border.all(color: AppColors.primary200),
+            ),
+            child: Icon(
+              item.icon,
+              size: AppDimensions.iconMd,
+              color: AppColors.primary800,
+            ),
+          ),
+          const SizedBox(width: AppDimensions.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(item.title, style: AppTextStyles.labelLarge),
+                const SizedBox(height: 2),
+                Text(
+                  item.subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

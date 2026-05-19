@@ -17,6 +17,8 @@ abstract class ApiEndpoints {
   static const String usersBadges = '/users/badges';
   static const String vocabulary = '/vocabulary';
   static const String vocabularyDecks = '/vocabulary/decks';
+  static const String notifications = '/notifications';
+  static const String notificationsReadAll = '/notifications/read-all';
 
   static String sceneDetail(String sceneId) => '/scenes/$sceneId';
   static String learningPlanStepComplete(String stepId) =>
@@ -25,6 +27,8 @@ abstract class ApiEndpoints {
       '/vocabulary/decks/$sessionId';
   static String vocabularyReview(String vocabularyId) =>
       '/vocabulary/$vocabularyId/review';
+  static String notificationRead(String notificationId) =>
+      '/notifications/$notificationId/read';
 
   static const String startSession = '/sessions/start';
   static const String startCustomSession = '/sessions/start-custom';

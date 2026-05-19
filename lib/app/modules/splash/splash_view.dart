@@ -59,11 +59,11 @@ class SplashView extends GetView<SplashViewModel> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: AppDimensions.xxxl),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 280),
+                  constraints: const BoxConstraints(maxWidth: 240),
                   child: SvgPicture.asset(
-                    AppStrings.splashOnboardingSampleAsset,
+                    AppStrings.logoOnboardingAsset,
                     fit: BoxFit.contain,
-                    semanticsLabel: 'Scenio splash sample image',
+                    semanticsLabel: 'Scenio splash logo',
                   ),
                 ),
               ),

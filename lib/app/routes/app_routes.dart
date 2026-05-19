@@ -8,4 +8,5 @@ abstract class Routes {
   static const String sceneDetail = '/scene-detail';
   static const String practiceSession = '/practice-session';
   static const String sessionResult = '/session-result';
+  static const String notifications = '/notifications';
 }

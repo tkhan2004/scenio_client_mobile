@@ -2,8 +2,7 @@ import 'package:get/get.dart';
 
 abstract class AppStrings {
   static const String appName = 'Scenio';
-  static const String splashOnboardingSampleAsset =
-      'assets/imame/splash-onboarding-sample-image.svg';
+  static const String logoOnboardingAsset = 'assets/logo/logo-onboarding.svg';
 
   static String get onboardingTagline => 'onboardingTagline'.tr;
   static String get onboardingTitle => 'onboardingTitle'.tr;
@@ -50,9 +49,6 @@ abstract class AppStrings {
   static String get authRememberMe => 'authRememberMe'.tr;
   static String get authForgotPassword => 'authForgotPassword'.tr;
   static String get authLoginButton => 'authLoginButton'.tr;
-  static String get authSocialDivider => 'authSocialDivider'.tr;
-  static String get authGoogle => 'authGoogle'.tr;
-  static String get authGoogleButton => 'authGoogleButton'.tr;
   static String get authFacebook => 'authFacebook'.tr;
 
   static String get authFirstNameLabel => 'authFirstNameLabel'.tr;
@@ -85,9 +81,7 @@ abstract class AppStrings {
   static String get authLoginSuccessMessage => 'authLoginSuccessMessage'.tr;
   static String get authRegisterSuccessMessage =>
       'authRegisterSuccessMessage'.tr;
-  static String get authGoogleSuccessMessage => 'authGoogleSuccessMessage'.tr;
   static String get authForgotPasswordMessage => 'authForgotPasswordMessage'.tr;
-  static String get authGoogleReadyMessage => 'authGoogleReadyMessage'.tr;
   static String get authFacebookReadyMessage => 'authFacebookReadyMessage'.tr;
   static String get authLevelTestPendingMessage =>
       'authLevelTestPendingMessage'.tr;
@@ -194,6 +188,33 @@ abstract class AppStrings {
   static String get homeSceneOneMeta => 'homeSceneOneMeta'.tr;
   static String get homeSceneTwoMeta => 'homeSceneTwoMeta'.tr;
   static String get homeSceneThreeMeta => 'homeSceneThreeMeta'.tr;
+
+  static String get notificationsTitle => 'notificationsTitle'.tr;
+  static String get notificationsMarkAll => 'notificationsMarkAll'.tr;
+  static String get notificationsAllFilter => 'notificationsAllFilter'.tr;
+  static String get notificationsUnreadFilter => 'notificationsUnreadFilter'.tr;
+  static String get notificationsEmptyTitle => 'notificationsEmptyTitle'.tr;
+  static String get notificationsEmptyMessage => 'notificationsEmptyMessage'.tr;
+  static String get notificationsUnreadEmptyTitle =>
+      'notificationsUnreadEmptyTitle'.tr;
+  static String get notificationsUnreadEmptyMessage =>
+      'notificationsUnreadEmptyMessage'.tr;
+  static String get notificationsLoading => 'notificationsLoading'.tr;
+  static String get notificationsLoadMore => 'notificationsLoadMore'.tr;
+  static String get notificationsLoadError => 'notificationsLoadError'.tr;
+  static String get notificationsMarkReadError =>
+      'notificationsMarkReadError'.tr;
+  static String get notificationsMarkAllSuccess =>
+      'notificationsMarkAllSuccess'.tr;
+  static String get notificationsMissingSessionError =>
+      'notificationsMissingSessionError'.tr;
+  static String get notificationsSessionResultError =>
+      'notificationsSessionResultError'.tr;
+  static String get notificationsNow => 'notificationsNow'.tr;
+  static String get notificationsMinuteSuffix => 'notificationsMinuteSuffix'.tr;
+  static String get notificationsHourSuffix => 'notificationsHourSuffix'.tr;
+  static String get notificationsDaySuffix => 'notificationsDaySuffix'.tr;
+  static String get notificationsWeekSuffix => 'notificationsWeekSuffix'.tr;
 
   static String get homeWelcomeLabel => 'homeWelcomeLabel'.tr;
   static String get homeWelcomeTitle => 'homeWelcomeTitle'.tr;
@@ -368,6 +389,16 @@ abstract class AppStrings {
   static String get sceneDetailVocabularyTitle =>
       'sceneDetailVocabularyTitle'.tr;
   static String get sceneDetailSceneMetaTitle => 'sceneDetailSceneMetaTitle'.tr;
+  static String get sceneDetailFocusRoleplayTitle =>
+      'sceneDetailFocusRoleplayTitle'.tr;
+  static String get sceneDetailFocusRoleplaySubtitle =>
+      'sceneDetailFocusRoleplaySubtitle'.tr;
+  static String get sceneDetailFocusMissionTitle =>
+      'sceneDetailFocusMissionTitle'.tr;
+  static String get sceneDetailFocusVocabTitle =>
+      'sceneDetailFocusVocabTitle'.tr;
+  static String get sceneDetailFocusVocabFallback =>
+      'sceneDetailFocusVocabFallback'.tr;
   static String get sceneDetailStartButton => 'sceneDetailStartButton'.tr;
   static String get sceneDetailContinueButton => 'sceneDetailContinueButton'.tr;
   static String get sceneDetailResumeCurrentButton =>

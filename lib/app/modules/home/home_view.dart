@@ -8,6 +8,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../widgets/skeleton_component/scenio_skeleton.dart';
 import 'home_viewmodel.dart';
 import 'widgets/home_pill_nav_bar.dart';
 import 'widgets/home_practice_tab.dart';
@@ -226,105 +227,171 @@ class _HomeDashboardSheet extends StatelessWidget {
             AppDimensions.xxl,
             bottomPadding,
           ),
-          children: <Widget>[
-            _SectionHeader(
-              title: AppStrings.homeMomentumSection,
-              actionLabel: null,
-            ),
-            const SizedBox(height: AppDimensions.md),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.xxl,
-                horizontal: AppDimensions.xs,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[
-                    Colors.white,
-                    AppColors.primary50.withValues(alpha: 0.6),
+          children: viewModel.isLoadingDashboard.value
+              ? const <Widget>[_HomeDashboardSkeleton()]
+              : <Widget>[
+                  _SectionHeader(
+                    title: AppStrings.homeMomentumSection,
+                    actionLabel: null,
+                  ),
+                  const SizedBox(height: AppDimensions.md),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimensions.xxl,
+                      horizontal: AppDimensions.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: <Color>[
+                          Colors.white,
+                          AppColors.primary50.withValues(alpha: 0.6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusXl,
+                      ),
+                      border: Border.all(
+                        color: AppColors.primary200.withValues(alpha: 0.8),
+                        width: 1.5,
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: AppColors.primary700.withValues(alpha: 0.08),
+                          blurRadius: 28,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: viewModel.quickStats.asMap().entries.expand((
+                        MapEntry<int, HomeQuickStat> entry,
+                      ) {
+                        final int index = entry.key;
+                        final HomeQuickStat stat = entry.value;
+                        final bool isLast =
+                            index == viewModel.quickStats.length - 1;
+
+                        final Widget statItem = Expanded(
+                          child: _QuickStatItem(stat: stat),
+                        );
+
+                        if (isLast) {
+                          return <Widget>[statItem];
+                        } else {
+                          return <Widget>[
+                            statItem,
+                            Container(
+                              height: 52,
+                              width: 1,
+                              color: AppColors.primary200.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ];
+                        }
+                      }).toList(),
+                    ),
+                  ),
+                  if (viewModel.hasLearningPlan) ...<Widget>[
+                    SizedBox(height: AppDimensions.xl),
+                    _SectionHeader(
+                      title: AppStrings.homeLearningPlanSection,
+                      actionLabel: viewModel.isRefreshingLearningPlan.value
+                          ? null
+                          : AppStrings.homeLearningPlanRefresh,
+                      onActionTap: viewModel.refreshLearningPlan,
+                    ),
+                    const SizedBox(height: AppDimensions.md),
+                    _LearningPlanCard(viewModel: viewModel),
                   ],
-                ),
-                borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-                border: Border.all(
-                  color: AppColors.primary200.withValues(alpha: 0.8),
-                  width: 1.5,
-                ),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: AppColors.primary700.withValues(alpha: 0.08),
-                    blurRadius: 28,
-                    offset: const Offset(0, 12),
+                  SizedBox(height: AppDimensions.xl),
+                  _SectionHeader(
+                    title: AppStrings.homeMissionsSection,
+                    actionLabel: AppStrings.homeSeeAll,
+                  ),
+                  const SizedBox(height: AppDimensions.md),
+                  ...viewModel.todayMissions.expand(
+                    (HomeMissionCardData mission) => <Widget>[
+                      _MissionCard(mission: mission),
+                      SizedBox(height: AppDimensions.md),
+                    ],
+                  ),
+                  SizedBox(height: AppDimensions.lg),
+                  _SectionHeader(
+                    title: AppStrings.homeRecommendedSection,
+                    actionLabel: AppStrings.homeSeeAll,
+                  ),
+                  const SizedBox(height: AppDimensions.md),
+                  ...viewModel.recommendedScenes.expand(
+                    (SceneEntity scene) => <Widget>[
+                      _SceneCard(scene: scene),
+                      const SizedBox(height: AppDimensions.md),
+                    ],
                   ),
                 ],
-              ),
-              child: Row(
-                children: viewModel.quickStats.asMap().entries.expand((
-                  MapEntry<int, HomeQuickStat> entry,
-                ) {
-                  final int index = entry.key;
-                  final HomeQuickStat stat = entry.value;
-                  final bool isLast = index == viewModel.quickStats.length - 1;
-
-                  final Widget statItem = Expanded(
-                    child: _QuickStatItem(stat: stat),
-                  );
-
-                  if (isLast) {
-                    return <Widget>[statItem];
-                  } else {
-                    return <Widget>[
-                      statItem,
-                      Container(
-                        height: 52,
-                        width: 1,
-                        color: AppColors.primary200.withValues(alpha: 0.6),
-                      ),
-                    ];
-                  }
-                }).toList(),
-              ),
-            ),
-            if (viewModel.hasLearningPlan) ...<Widget>[
-              SizedBox(height: AppDimensions.xl),
-              _SectionHeader(
-                title: AppStrings.homeLearningPlanSection,
-                actionLabel: viewModel.isRefreshingLearningPlan.value
-                    ? null
-                    : AppStrings.homeLearningPlanRefresh,
-                onActionTap: viewModel.refreshLearningPlan,
-              ),
-              const SizedBox(height: AppDimensions.md),
-              _LearningPlanCard(viewModel: viewModel),
-            ],
-            SizedBox(height: AppDimensions.xl),
-            _SectionHeader(
-              title: AppStrings.homeMissionsSection,
-              actionLabel: AppStrings.homeSeeAll,
-            ),
-            const SizedBox(height: AppDimensions.md),
-            ...viewModel.todayMissions.expand(
-              (HomeMissionCardData mission) => <Widget>[
-                _MissionCard(mission: mission),
-                SizedBox(height: AppDimensions.md),
-              ],
-            ),
-            SizedBox(height: AppDimensions.lg),
-            _SectionHeader(
-              title: AppStrings.homeRecommendedSection,
-              actionLabel: AppStrings.homeSeeAll,
-            ),
-            const SizedBox(height: AppDimensions.md),
-            ...viewModel.recommendedScenes.expand(
-              (SceneEntity scene) => <Widget>[
-                _SceneCard(scene: scene),
-                const SizedBox(height: AppDimensions.md),
-              ],
-            ),
-          ],
         ),
       ),
+    );
+  }
+}
+
+class _HomeDashboardSkeleton extends StatelessWidget {
+  const _HomeDashboardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const ScenioSkeletonLine(width: 168, height: 22),
+        const SizedBox(height: AppDimensions.md),
+        ScenioSkeletonCard(
+          radius: AppDimensions.radiusXl,
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimensions.xxl,
+            horizontal: AppDimensions.lg,
+          ),
+          child: Row(
+            children: List<Widget>.generate(3, (int index) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: index == 2 ? 0 : AppDimensions.lg,
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      ScenioSkeletonBox(
+                        width: 36,
+                        height: 36,
+                        radius: AppDimensions.radiusFull,
+                      ),
+                      SizedBox(height: AppDimensions.lg),
+                      ScenioSkeletonLine(widthFactor: 0.58, height: 24),
+                      SizedBox(height: AppDimensions.sm),
+                      ScenioSkeletonLine(widthFactor: 0.78, height: 12),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: AppDimensions.xl),
+        const ScenioSkeletonLine(width: 190, height: 22),
+        const SizedBox(height: AppDimensions.md),
+        const _MissionSkeletonCard(),
+        const SizedBox(height: AppDimensions.md),
+        const _MissionSkeletonCard(),
+        const SizedBox(height: AppDimensions.xl),
+        const ScenioSkeletonLine(width: 210, height: 22),
+        const SizedBox(height: AppDimensions.md),
+        const _SceneSkeletonCard(),
+        const SizedBox(height: AppDimensions.md),
+        const _SceneSkeletonCard(),
+      ],
     );
   }
 }
@@ -385,8 +452,12 @@ class _HomeHeroSection extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const _HeaderIconButton(
-                    icon: Icons.notifications_none_rounded,
+                  Obx(
+                    () => _HeaderIconButton(
+                      icon: Icons.notifications_none_rounded,
+                      onTap: viewModel.openNotifications,
+                      badgeCount: viewModel.unreadNotificationsCount.value,
+                    ),
                   ),
                   const SizedBox(width: AppDimensions.md),
                   const _HeaderAvatar(initials: 'K'),
@@ -480,140 +551,299 @@ class _ContinueLearningCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
+          child: viewModel.isLoadingDashboard.value
+              ? const _ContinueLearningSkeleton()
+              : Column(
+                  children: <Widget>[
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          viewModel.continueCardLabel,
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: AppColors.primary700,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                viewModel.continueCardLabel,
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  color: AppColors.primary700,
+                                ),
+                              ),
+                              const SizedBox(height: AppDimensions.xs),
+                              Text(
+                                viewModel.continueCardTitle,
+                                maxLines: compact ? 1 : 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.h2,
+                              ),
+                              SizedBox(
+                                height: compact
+                                    ? AppDimensions.xs
+                                    : AppDimensions.md,
+                              ),
+                              _InfoLine(
+                                icon: Icons.schedule_rounded,
+                                text: viewModel.continueCardTime,
+                              ),
+                              SizedBox(height: compact ? 6 : AppDimensions.sm),
+                              _InfoLine(
+                                icon: Icons.record_voice_over_rounded,
+                                text: viewModel.continueCardCharacter,
+                              ),
+                              SizedBox(height: compact ? 6 : AppDimensions.sm),
+                              _InfoLine(
+                                icon: Icons.theater_comedy_rounded,
+                                text: viewModel.continueCardMeta,
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: AppDimensions.xs),
-                        Text(
-                          viewModel.continueCardTitle,
-                          maxLines: compact ? 1 : 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.h2,
-                        ),
                         SizedBox(
-                          height: compact ? AppDimensions.xs : AppDimensions.md,
+                          width: compact ? AppDimensions.md : AppDimensions.lg,
                         ),
-                        _InfoLine(
-                          icon: Icons.schedule_rounded,
-                          text: viewModel.continueCardTime,
-                        ),
-                        SizedBox(height: compact ? 6 : AppDimensions.sm),
-                        _InfoLine(
-                          icon: Icons.record_voice_over_rounded,
-                          text: viewModel.continueCardCharacter,
-                        ),
-                        SizedBox(height: compact ? 6 : AppDimensions.sm),
-                        _InfoLine(
-                          icon: Icons.theater_comedy_rounded,
-                          text: viewModel.continueCardMeta,
+                        Container(
+                          width: compact ? 72 : 82,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppDimensions.md,
+                            vertical: compact
+                                ? AppDimensions.sm
+                                : AppDimensions.lg,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary50,
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.radiusLg,
+                            ),
+                          ),
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                AppStrings.homeContinueBadgeLabel,
+                                style: AppTextStyles.labelMedium,
+                              ),
+                              SizedBox(
+                                height: compact
+                                    ? AppDimensions.xs
+                                    : AppDimensions.sm,
+                              ),
+                              Text(
+                                viewModel.continueBadgeValue,
+                                style: AppTextStyles.displayMedium.copyWith(
+                                  color: AppColors.primary800,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    width: compact ? AppDimensions.md : AppDimensions.lg,
-                  ),
-                  Container(
-                    width: compact ? 72 : 82,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimensions.md,
-                      vertical: compact ? AppDimensions.sm : AppDimensions.lg,
+                    SizedBox(
+                      height: compact ? AppDimensions.md : AppDimensions.lg,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary50,
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusLg,
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimensions.lg,
+                        vertical: compact ? 10 : AppDimensions.md,
                       ),
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          AppStrings.homeContinueBadgeLabel,
-                          style: AppTextStyles.labelMedium,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary50,
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusLg,
                         ),
-                        SizedBox(
-                          height: compact ? AppDimensions.xs : AppDimensions.sm,
-                        ),
-                        Text(
-                          viewModel.continueBadgeValue,
-                          style: AppTextStyles.displayMedium.copyWith(
-                            color: AppColors.primary800,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            viewModel.continueStatusLabel,
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: AppColors.secondary700,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: compact ? AppDimensions.md : AppDimensions.lg),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppDimensions.lg,
-                  vertical: compact ? 10 : AppDimensions.md,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary50,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      viewModel.continueStatusLabel,
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: AppColors.secondary700,
-                      ),
-                    ),
-                    const Spacer(),
-                    Flexible(
-                      child: Text(
-                        viewModel.continueStatusValue,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.h3.copyWith(
-                          color: AppColors.secondary500,
-                        ),
+                          const Spacer(),
+                          Flexible(
+                            child: Text(
+                              viewModel.continueStatusValue,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.h3.copyWith(
+                                color: AppColors.secondary500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 }
 
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({required this.icon});
-
-  final IconData icon;
+class _ContinueLearningSkeleton extends StatelessWidget {
+  const _ContinueLearningSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ScenioSkeletonLine(width: 118, height: 12),
+              SizedBox(height: AppDimensions.sm),
+              ScenioSkeletonLine(widthFactor: 0.86, height: 22),
+              SizedBox(height: AppDimensions.xs),
+              ScenioSkeletonLine(widthFactor: 0.68, height: 22),
+              SizedBox(height: AppDimensions.md),
+              ScenioSkeletonLine(widthFactor: 0.74, height: 12),
+              SizedBox(height: AppDimensions.sm),
+              ScenioSkeletonLine(widthFactor: 0.62, height: 12),
+              SizedBox(height: AppDimensions.sm),
+              ScenioSkeletonLine(widthFactor: 0.7, height: 12),
+            ],
+          ),
+        ),
+        SizedBox(width: AppDimensions.lg),
+        ScenioSkeletonBox(
+          width: 82,
+          height: 96,
+          radius: AppDimensions.radiusLg,
+        ),
+      ],
+    );
+  }
+}
+
+class _MissionSkeletonCard extends StatelessWidget {
+  const _MissionSkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ScenioSkeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ScenioSkeletonLine(widthFactor: 0.76, height: 18),
+          SizedBox(height: AppDimensions.sm),
+          ScenioSkeletonLine(widthFactor: 0.92, height: 12),
+          SizedBox(height: AppDimensions.xs),
+          ScenioSkeletonLine(widthFactor: 0.54, height: 12),
+          SizedBox(height: AppDimensions.lg),
+          ScenioSkeletonLine(widthFactor: 1, height: 8),
+          SizedBox(height: AppDimensions.md),
+          Row(
+            children: <Widget>[
+              ScenioSkeletonLine(width: 78, height: 12),
+              Spacer(),
+              ScenioSkeletonLine(width: 96, height: 12),
+            ],
+          ),
+        ],
       ),
-      alignment: Alignment.center,
-      child: Icon(icon, color: Colors.white, size: AppDimensions.iconLg),
+    );
+  }
+}
+
+class _SceneSkeletonCard extends StatelessWidget {
+  const _SceneSkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ScenioSkeletonCard(
+      child: Row(
+        children: <Widget>[
+          ScenioSkeletonBox(
+            width: 48,
+            height: 48,
+            radius: AppDimensions.radiusFull,
+          ),
+          SizedBox(width: AppDimensions.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ScenioSkeletonLine(widthFactor: 0.82, height: 16),
+                SizedBox(height: AppDimensions.sm),
+                ScenioSkeletonLine(widthFactor: 0.58, height: 12),
+                SizedBox(height: AppDimensions.sm),
+                ScenioSkeletonLine(widthFactor: 0.72, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    required this.icon,
+    this.onTap,
+    this.badgeCount = 0,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+  final int badgeCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: AppDimensions.iconLg,
+              ),
+            ),
+            if (badgeCount > 0)
+              Positioned(
+                right: -2,
+                top: -4,
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 18),
+                  height: 18,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent500,
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusFull,
+                    ),
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    badgeCount > 9 ? '9+' : '$badgeCount',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../../core/storage/storage_service.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/learning_repository.dart';
+import '../../domain/repositories/notifications_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../profile/profile_viewmodel.dart';
 import '../vocabulary/vocabulary_binding.dart';
@@ -14,6 +15,7 @@ class HomeBinding extends Bindings {
       () => HomeViewModel(
         repository: Get.find<LearningRepository>(),
         authRepository: Get.find<AuthRepository>(),
+        notificationsRepository: Get.find<NotificationsRepository>(),
         storageService: Get.find<StorageService>(),
       ),
     );
