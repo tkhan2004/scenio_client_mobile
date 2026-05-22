@@ -175,9 +175,11 @@ class NotificationsViewModel extends GetxController {
         await _openSessionResult(notification);
         return;
       case AppNotificationCtaType.missions:
-      case AppNotificationCtaType.learningPlan:
       case AppNotificationCtaType.home:
         _openHomeTab(0);
+        return;
+      case AppNotificationCtaType.learningPlan:
+        await Get.toNamed(Routes.learningPlan);
         return;
       case AppNotificationCtaType.scenes:
         _openHomeTab(1);

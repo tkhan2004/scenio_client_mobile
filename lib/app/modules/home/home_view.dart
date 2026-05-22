@@ -305,6 +305,10 @@ class _HomeDashboardSheet extends StatelessWidget {
                     ),
                     const SizedBox(height: AppDimensions.md),
                     _LearningPlanCard(viewModel: viewModel),
+                    const SizedBox(height: AppDimensions.md),
+                    _NextLearningStepCard(viewModel: viewModel),
+                    const SizedBox(height: AppDimensions.md),
+                    _RoadmapReminderCard(viewModel: viewModel),
                   ],
                   SizedBox(height: AppDimensions.xl),
                   _SectionHeader(
@@ -571,7 +575,7 @@ class _ContinueLearningCard extends StatelessWidget {
                               const SizedBox(height: AppDimensions.xs),
                               Text(
                                 viewModel.continueCardTitle,
-                                maxLines: compact ? 1 : 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTextStyles.h2,
                               ),
@@ -910,32 +914,28 @@ class _LearningPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LearningPlanResponseModel plan = viewModel.currentLearningPlan!;
-    final LearningPlanNextStepModel? nextStep = plan.nextStep;
-
+    final LearningPlanResponseModel? plan = viewModel.currentLearningPlan;
+    if (plan == null) {
+      return const SizedBox.shrink();
+    }
     return InkWell(
       onTap: viewModel.handleLearningPlanTap,
       borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
       child: Container(
-        padding: const EdgeInsets.all(AppDimensions.lg),
+        padding: const EdgeInsets.all(AppDimensions.xl),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: <Color>[
-              Colors.white,
-              AppColors.primary50.withValues(alpha: 0.9),
-            ],
+            colors: <Color>[AppColors.primary900, AppColors.primary700],
           ),
           borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          border: Border.all(
-            color: AppColors.primary200.withValues(alpha: 0.9),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: AppColors.primary700.withValues(alpha: 0.08),
-              blurRadius: 22,
-              offset: const Offset(0, 10),
+              color: AppColors.primary900.withValues(alpha: 0.16),
+              blurRadius: 28,
+              offset: const Offset(0, 14),
             ),
           ],
         ),
@@ -947,26 +947,54 @@ class _LearningPlanCard extends StatelessWidget {
               children: <Widget>[
                 ScenioIconBadge(
                   icon: Icons.route_rounded,
-                  tint: AppColors.primary700,
-                  size: 50,
+                  tint: AppColors.accent500,
+                  size: 52,
+                  iconColor: AppColors.primary800,
                 ),
                 const SizedBox(width: AppDimensions.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(plan.plan.title, style: AppTextStyles.h3),
+                      Text(
+                        plan.plan.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.h2.copyWith(
+                          color: Colors.white,
+                          height: 1.18,
+                        ),
+                      ),
                       const SizedBox(height: AppDimensions.xs),
                       Text(
-                        plan.plan.summary,
-                        maxLines: 2,
+                        viewModel.learningPlanOutcomeLabel,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Colors.white.withValues(alpha: 0.78),
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.lg),
+            Wrap(
+              spacing: AppDimensions.sm,
+              runSpacing: AppDimensions.sm,
+              children: <Widget>[
+                _RoadmapHeroPill(
+                  icon: Icons.auto_awesome_rounded,
+                  label: 'Focus: ${viewModel.learningPlanFocusLabel}',
+                ),
+                _RoadmapHeroPill(
+                  icon: Icons.calendar_month_rounded,
+                  label: viewModel.learningPlanWeeklyTargetLabel,
+                ),
+                _RoadmapHeroPill(
+                  icon: Icons.timeline_rounded,
+                  label: viewModel.learningPlanPhaseLabel,
                 ),
               ],
             ),
@@ -976,63 +1004,69 @@ class _LearningPlanCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: plan.progress,
                 minHeight: 8,
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
                 valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.primary700,
+                  AppColors.accent200,
                 ),
               ),
             ),
-            const SizedBox(height: AppDimensions.md),
             Row(
               children: <Widget>[
-                _PlanChip(
-                  icon: Icons.auto_awesome_rounded,
-                  label: viewModel.learningPlanFocusLabel,
+                Expanded(
+                  child: Text(
+                    viewModel.learningPlanProgressLabel,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: Colors.white.withValues(alpha: 0.82),
+                    ),
+                  ),
                 ),
-                const SizedBox(width: AppDimensions.sm),
-                _PlanChip(
-                  icon: Icons.check_circle_outline_rounded,
-                  label: viewModel.learningPlanProgressLabel,
+                Text(
+                  '${(plan.progress * 100).round()}%',
+                  style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
                 ),
               ],
             ),
-            if (nextStep != null) ...<Widget>[
-              const SizedBox(height: AppDimensions.lg),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppDimensions.md),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.82),
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                  border: Border.all(
-                    color: AppColors.primary200.withValues(alpha: 0.9),
-                  ),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            AppStrings.homeLearningPlanNextStep,
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.primary700,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(nextStep.title, style: AppTextStyles.labelLarge),
-                        ],
+            const SizedBox(height: AppDimensions.lg),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: viewModel.openLearningPlanNextStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.primary800,
+                      minimumSize: const Size(0, AppDimensions.buttonHeight),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimensions.md,
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.primary700,
+                    child: Text(
+                      'Continue roadmap'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: AppDimensions.sm),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: viewModel.handleLearningPlanTap,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.56),
+                      ),
+                      minimumSize: const Size(0, AppDimensions.buttonHeight),
+                    ),
+                    child: Text(
+                      'View full plan'.tr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -1040,42 +1074,171 @@ class _LearningPlanCard extends StatelessWidget {
   }
 }
 
-class _PlanChip extends StatelessWidget {
-  const _PlanChip({required this.icon, required this.label});
+class _NextLearningStepCard extends StatelessWidget {
+  const _NextLearningStepCard({required this.viewModel});
+
+  final HomeViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final LearningPlanNextStepModel? nextStep =
+        viewModel.currentLearningPlan?.nextStep;
+    if (nextStep == null) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.primary700.withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ScenioIconBadge(
+            icon: Icons.play_arrow_rounded,
+            tint: AppColors.secondary500,
+            size: 48,
+            iconColor: AppColors.secondary700,
+          ),
+          const SizedBox(width: AppDimensions.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Next best step'.tr,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.primary700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  nextStep.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: AppDimensions.xs),
+                Text(
+                  viewModel.learningPlanNextReason,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.md),
+                SizedBox(
+                  width: 132,
+                  child: ElevatedButton(
+                    onPressed: viewModel.openLearningPlanNextStep,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(132, 44),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimensions.md,
+                      ),
+                    ),
+                    child: Text('Start now'.tr),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoadmapReminderCard extends StatelessWidget {
+  const _RoadmapReminderCard({required this.viewModel});
+
+  final HomeViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: AppColors.secondary50.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        border: Border.all(
+          color: AppColors.secondary300.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          ScenioIconBadge(
+            icon: Icons.notifications_active_rounded,
+            tint: AppColors.primary700,
+            size: 44,
+          ),
+          const SizedBox(width: AppDimensions.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Study reminder'.tr,
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.secondary700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${viewModel.learningPlanWeeklyTargetLabel} • Suggested: ${viewModel.learningPlanSuggestedDayLabel}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoadmapHeroPill extends StatelessWidget {
+  const _RoadmapHeroPill({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDimensions.md,
-          vertical: AppDimensions.sm,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.78),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-          border: Border.all(color: AppColors.primary200),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(icon, size: AppDimensions.iconSm, color: AppColors.primary700),
-            const SizedBox(width: AppDimensions.xs),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.primary800,
-                ),
-              ),
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.md,
+        vertical: AppDimensions.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: AppDimensions.iconSm, color: Colors.white),
+          const SizedBox(width: AppDimensions.xs),
+          Text(
+            label,
+            style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+          ),
+        ],
       ),
     );
   }

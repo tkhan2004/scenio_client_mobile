@@ -189,6 +189,66 @@ class HomeViewModel extends GetxController {
     return '${plan.completedSteps}/${plan.totalSteps} steps';
   }
 
+  String get learningPlanWeeklyTargetLabel {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    if (plan == null) return '3 sessions / week';
+    return '${plan.plan.weeklyTarget} sessions / week';
+  }
+
+  String get learningPlanOutcomeLabel {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    if (plan == null) {
+      return 'Build clear, confident replies across everyday scenes.';
+    }
+
+    final String goal = (plan.plan.learningGoal ?? '').toUpperCase();
+    switch (goal) {
+      case 'WORK':
+        return 'Handle workplace conversations with clearer structure.';
+      case 'TRAVEL':
+        return 'Handle everyday travel situations clearly and confidently.';
+      case 'DAILY':
+        return 'Keep short daily conversations natural and easy to follow.';
+      default:
+        return 'Improve real-life speaking through guided scene practice.';
+    }
+  }
+
+  String get learningPlanPhaseLabel {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    if (plan == null || plan.totalSteps == 0) return 'Roadmap setup';
+    if (plan.progress >= 0.75) return 'Final polish';
+    if (plan.progress >= 0.38) return 'Core practice';
+    if (plan.completedSteps > 0) return 'Foundation building';
+    return 'Start here';
+  }
+
+  String get learningPlanNextReason {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    LearningPlanStepModel? matchingStep;
+    if (plan != null) {
+      for (final LearningPlanStepModel step in plan.steps) {
+        if (step.id == plan.nextStep?.id) {
+          matchingStep = step;
+          break;
+        }
+      }
+    }
+
+    final String? reason = matchingStep?.reason?.trim();
+    if (reason != null && reason.isNotEmpty) return reason;
+
+    return 'This step keeps your roadmap moving and gives Scenio fresh data for the next feedback.';
+  }
+
+  String get learningPlanSuggestedDayLabel {
+    final int target = learningPlan.value?.plan.weeklyTarget ?? 3;
+    if (target >= 4) return 'Mon / Wed / Fri / Sun';
+    if (target == 3) return 'Tue / Thu / Sat';
+    if (target == 2) return 'Tue / Fri';
+    return 'Thursday';
+  }
+
   List<SceneCategory?> get sceneCategoryFilters => <SceneCategory?>[
     null,
     ...SceneCategory.values,
@@ -439,59 +499,41 @@ class HomeViewModel extends GetxController {
   }
 
   void handleLearningPlanTap() {
-    final LearningPlanResponseModel? plan = learningPlan.value;
-    final LearningPlanNextStepModel? nextStep = plan?.nextStep;
+    Get.toNamed(Routes.learningPlan, arguments: learningPlan.value);
+  }
+
+  void openLearningPlanNextStep() {
+    unawaited(_openLearningPlanNextStep());
+  }
+
+  Future<void> _openLearningPlanNextStep() async {
+    final LearningPlanNextStepModel? nextStep = learningPlan.value?.nextStep;
     final String? sceneId = nextStep?.sceneId;
 
     if (sceneId == null || sceneId.isEmpty) {
-      refreshLearningPlan();
+      handleLearningPlanTap();
       return;
     }
 
-    final LearningPlanStepModel? matchingStep = _findPlanStepById(
-      plan,
-      nextStep?.id,
-    );
-
-    if (matchingStep?.scene != null) {
-      openSceneDetails(matchingStep!.scene!);
+    SceneEntity? localScene;
+    for (final SceneEntity scene in _scenes) {
+      if (scene.id == sceneId) {
+        localScene = scene;
+        break;
+      }
+    }
+    if (localScene != null) {
+      openSceneDetails(localScene);
       return;
     }
 
-    unawaited(_openSceneById(sceneId));
-  }
-
-  Future<void> _openSceneById(String sceneId) async {
     try {
       final SceneEntity scene = await _repository.fetchSceneDetail(sceneId);
       _replaceOrInsertScene(scene);
-      await Get.toNamed(Routes.sceneDetail, arguments: scene);
+      openSceneDetails(scene);
     } catch (_) {
-      final SceneEntity? fallback = _findSceneById(sceneId);
-      if (fallback != null) {
-        await Get.toNamed(Routes.sceneDetail, arguments: fallback);
-        return;
-      }
-      _showError('Không thể mở bước học tiếp theo lúc này.');
+      handleLearningPlanTap();
     }
-  }
-
-  LearningPlanStepModel? _findPlanStepById(
-    LearningPlanResponseModel? plan,
-    String? stepId,
-  ) {
-    if (plan == null || stepId == null) return null;
-    for (final LearningPlanStepModel step in plan.steps) {
-      if (step.id == stepId) return step;
-    }
-    return null;
-  }
-
-  SceneEntity? _findSceneById(String sceneId) {
-    for (final SceneEntity scene in _scenes) {
-      if (scene.id == sceneId) return scene;
-    }
-    return null;
   }
 
   void refreshLearningPlan() {

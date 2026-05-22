@@ -5,6 +5,8 @@ abstract class Routes {
   static const String auth = '/auth';
   static const String home = '/home';
   static const String customPractice = '/custom-practice';
+  static const String learningPlan = '/learning-plan';
+  static const String roadmapCompletion = '/roadmap-completion';
   static const String sceneDetail = '/scene-detail';
   static const String practiceSession = '/practice-session';
   static const String sessionResult = '/session-result';
