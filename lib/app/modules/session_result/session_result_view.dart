@@ -133,6 +133,14 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                   ),
                 ],
               ),
+              const SizedBox(height: AppDimensions.xl),
+              _MissionOutcomeCard(
+                status: controller.missionOutcomeLabel,
+                description: controller.missionOutcomeDescription,
+                averageScore: controller.averageScore,
+                completedTurns: controller.result.completedTurns,
+                targetTurns: controller.result.targetTurns,
+              ),
               if (controller.hasSpokenCoaching) ...<Widget>[
                 const SizedBox(height: AppDimensions.xl),
                 _CoachingSummaryCard(
@@ -252,6 +260,148 @@ class SessionResultView extends GetView<SessionResultViewModel> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MissionOutcomeCard extends StatelessWidget {
+  const _MissionOutcomeCard({
+    required this.status,
+    required this.description,
+    required this.averageScore,
+    required this.completedTurns,
+    required this.targetTurns,
+  });
+
+  final String status;
+  final String description;
+  final int averageScore;
+  final int completedTurns;
+  final int targetTurns;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isStrong = status == 'Achieved';
+    final bool needsRetry = status == 'Needs retry';
+    final Color tint = isStrong
+        ? AppColors.secondary500
+        : needsRetry
+        ? AppColors.accent500
+        : AppColors.primary700;
+    final Color fill = isStrong
+        ? AppColors.secondary50
+        : needsRetry
+        ? AppColors.accent50
+        : AppColors.primary50;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: fill.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: tint.withValues(alpha: 0.22)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                ),
+                child: Icon(
+                  isStrong
+                      ? Icons.check_circle_rounded
+                      : needsRetry
+                      ? Icons.replay_rounded
+                      : Icons.adjust_rounded,
+                  color: tint,
+                ),
+              ),
+              const SizedBox(width: AppDimensions.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Mission outcome'.tr, style: AppTextStyles.h3),
+                    const SizedBox(height: 2),
+                    Text(
+                      status.tr,
+                      style: AppTextStyles.labelLarge.copyWith(color: tint),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '$averageScore',
+                style: AppTextStyles.scoreNumber.copyWith(
+                  color: tint,
+                  fontSize: 30,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.md),
+          Text(
+            description.tr,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.md),
+          _MissionProgressStrip(
+            completedTurns: completedTurns,
+            targetTurns: targetTurns,
+            tint: tint,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MissionProgressStrip extends StatelessWidget {
+  const _MissionProgressStrip({
+    required this.completedTurns,
+    required this.targetTurns,
+    required this.tint,
+  });
+
+  final int completedTurns;
+  final int targetTurns;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final double progress = targetTurns == 0
+        ? 0
+        : (completedTurns / targetTurns).clamp(0, 1).toDouble();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 8,
+            backgroundColor: Colors.white.withValues(alpha: 0.82),
+            valueColor: AlwaysStoppedAnimation<Color>(tint),
+          ),
+        ),
+        const SizedBox(height: AppDimensions.sm),
+        Text(
+          '$completedTurns/$targetTurns guided turns completed',
+          style: AppTextStyles.labelMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

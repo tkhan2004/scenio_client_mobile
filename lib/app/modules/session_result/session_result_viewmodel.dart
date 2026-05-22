@@ -22,6 +22,34 @@ class SessionResultViewModel extends GetxController {
   bool get hasSpokenCoaching => result.spokenCoaching?.available ?? false;
   bool get hasNextLearningAction => result.nextLearningAction != null;
 
+  int get averageScore {
+    return ((result.grammarScore +
+                result.vocabularyScore +
+                result.naturalnessScore) /
+            3)
+        .round();
+  }
+
+  String get missionOutcomeLabel {
+    if (averageScore >= 72 && result.completedTurns >= result.targetTurns) {
+      return 'Achieved';
+    }
+    if (averageScore >= 56 || result.completedTurns >= result.targetTurns) {
+      return 'Partially achieved';
+    }
+    return 'Needs retry';
+  }
+
+  String get missionOutcomeDescription {
+    if (missionOutcomeLabel == 'Achieved') {
+      return 'You stayed in the scene, completed the guided turns, and handled the conversation goal clearly enough for this level.';
+    }
+    if (missionOutcomeLabel == 'Partially achieved') {
+      return 'You kept the conversation moving, but the next session should make your replies longer, cleaner, or more specific.';
+    }
+    return 'The scene goal still needs another attempt. Retry a similar scene and focus on one complete answer at a time.';
+  }
+
   String get nextStepTitle {
     switch (result.nextLearningAction?.focus.toUpperCase()) {
       case 'GRAMMAR':
