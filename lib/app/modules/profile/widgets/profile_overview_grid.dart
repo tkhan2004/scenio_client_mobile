@@ -42,7 +42,7 @@ class _OverviewStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 152,
+      height: 132,
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimensions.md,
         vertical: 10,

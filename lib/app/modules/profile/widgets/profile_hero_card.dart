@@ -13,7 +13,7 @@ class ProfileHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppDimensions.xl),
+      padding: const EdgeInsets.all(AppDimensions.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -37,10 +37,11 @@ class ProfileHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
-                width: 64,
-                height: 64,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
@@ -51,41 +52,50 @@ class ProfileHeroCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   controller.avatarInitial,
-                  style: AppTextStyles.displayMedium.copyWith(
-                    color: Colors.white,
-                  ),
+                  style: AppTextStyles.h2.copyWith(color: Colors.white),
                 ),
               ),
-              Spacer(),
+              const SizedBox(width: AppDimensions.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      AppStrings.homeProfileTitle,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      controller.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.displayMedium.copyWith(
+                        color: Colors.white,
+                        height: 1.08,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      controller.profileEmail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.74),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppDimensions.sm),
               _HeroTextButton(
                 icon: Icons.edit_outlined,
                 label: AppStrings.profileHeroEdit,
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.lg),
-          Text(
-            AppStrings.homeProfileTitle,
-            style: AppTextStyles.labelLarge.copyWith(
-              color: Colors.white.withValues(alpha: 0.76),
-            ),
-          ),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            controller.displayName,
-            style: AppTextStyles.displayLarge.copyWith(
-              color: Colors.white,
-              height: 1.08,
-            ),
-          ),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            controller.profileEmail,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: Colors.white.withValues(alpha: 0.78),
-            ),
-          ),
-          const SizedBox(height: AppDimensions.lg),
+          const SizedBox(height: AppDimensions.md),
           Wrap(
             spacing: AppDimensions.sm,
             runSpacing: AppDimensions.sm,
@@ -108,26 +118,6 @@ class ProfileHeroCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.lg),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: _HeroInfoPill(
-                  title: AppStrings.homeProfileGoal,
-                  value: controller.profileGoalProgress,
-                  accent: AppColors.secondary50,
-                ),
-              ),
-              SizedBox(width: AppDimensions.md),
-              Expanded(
-                child: _HeroInfoPill(
-                  title: AppStrings.profileBadgesSection,
-                  value: controller.profileBadgesProgress,
-                  accent: AppColors.accent50,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -144,8 +134,8 @@ class _HeroTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.md,
-        vertical: AppDimensions.sm,
+        horizontal: AppDimensions.sm,
+        vertical: AppDimensions.xs,
       ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.12),
@@ -156,7 +146,7 @@ class _HeroTextButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Icon(icon, color: Colors.white, size: AppDimensions.iconSm),
-          const SizedBox(width: AppDimensions.sm),
+          const SizedBox(width: AppDimensions.xs),
           Text(
             label,
             style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
@@ -177,8 +167,8 @@ class _HeroChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.md,
-        vertical: AppDimensions.sm,
+        horizontal: AppDimensions.sm,
+        vertical: AppDimensions.xs,
       ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.12),
@@ -189,46 +179,12 @@ class _HeroChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Icon(icon, size: AppDimensions.iconSm, color: Colors.white),
-          const SizedBox(width: AppDimensions.sm),
+          const SizedBox(width: AppDimensions.xs),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroInfoPill extends StatelessWidget {
-  const _HeroInfoPill({
-    required this.title,
-    required this.value,
-    required this.accent,
-  });
-
-  final String title;
-  final String value;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(title, style: AppTextStyles.labelMedium),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            value,
-            style: AppTextStyles.labelLarge.copyWith(
-              color: AppColors.textPrimary,
-            ),
           ),
         ],
       ),
