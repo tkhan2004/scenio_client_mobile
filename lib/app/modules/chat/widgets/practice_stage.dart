@@ -15,6 +15,7 @@ class PracticeStage extends StatelessWidget {
     required this.stateLabel,
     required this.state,
     required this.voiceActive,
+    this.compact = false,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class PracticeStage extends StatelessWidget {
   final String stateLabel;
   final PracticeRealtimeState state;
   final bool voiceActive;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +39,10 @@ class PracticeStage extends StatelessWidget {
       curve: Curves.easeOutCubic,
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(
-        AppDimensions.lg,
-        AppDimensions.lg,
-        AppDimensions.lg,
         AppDimensions.md,
+        AppDimensions.md,
+        AppDimensions.md,
+        AppDimensions.sm,
       ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.78),
@@ -61,13 +63,14 @@ class PracticeStage extends StatelessWidget {
             voiceActive: voiceActive,
             state: state,
           ),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
           _AiVoiceOrb(
             initials: aiInitials,
             active: aiActive,
             speaking: state == PracticeRealtimeState.aiSpeaking,
+            size: compact ? 84 : 132,
           ),
-          const SizedBox(height: AppDimensions.md),
+          SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
           Text(
             aiName,
             maxLines: 1,
@@ -75,22 +78,24 @@ class PracticeStage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.h2,
           ),
-          const SizedBox(height: AppDimensions.xs),
-          Text(
-            aiRole,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+          if (!compact) ...<Widget>[
+            const SizedBox(height: AppDimensions.xs),
+            Text(
+              aiRole,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
-          ),
-          const SizedBox(height: AppDimensions.md),
+          ],
+          SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
           AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.md,
-              vertical: AppDimensions.sm,
+              vertical: 7,
             ),
             decoration: BoxDecoration(
               color: userActive ? AppColors.secondary50 : AppColors.primary50,
@@ -105,6 +110,8 @@ class PracticeStage extends StatelessWidget {
               userActive
                   ? 'Mic đang nghe giọng của bạn'
                   : 'AI nói thì mic tự khóa, AI xong sẽ mở lại',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTextStyles.labelMedium.copyWith(
                 color: userActive
@@ -188,11 +195,13 @@ class _AiVoiceOrb extends StatefulWidget {
     required this.initials,
     required this.active,
     required this.speaking,
+    required this.size,
   });
 
   final String initials;
   final bool active;
   final bool speaking;
+  final double size;
 
   @override
   State<_AiVoiceOrb> createState() => _AiVoiceOrbState();
@@ -236,9 +245,13 @@ class _AiVoiceOrbState extends State<_AiVoiceOrb>
 
   @override
   Widget build(BuildContext context) {
+    final double outerWaveSize = widget.size * 0.72;
+    final double rotatingSize = widget.size * 0.74;
+    final double innerSize = widget.size * 0.59;
+
     return SizedBox(
-      width: 132,
-      height: 132,
+      width: widget.size,
+      height: widget.size,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (BuildContext context, Widget? child) {
@@ -253,8 +266,8 @@ class _AiVoiceOrbState extends State<_AiVoiceOrb>
                 Transform.scale(
                   scale: 0.88 + (index * 0.18) + (breath * 0.16),
                   child: Container(
-                    width: 94,
-                    height: 94,
+                    width: outerWaveSize,
+                    height: outerWaveSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -268,8 +281,8 @@ class _AiVoiceOrbState extends State<_AiVoiceOrb>
               Transform.rotate(
                 angle: rotation * 0.16,
                 child: Container(
-                  width: 98,
-                  height: 98,
+                  width: rotatingSize,
+                  height: rotatingSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: SweepGradient(
@@ -293,8 +306,8 @@ class _AiVoiceOrbState extends State<_AiVoiceOrb>
                 ),
               ),
               Container(
-                width: 78,
-                height: 78,
+                width: innerSize,
+                height: innerSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(

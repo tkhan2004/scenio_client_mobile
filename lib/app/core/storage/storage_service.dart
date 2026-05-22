@@ -7,6 +7,7 @@ class StorageService extends GetxService {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _seenOnboardingKey = 'seen_onboarding';
   static const String _displayNameKey = 'display_name';
+  static const String _activePracticeSessionKey = 'active_practice_session';
 
   static Future<void> init() async {
     await GetStorage.init(_boxName);
@@ -23,6 +24,14 @@ class StorageService extends GetxService {
   String? get accessToken => _box.read<String>(_accessTokenKey);
   String? get refreshToken => _box.read<String>(_refreshTokenKey);
   String? get displayName => _box.read<String>(_displayNameKey);
+  Map<String, dynamic>? get activePracticeSession {
+    final dynamic value = _box.read(_activePracticeSessionKey);
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+    return null;
+  }
+
   bool get hasSession =>
       (accessToken?.isNotEmpty ?? false) && (refreshToken?.isNotEmpty ?? false);
   bool get hasSeenOnboarding => _box.read<bool>(_seenOnboardingKey) ?? false;
@@ -43,10 +52,19 @@ class StorageService extends GetxService {
     await _box.write(_accessTokenKey, accessToken);
   }
 
+  Future<void> saveActivePracticeSession(Map<String, dynamic> session) async {
+    await _box.write(_activePracticeSessionKey, session);
+  }
+
+  Future<void> clearActivePracticeSession() async {
+    await _box.remove(_activePracticeSessionKey);
+  }
+
   Future<void> clearSession() async {
     await _box.remove(_accessTokenKey);
     await _box.remove(_refreshTokenKey);
     await _box.remove(_displayNameKey);
+    await clearActivePracticeSession();
   }
 
   Future<void> markOnboardingSeen() async {

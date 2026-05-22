@@ -34,11 +34,10 @@ class HomePracticeTab extends StatelessWidget {
           ),
           children: <Widget>[
             _PracticePageHeader(viewModel: viewModel),
-            SizedBox(height: AppDimensions.xl),
-            if (viewModel.hasActiveSession)
-              _ActivePracticeCard(viewModel: viewModel)
-            else
-              _PracticeEmptyState(viewModel: viewModel),
+            if (viewModel.hasActiveSession) ...<Widget>[
+              SizedBox(height: AppDimensions.xl),
+              _ActivePracticeCard(viewModel: viewModel),
+            ],
             SizedBox(height: AppDimensions.xl),
             _CustomPracticeCard(viewModel: viewModel),
             SizedBox(height: AppDimensions.xl),
@@ -163,7 +162,16 @@ class _ActivePracticeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SceneEntity scene = viewModel.currentSessionScene!;
+    final session = viewModel.currentSession;
+    if (session == null) {
+      return const SizedBox.shrink();
+    }
+
+    final SceneEntity? scene = viewModel.currentSessionScene;
+    final String title = scene?.title ?? session.sceneTitle;
+    final String characterName = scene?.characterName ?? session.characterName;
+    final String characterRole = scene?.characterRole ?? session.characterRole;
+    final String mission = scene?.mission ?? session.mission;
 
     return Container(
       padding: const EdgeInsets.all(AppDimensions.xl),
@@ -186,14 +194,14 @@ class _ActivePracticeCard extends StatelessWidget {
           ),
           const SizedBox(height: AppDimensions.sm),
           Text(
-            scene.title,
+            title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.displayMedium.copyWith(color: Colors.white),
           ),
           const SizedBox(height: AppDimensions.xs),
           Text(
-            '${scene.characterName} • ${scene.characterRole}',
+            '$characterName • $characterRole',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.bodyMedium.copyWith(
@@ -220,7 +228,7 @@ class _ActivePracticeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimensions.xs),
                 Text(
-                  scene.mission,
+                  mission,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
@@ -229,7 +237,7 @@ class _ActivePracticeCard extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      '${AppStrings.practiceProgressLabel}: ${viewModel.currentSession!.completedTurns}/${viewModel.currentSession!.targetTurns}',
+                      '${AppStrings.practiceProgressLabel}: ${session.completedTurns}/${session.targetTurns}',
                       style: AppTextStyles.labelLarge.copyWith(
                         color: Colors.white,
                       ),
@@ -254,67 +262,6 @@ class _ActivePracticeCard extends StatelessWidget {
               foregroundColor: AppColors.primary900,
             ),
             child: Text(AppStrings.practiceResumeButton),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PracticeEmptyState extends StatelessWidget {
-  const _PracticeEmptyState({required this.viewModel});
-
-  final HomeViewModel viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.xl),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
-      ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[
-                  AppColors.primary50,
-                  AppColors.primary200.withValues(alpha: 0.64),
-                ],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.graphic_eq_rounded,
-              size: AppDimensions.iconXl,
-              color: AppColors.primary800,
-            ),
-          ),
-          SizedBox(height: AppDimensions.lg),
-          Text(
-            AppStrings.practiceEmptyTitle,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.h2,
-          ),
-          SizedBox(height: AppDimensions.xs),
-          Text(
-            AppStrings.practiceEmptySubtitle,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          SizedBox(height: AppDimensions.lg),
-          ElevatedButton(
-            onPressed: () => viewModel.selectTab(1),
-            child: Text(AppStrings.practiceBrowseScenesButton),
           ),
         ],
       ),

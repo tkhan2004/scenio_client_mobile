@@ -345,6 +345,7 @@ class HomeViewModel extends GetxController {
       return;
     }
 
+    _hydrateCachedActiveSession();
     isLoadingDashboard.value = true;
     isLoadingScenes.value = true;
 
@@ -375,7 +376,13 @@ class HomeViewModel extends GetxController {
         _scenes.assignAll(fetchedScenes);
       }
 
-      _hydrateInProgressSession(dashboard.inProgressSession);
+      if (dashboard.inProgressSession != null) {
+        _hydrateInProgressSession(dashboard.inProgressSession, replace: true);
+      } else if (activeSession.value != null) {
+        activeSession.value = null;
+        activeMessages.clear();
+        await _storageService.clearActivePracticeSession();
+      }
     } on ApiException catch (error) {
       if (error.statusCode == 401) {
         await _handleUnauthorized();
@@ -410,8 +417,58 @@ class HomeViewModel extends GetxController {
     }
   }
 
-  void _hydrateInProgressSession(InProgressSessionModel? inProgressSession) {
-    if (inProgressSession == null || activeSession.value != null) {
+  void _hydrateCachedActiveSession() {
+    if (activeSession.value != null) return;
+
+    final Map<String, dynamic>? snapshot =
+        _storageService.activePracticeSession;
+    if (snapshot == null) return;
+
+    final String id = snapshot['id'] as String? ?? '';
+    if (id.isEmpty) return;
+
+    final SessionEntity session = SessionEntity(
+      id: id,
+      sceneId: snapshot['sceneId'] as String? ?? '',
+      sceneTitle: snapshot['sceneTitle'] as String? ?? 'Practice Session',
+      characterName: snapshot['characterName'] as String? ?? 'AI',
+      characterRole: snapshot['characterRole'] as String? ?? 'AI partner',
+      difficultyLabel: snapshot['difficultyLabel'] as String? ?? 'A2',
+      mission:
+          snapshot['mission'] as String? ??
+          'Continue the conversation naturally.',
+      startedAt:
+          DateTime.tryParse(snapshot['startedAt'] as String? ?? '') ??
+          DateTime.now(),
+      status: SessionStatus.active,
+      completedTurns: (snapshot['completedTurns'] as num?)?.toInt() ?? 0,
+      targetTurns: (snapshot['targetTurns'] as num?)?.toInt() ?? 3,
+    );
+
+    activeSession.value = session;
+    _ensureSceneForResume(
+      sceneId: session.sceneId,
+      sceneTitle: session.sceneTitle,
+      characterName: session.characterName,
+    );
+    activeMessages.assignAll(<MessageEntity>[
+      MessageEntity(
+        id: '${session.id}-cached-resume',
+        sessionId: session.id,
+        author: MessageAuthor.ai,
+        text: 'Your previous practice is still active. Continue when ready.',
+        createdAt: DateTime.now(),
+      ),
+    ]);
+    practiceState.value = PracticeRealtimeState.userListening;
+  }
+
+  void _hydrateInProgressSession(
+    InProgressSessionModel? inProgressSession, {
+    bool replace = false,
+  }) {
+    if (inProgressSession == null ||
+        (!replace && activeSession.value != null)) {
       return;
     }
 
@@ -445,6 +502,28 @@ class HomeViewModel extends GetxController {
       ),
     ]);
     practiceState.value = PracticeRealtimeState.userListening;
+    unawaited(_persistActiveSession());
+  }
+
+  Future<void> _persistActiveSession() async {
+    final SessionEntity? session = activeSession.value;
+    if (session == null || session.status != SessionStatus.active) {
+      await _storageService.clearActivePracticeSession();
+      return;
+    }
+
+    await _storageService.saveActivePracticeSession(<String, dynamic>{
+      'id': session.id,
+      'sceneId': session.sceneId,
+      'sceneTitle': session.sceneTitle,
+      'characterName': session.characterName,
+      'characterRole': session.characterRole,
+      'difficultyLabel': session.difficultyLabel,
+      'mission': session.mission,
+      'startedAt': session.startedAt.toIso8601String(),
+      'completedTurns': session.completedTurns,
+      'targetTurns': session.targetTurns,
+    });
   }
 
   void selectTab(int index) {
@@ -609,6 +688,7 @@ class HomeViewModel extends GetxController {
       activeSession.value = start.toSessionEntity(scene);
       activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
       practiceState.value = PracticeRealtimeState.userListening;
+      unawaited(_persistActiveSession());
       openPracticeSession();
     } on ApiException catch (error) {
       if (error.statusCode == 409 &&
@@ -651,6 +731,7 @@ class HomeViewModel extends GetxController {
       activeSession.value = start.toSessionEntity(syntheticScene);
       activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
       practiceState.value = PracticeRealtimeState.userListening;
+      unawaited(_persistActiveSession());
       return true;
     } on ApiException catch (error) {
       if (error.statusCode == 409 &&
@@ -716,6 +797,7 @@ class HomeViewModel extends GetxController {
       ),
     ]);
     practiceState.value = PracticeRealtimeState.userListening;
+    unawaited(_persistActiveSession());
   }
 
   SceneEntity _ensureSceneForResume({
@@ -773,6 +855,7 @@ class HomeViewModel extends GetxController {
 
     activeMessages.add(userMessage);
     activeSession.value = session.copyWith(completedTurns: nextTurn);
+    unawaited(_persistActiveSession());
     practiceState.value = PracticeRealtimeState.aiThinking;
 
     try {
@@ -861,6 +944,7 @@ class HomeViewModel extends GetxController {
 
     if (author == MessageAuthor.user) {
       activeSession.value = session.copyWith(completedTurns: nextTurn);
+      unawaited(_persistActiveSession());
     }
   }
 
@@ -934,6 +1018,7 @@ class HomeViewModel extends GetxController {
     lastCompletedResult.value = result;
     activeSession.value = null;
     activeMessages.clear();
+    await _storageService.clearActivePracticeSession();
     practiceState.value = PracticeRealtimeState.idle;
     unawaited(_bootstrap());
     return result;
@@ -954,6 +1039,7 @@ class HomeViewModel extends GetxController {
     } finally {
       activeSession.value = null;
       activeMessages.clear();
+      await _storageService.clearActivePracticeSession();
       practiceState.value = PracticeRealtimeState.idle;
       if (showAlert) {
         ScenioAlert.show(

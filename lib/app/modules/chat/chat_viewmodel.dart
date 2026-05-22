@@ -28,14 +28,17 @@ class ChatViewModel extends GetxController {
   final RxBool canSendReply = false.obs;
   final RxBool isVoiceSessionActive = false.obs;
   final RxBool isVoiceConnecting = false.obs;
+  final RxBool isFinishingSession = false.obs;
   final RxBool isMicMuted = false.obs;
   final RxBool showEntryGuide = true.obs;
   final RxString partialAiCaption = ''.obs;
   final RxString partialUserCaption = ''.obs;
+  final RxString elapsedSessionTime = '00:00'.obs;
 
   StreamSubscription<RealtimeConnectionPhase>? _phaseSubscription;
   StreamSubscription<RealtimeTranscriptEvent>? _transcriptSubscription;
   Timer? _entryGuideTimer;
+  Timer? _durationTimer;
   Timer? _phaseSettleTimer;
   Timer? _aiCaptionSettleTimer;
   Timer? _userCaptionSettleTimer;
@@ -43,6 +46,8 @@ class ChatViewModel extends GetxController {
   String? _pendingAiCaption;
   String? _pendingUserCaption;
   final Set<String> _syncedProviderEvents = <String>{};
+  final Set<Future<void>> _pendingTranscriptSyncs = <Future<void>>{};
+  ApiException? _lastTranscriptSyncError;
 
   SceneEntity get scene =>
       homeViewModel.currentSessionScene ?? _sceneFromActiveSession();
@@ -78,6 +83,7 @@ class ChatViewModel extends GetxController {
         showEntryGuide.value = false;
       }
     });
+    _startDurationTimer();
     _phaseSubscription = realtimeService.phaseStream.listen(_handleVoicePhase);
     _transcriptSubscription = realtimeService.transcriptStream.listen(
       _handleRealtimeTranscript,
@@ -208,22 +214,47 @@ class ChatViewModel extends GetxController {
     Get.offAllNamed(Routes.home);
   }
 
+  void returnToHomeKeepingSession() {
+    unawaited(realtimeService.disconnect());
+    Get.offAllNamed(Routes.home);
+  }
+
   void finishSession() {
+    if (isFinishingSession.value) return;
     unawaited(_finishSession());
   }
 
   Future<void> _finishSession() async {
+    isFinishingSession.value = true;
+    homeViewModel.setPracticeState(PracticeRealtimeState.finishing);
     try {
+      if (isVoiceSessionActive.value) {
+        await realtimeService.setMicrophoneEnabled(false);
+        isMicMuted.value = true;
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+      }
+      await _waitForPendingTranscriptSyncs();
       await realtimeService.disconnect();
       final SessionResultEntity result = await homeViewModel
           .completeCurrentSession();
       Get.offNamed(Routes.sessionResult, arguments: result);
-    } catch (_) {
+    } on ApiException catch (error) {
       ScenioAlert.show(
         title: AppStrings.appName,
-        message: 'Chưa thể hoàn tất buổi luyện lúc này.',
+        message: error.message,
         isError: true,
       );
+      homeViewModel.setPracticeState(PracticeRealtimeState.userListening);
+    } catch (error) {
+      final ApiException? syncError = _lastTranscriptSyncError;
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: syncError?.message ?? 'Chưa thể hoàn tất buổi luyện lúc này.',
+        isError: true,
+      );
+      homeViewModel.setPracticeState(PracticeRealtimeState.userListening);
+    } finally {
+      isFinishingSession.value = false;
     }
   }
 
@@ -339,7 +370,7 @@ class ChatViewModel extends GetxController {
       content: event.content,
       providerEventId: eventId,
     );
-    unawaited(
+    _trackTranscriptSync(
       homeViewModel.syncAudioTranscript(
         author: event.author,
         content: event.content,
@@ -348,6 +379,57 @@ class ChatViewModel extends GetxController {
         audioEndMs: event.audioEndMs,
       ),
     );
+  }
+
+  void _trackTranscriptSync(Future<void> future) {
+    late final Future<void> trackedFuture;
+    trackedFuture = future
+        .catchError((Object error) {
+          _lastTranscriptSyncError = mapApiException(error);
+        })
+        .whenComplete(() {
+          _pendingTranscriptSyncs.remove(trackedFuture);
+        });
+    _pendingTranscriptSyncs.add(trackedFuture);
+  }
+
+  Future<void> _waitForPendingTranscriptSyncs() async {
+    final List<Future<void>> pending = _pendingTranscriptSyncs.toList(
+      growable: false,
+    );
+    if (pending.isEmpty) return;
+
+    await Future.any(<Future<void>>[
+      Future.wait<void>(pending),
+      Future<void>.delayed(const Duration(seconds: 3)),
+    ]);
+  }
+
+  void _startDurationTimer() {
+    _updateElapsedSessionTime();
+    _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!isClosed) {
+        _updateElapsedSessionTime();
+      }
+    });
+  }
+
+  void _updateElapsedSessionTime() {
+    final SessionEntity? activeSession = homeViewModel.currentSession;
+    if (activeSession == null) {
+      elapsedSessionTime.value = '00:00';
+      return;
+    }
+
+    final Duration elapsed = DateTime.now().difference(activeSession.startedAt);
+    final int hours = elapsed.inHours;
+    final int minutes = elapsed.inMinutes.remainder(60);
+    final int seconds = elapsed.inSeconds.remainder(60);
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+
+    elapsedSessionTime.value = hours > 0
+        ? '$hours:${twoDigits(minutes)}:${twoDigits(seconds)}'
+        : '${twoDigits(minutes)}:${twoDigits(seconds)}';
   }
 
   void _handleVoiceStartError(String message) {
@@ -459,6 +541,7 @@ class ChatViewModel extends GetxController {
   @override
   void onClose() {
     _entryGuideTimer?.cancel();
+    _durationTimer?.cancel();
     _phaseSettleTimer?.cancel();
     _aiCaptionSettleTimer?.cancel();
     _userCaptionSettleTimer?.cancel();

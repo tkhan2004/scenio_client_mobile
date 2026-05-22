@@ -46,9 +46,9 @@ class ChatView extends GetView<ChatViewModel> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         AppDimensions.xxl,
-                        AppDimensions.lg,
+                        AppDimensions.md,
                         AppDimensions.xxl,
-                        AppDimensions.lg,
+                        AppDimensions.md,
                       ),
                       child: Column(
                         children: <Widget>[
@@ -56,7 +56,7 @@ class ChatView extends GetView<ChatViewModel> {
                             children: <Widget>[
                               _HeaderIconButton(
                                 icon: Icons.arrow_back_ios_new_rounded,
-                                onTap: controller.leaveSession,
+                                onTap: controller.returnToHomeKeepingSession,
                               ),
                               const SizedBox(width: AppDimensions.md),
                               Expanded(
@@ -82,6 +82,11 @@ class ChatView extends GetView<ChatViewModel> {
                                         ),
                                       ),
                                     ),
+                                    const SizedBox(height: AppDimensions.xs),
+                                    _DurationChip(
+                                      label:
+                                          controller.elapsedSessionTime.value,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -97,7 +102,7 @@ class ChatView extends GetView<ChatViewModel> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: AppDimensions.lg),
+                          const SizedBox(height: AppDimensions.sm),
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(AppDimensions.md),
@@ -112,7 +117,7 @@ class ChatView extends GetView<ChatViewModel> {
                             ),
                             child: Text(
                               controller.scene.mission,
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: Colors.white,
@@ -129,7 +134,7 @@ class ChatView extends GetView<ChatViewModel> {
                           AppDimensions.xxl,
                           0,
                           AppDimensions.xxl,
-                          AppDimensions.md,
+                          AppDimensions.sm,
                         ),
                         child: Column(
                           children: <Widget>[
@@ -145,25 +150,44 @@ class ChatView extends GetView<ChatViewModel> {
                                 state: state,
                                 voiceActive:
                                     controller.isVoiceSessionActive.value,
+                                compact: true,
                               );
                             }),
-                            const SizedBox(height: AppDimensions.lg),
-                            Obx(
-                              () => PracticeCaptionStrip(
-                                aiCaption: controller.latestAiCaption,
-                                userCaption: controller.latestUserCaption,
-                              ),
-                            ),
-                            const SizedBox(height: AppDimensions.md),
-                            Obx(
-                              () => PracticeTranscriptPanel(
-                                messages: controller.messages.toList(
-                                  growable: false,
+                            Obx(() {
+                              final String aiCaption = controller
+                                  .latestAiCaption
+                                  .trim();
+                              final String userCaption = controller
+                                  .latestUserCaption
+                                  .trim();
+                              if (aiCaption.isEmpty && userCaption.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  top: AppDimensions.sm,
                                 ),
-                                expanded: controller.isTranscriptExpanded.value,
-                                onToggle: controller.toggleTranscript,
-                                onSaveVocabulary:
-                                    controller.saveVocabularyCandidate,
+                                child: PracticeCaptionStrip(
+                                  aiCaption: aiCaption,
+                                  userCaption: userCaption,
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: AppDimensions.sm),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(minHeight: 154),
+                              child: Obx(
+                                () => PracticeTranscriptPanel(
+                                  messages: controller.messages.toList(
+                                    growable: false,
+                                  ),
+                                  expanded:
+                                      controller.isTranscriptExpanded.value,
+                                  onToggle: controller.toggleTranscript,
+                                  onSaveVocabulary:
+                                      controller.saveVocabularyCandidate,
+                                ),
                               ),
                             ),
                           ],
@@ -180,6 +204,7 @@ class ChatView extends GetView<ChatViewModel> {
                         onMuteTap: controller.toggleMicMute,
                         onFinish: controller.finishSession,
                         isSending: controller.isSubmitting.value,
+                        isFinishing: controller.isFinishingSession.value,
                         sendEnabled: controller.canSendReply.value,
                         voiceActive: controller.isVoiceSessionActive.value,
                         voiceConnecting: controller.isVoiceConnecting.value,
@@ -309,6 +334,42 @@ class _HeaderTextButton extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
         ),
+      ),
+    );
+  }
+}
+
+class _DurationChip extends StatelessWidget {
+  const _DurationChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.sm,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const Icon(
+            Icons.timer_outlined,
+            size: AppDimensions.iconSm,
+            color: Colors.white,
+          ),
+          const SizedBox(width: AppDimensions.xs),
+          Text(
+            label,
+            style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+          ),
+        ],
       ),
     );
   }
