@@ -23,11 +23,13 @@ class UserProvider {
   }
 
   Future<void> completeOnboarding({
+    String? level,
     String? learningGoal,
     String? studyFrequency,
     String? selfAssessment,
   }) async {
     final Map<String, dynamic> data = <String, dynamic>{
+      'level': level,
       'learningGoal': learningGoal,
       'studyFrequency': studyFrequency,
       'selfAssessment': selfAssessment,

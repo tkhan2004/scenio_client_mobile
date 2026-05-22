@@ -8,6 +8,7 @@ abstract class UserRepository {
   Future<UserEntity> updateMe({String? displayName, String? avatarUrl});
 
   Future<void> completeOnboarding({
+    String? level,
     String? learningGoal,
     String? studyFrequency,
     String? selfAssessment,

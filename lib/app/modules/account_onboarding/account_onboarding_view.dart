@@ -76,6 +76,39 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
                     const SizedBox(height: AppDimensions.lg),
                     Obx(
                       () => _ChoiceSection(
+                        icon: Icons.school_rounded,
+                        title: AppStrings.accountOnboardingLevelTitle,
+                        subtitle: AppStrings.accountOnboardingLevelSubtitle,
+                        selectedValue: controller.selectedLevel.value,
+                        errorText: controller.levelError.value,
+                        options: <_ChoiceOption>[
+                          _ChoiceOption(
+                            label: AppStrings.accountOnboardingLevelA1,
+                            caption: AppStrings.accountOnboardingLevelA1Caption,
+                            value: 'A1',
+                          ),
+                          _ChoiceOption(
+                            label: AppStrings.accountOnboardingLevelA2,
+                            caption: AppStrings.accountOnboardingLevelA2Caption,
+                            value: 'A2',
+                          ),
+                          _ChoiceOption(
+                            label: AppStrings.accountOnboardingLevelB1,
+                            caption: AppStrings.accountOnboardingLevelB1Caption,
+                            value: 'B1',
+                          ),
+                          _ChoiceOption(
+                            label: AppStrings.accountOnboardingLevelB2,
+                            caption: AppStrings.accountOnboardingLevelB2Caption,
+                            value: 'B2',
+                          ),
+                        ],
+                        onSelected: controller.selectLevel,
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.lg),
+                    Obx(
+                      () => _ChoiceSection(
                         icon: Icons.calendar_month_rounded,
                         title: AppStrings.accountOnboardingFrequencyTitle,
                         subtitle: AppStrings.accountOnboardingFrequencySubtitle,

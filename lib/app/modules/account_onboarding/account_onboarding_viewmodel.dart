@@ -15,9 +15,11 @@ class AccountOnboardingViewModel extends GetxController {
   final UserRepository _userRepository;
 
   final RxString selectedLearningGoal = ''.obs;
+  final RxString selectedLevel = ''.obs;
   final RxString selectedStudyFrequency = ''.obs;
   final RxString selectedSelfAssessment = ''.obs;
   final RxString learningGoalError = ''.obs;
+  final RxString levelError = ''.obs;
   final RxString studyFrequencyError = ''.obs;
   final RxString selfAssessmentError = ''.obs;
   final RxBool isSubmitting = false.obs;
@@ -25,6 +27,11 @@ class AccountOnboardingViewModel extends GetxController {
   void selectLearningGoal(String value) {
     selectedLearningGoal.value = value;
     learningGoalError.value = '';
+  }
+
+  void selectLevel(String value) {
+    selectedLevel.value = value;
+    levelError.value = '';
   }
 
   void selectStudyFrequency(String value) {
@@ -53,6 +60,7 @@ class AccountOnboardingViewModel extends GetxController {
     isSubmitting.value = true;
     try {
       await _userRepository.completeOnboarding(
+        level: selectedLevel.value,
         learningGoal: selectedLearningGoal.value,
         studyFrequency: selectedStudyFrequency.value,
         selfAssessment: selectedSelfAssessment.value,
@@ -82,6 +90,11 @@ class AccountOnboardingViewModel extends GetxController {
 
     if (selectedLearningGoal.value.isEmpty) {
       learningGoalError.value = AppStrings.authRequiredFieldMessage;
+      isValid = false;
+    }
+
+    if (selectedLevel.value.isEmpty) {
+      levelError.value = AppStrings.authRequiredFieldMessage;
       isValid = false;
     }
 

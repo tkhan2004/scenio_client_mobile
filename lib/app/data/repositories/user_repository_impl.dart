@@ -24,11 +24,13 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> completeOnboarding({
+    String? level,
     String? learningGoal,
     String? studyFrequency,
     String? selfAssessment,
   }) {
     return _provider.completeOnboarding(
+      level: level,
       learningGoal: learningGoal,
       studyFrequency: studyFrequency,
       selfAssessment: selfAssessment,

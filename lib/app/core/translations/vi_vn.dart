@@ -88,6 +88,17 @@ const Map<String, String> viVN = {
       'Chào hỏi, mua sắm, trò chuyện hằng ngày.',
   'accountOnboardingGoalMixed': 'Kết hợp',
   'accountOnboardingGoalMixedCaption': 'Để Scenio tự cân bằng chủ đề phù hợp.',
+  'accountOnboardingLevelTitle': 'Trình độ hiện tại của bạn?',
+  'accountOnboardingLevelSubtitle':
+      'Chọn level gần đúng để Scenio bắt đầu với độ khó phù hợp.',
+  'accountOnboardingLevelA1': 'A1 - Mới bắt đầu',
+  'accountOnboardingLevelA1Caption': 'Cần câu ngắn, chậm và nhiều gợi ý.',
+  'accountOnboardingLevelA2': 'A2 - Cơ bản',
+  'accountOnboardingLevelA2Caption': 'Nói được tình huống quen thuộc.',
+  'accountOnboardingLevelB1': 'B1 - Trung cấp',
+  'accountOnboardingLevelB1Caption': 'Có thể giải thích ý và xử lý hội thoại.',
+  'accountOnboardingLevelB2': 'B2 - Khá',
+  'accountOnboardingLevelB2Caption': 'Muốn luyện phản xạ tự nhiên hơn.',
   'accountOnboardingFrequencyTitle': 'Bạn muốn học với nhịp độ nào?',
   'accountOnboardingFrequencySubtitle':
       'Backend sẽ dùng nhịp này để đặt weekly target cho learning plan.',

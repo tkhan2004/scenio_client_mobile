@@ -108,6 +108,22 @@ abstract class AppStrings {
       'accountOnboardingGoalMixed'.tr;
   static String get accountOnboardingGoalMixedCaption =>
       'accountOnboardingGoalMixedCaption'.tr;
+  static String get accountOnboardingLevelTitle =>
+      'accountOnboardingLevelTitle'.tr;
+  static String get accountOnboardingLevelSubtitle =>
+      'accountOnboardingLevelSubtitle'.tr;
+  static String get accountOnboardingLevelA1 => 'accountOnboardingLevelA1'.tr;
+  static String get accountOnboardingLevelA1Caption =>
+      'accountOnboardingLevelA1Caption'.tr;
+  static String get accountOnboardingLevelA2 => 'accountOnboardingLevelA2'.tr;
+  static String get accountOnboardingLevelA2Caption =>
+      'accountOnboardingLevelA2Caption'.tr;
+  static String get accountOnboardingLevelB1 => 'accountOnboardingLevelB1'.tr;
+  static String get accountOnboardingLevelB1Caption =>
+      'accountOnboardingLevelB1Caption'.tr;
+  static String get accountOnboardingLevelB2 => 'accountOnboardingLevelB2'.tr;
+  static String get accountOnboardingLevelB2Caption =>
+      'accountOnboardingLevelB2Caption'.tr;
   static String get accountOnboardingFrequencyTitle =>
       'accountOnboardingFrequencyTitle'.tr;
   static String get accountOnboardingFrequencySubtitle =>

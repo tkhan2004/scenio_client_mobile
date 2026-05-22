@@ -75,6 +75,17 @@ const Map<String, String> enUS = {
   'accountOnboardingGoalMixed': 'Mixed',
   'accountOnboardingGoalMixedCaption':
       'Let Scenio balance the right topics for you.',
+  'accountOnboardingLevelTitle': 'What is your current level?',
+  'accountOnboardingLevelSubtitle':
+      'Pick the closest level so Scenio can start with the right difficulty.',
+  'accountOnboardingLevelA1': 'A1 - Beginner',
+  'accountOnboardingLevelA1Caption': 'Short, slow replies with more guidance.',
+  'accountOnboardingLevelA2': 'A2 - Elementary',
+  'accountOnboardingLevelA2Caption': 'Comfortable with familiar situations.',
+  'accountOnboardingLevelB1': 'B1 - Intermediate',
+  'accountOnboardingLevelB1Caption': 'Can explain ideas and handle dialogue.',
+  'accountOnboardingLevelB2': 'B2 - Upper intermediate',
+  'accountOnboardingLevelB2Caption': 'Ready to polish natural responses.',
   'accountOnboardingFrequencyTitle': 'What practice rhythm feels realistic?',
   'accountOnboardingFrequencySubtitle':
       'Backend uses this rhythm to set your learning plan weekly target.',
