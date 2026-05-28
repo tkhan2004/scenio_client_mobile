@@ -460,7 +460,10 @@ IconData _notificationIcon(AppNotificationEntity notification) {
       return Icons.workspace_premium_rounded;
     case AppNotificationType.learningPlanReady:
     case AppNotificationType.learningPlanRefreshed:
+    case AppNotificationType.roadmapCompleted:
       return Icons.route_rounded;
+    case AppNotificationType.studyReminder:
+      return Icons.event_available_rounded;
     case AppNotificationType.unknown:
       return Icons.notifications_rounded;
   }
@@ -476,7 +479,10 @@ Color _notificationTint(AppNotificationEntity notification) {
       return AppColors.primary800;
     case AppNotificationType.learningPlanReady:
     case AppNotificationType.learningPlanRefreshed:
+    case AppNotificationType.roadmapCompleted:
       return AppColors.primary700;
+    case AppNotificationType.studyReminder:
+      return AppColors.secondary500;
     case AppNotificationType.unknown:
       return AppColors.neutral500;
   }

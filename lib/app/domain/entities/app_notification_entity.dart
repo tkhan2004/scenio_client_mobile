@@ -4,6 +4,8 @@ enum AppNotificationType {
   badgeEarned,
   learningPlanReady,
   learningPlanRefreshed,
+  roadmapCompleted,
+  studyReminder,
   unknown,
 }
 

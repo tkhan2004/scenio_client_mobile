@@ -179,7 +179,7 @@ class NotificationsViewModel extends GetxController {
         _openHomeTab(0);
         return;
       case AppNotificationCtaType.learningPlan:
-        await Get.toNamed(Routes.learningPlan);
+        await _openLearningPlan(notification);
         return;
       case AppNotificationCtaType.scenes:
         _openHomeTab(1);
@@ -190,6 +190,21 @@ class NotificationsViewModel extends GetxController {
       case AppNotificationCtaType.none:
         return;
     }
+  }
+
+  Future<void> _openLearningPlan(AppNotificationEntity notification) async {
+    if (notification.type == AppNotificationType.roadmapCompleted) {
+      final String planId = _metadataString(
+        notification.metadata,
+        const <String>['planId', 'learningPlanId', 'roadmapId'],
+      );
+      if (planId.isNotEmpty) {
+        await Get.toNamed(Routes.roadmapCompletion, arguments: planId);
+        return;
+      }
+    }
+
+    await Get.toNamed(Routes.learningPlan);
   }
 
   Future<void> _openSessionResult(AppNotificationEntity notification) async {
@@ -230,6 +245,16 @@ class NotificationsViewModel extends GetxController {
     }
 
     Get.offAllNamed(Routes.home);
+  }
+
+  String _metadataString(Map<String, dynamic> metadata, List<String> keys) {
+    for (final String key in keys) {
+      final Object? value = metadata[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return '';
   }
 
   void _showError(String message) {

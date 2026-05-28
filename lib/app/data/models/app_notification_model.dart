@@ -150,6 +150,10 @@ AppNotificationType _mapNotificationType(String? value) {
       return AppNotificationType.learningPlanReady;
     case 'LEARNING_PLAN_REFRESHED':
       return AppNotificationType.learningPlanRefreshed;
+    case 'ROADMAP_COMPLETED':
+      return AppNotificationType.roadmapCompleted;
+    case 'STUDY_REMINDER':
+      return AppNotificationType.studyReminder;
     default:
       return AppNotificationType.unknown;
   }
