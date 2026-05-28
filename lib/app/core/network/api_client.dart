@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -40,6 +42,8 @@ class ApiClient extends GetxService {
                   if (token != null && token.isNotEmpty) {
                     options.headers['Authorization'] = 'Bearer $token';
                   }
+                  options.headers['Accept-Language'] = _currentLanguageTag();
+                  options.headers['X-Scenio-Locale'] = _currentLanguageTag();
                   handler.next(options);
                 },
             onError:
@@ -86,6 +90,14 @@ class ApiClient extends GetxService {
   static const String _retriedAfterRefreshKey = '_retriedAfterRefresh';
 
   String get baseUrl => _dio.options.baseUrl;
+
+  String _currentLanguageTag() {
+    final Locale locale = Get.locale ?? const Locale('vi', 'VN');
+    final String country = locale.countryCode?.isNotEmpty == true
+        ? '-${locale.countryCode}'
+        : '';
+    return '${locale.languageCode}$country';
+  }
 
   static String _resolveBaseUrl() {
     final String? envBaseUrl = AppEnv.maybeGet('SCENIO_API_BASE_URL');

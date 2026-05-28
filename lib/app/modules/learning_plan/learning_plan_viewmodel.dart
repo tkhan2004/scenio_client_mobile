@@ -83,15 +83,42 @@ class LearningPlanViewModel extends GetxController {
     if (value == null || nextStep == null) return;
 
     final LearningPlanStepModel? step = _findStep(nextStep.id);
-    final SceneEntity? scene = step?.scene;
-    if (scene != null) {
-      Get.toNamed(Routes.sceneDetail, arguments: scene);
+    if (step != null) {
+      openStep(step);
       return;
     }
 
     final String? sceneId = nextStep.sceneId;
     if (sceneId == null || sceneId.isEmpty) return;
     unawaited(_openSceneById(sceneId));
+  }
+
+  void openStep(LearningPlanStepModel step) {
+    final SceneEntity? scene = step.scene;
+    if (scene != null) {
+      Get.toNamed(Routes.sceneDetail, arguments: scene);
+      return;
+    }
+
+    final String? sceneId = step.sceneId;
+    if (sceneId != null && sceneId.isNotEmpty) {
+      unawaited(_openSceneById(sceneId));
+      return;
+    }
+
+    switch (step.type) {
+      case 'VOCABULARY_REVIEW':
+        _openHomeTab(3);
+        return;
+      case 'CUSTOM_PRACTICE':
+      case 'GRAMMAR_PRACTICE':
+        Get.toNamed(Routes.customPractice);
+        return;
+      case 'RETRY_SCENE':
+      case 'SCENE':
+      default:
+        _showError('Bước này chưa có ngữ cảnh để mở.');
+    }
   }
 
   void completeStep(LearningPlanStepModel step) {
@@ -127,6 +154,14 @@ class LearningPlanViewModel extends GetxController {
     } catch (_) {
       _showError('Không thể mở ngữ cảnh của bước học này.');
     }
+  }
+
+  void _openHomeTab(int index) {
+    Get.offAllNamed(Routes.home);
+    Future<void>.delayed(Duration.zero, () {
+      if (!Get.isRegistered<HomeViewModel>()) return;
+      Get.find<HomeViewModel>().selectTab(index);
+    });
   }
 
   LearningPlanStepModel? _findStep(String stepId) {

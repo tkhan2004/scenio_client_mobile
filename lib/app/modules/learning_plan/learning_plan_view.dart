@@ -65,7 +65,7 @@ class LearningPlanView extends GetView<LearningPlanViewModel> {
                           step: step,
                           isCompleting:
                               controller.completingStepId.value == step.id,
-                          onOpen: controller.openNextStep,
+                          onOpen: () => controller.openStep(step),
                           onComplete: () => controller.completeStep(step),
                         ),
                       ),
