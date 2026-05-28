@@ -454,6 +454,12 @@ const Map<String, String> viVN = {
   'Tune the coaching level, then launch the session.':
       'Chỉnh mức độ coaching, rồi bắt đầu buổi luyện.',
   'Difficulty': 'Độ khó',
+  'Conversation length': 'Thời lượng hội thoại',
+  'Choose how much room you want for the dialogue.':
+      'Chọn độ dài cuộc hội thoại mà bạn muốn luyện.',
+  'Short • ~8 min': 'Ngắn • ~8 phút',
+  'Medium • ~12 min': 'Vừa • ~12 phút',
+  'Long • ~18 min': 'Dài • ~18 phút',
   'Custom instructions': 'Chỉ dẫn bổ sung',
   'Any special coaching rule or situation detail':
       'Quy tắc coaching hoặc chi tiết tình huống đặc biệt.',

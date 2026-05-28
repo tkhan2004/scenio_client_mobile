@@ -6,6 +6,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_strings.dart';
+import '../../core/network/api_response.dart';
 import '../../core/utils/scenio_alerts.dart';
 import '../../data/models/vocab_card_model.dart';
 import '../../data/models/vocab_deck_model.dart';
@@ -75,6 +76,20 @@ class VocabularyViewModel extends GetxController {
     isLoadingDecks.value = true;
     try {
       decks.assignAll(await _repository.fetchDecks());
+    } on ApiException catch (error) {
+      decks.clear();
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: error.message,
+        isError: true,
+      );
+    } catch (_) {
+      decks.clear();
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: 'Chưa thể tải danh sách từ vựng lúc này.',
+        isError: true,
+      );
     } finally {
       isLoadingDecks.value = false;
     }

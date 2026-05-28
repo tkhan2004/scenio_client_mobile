@@ -17,6 +17,12 @@ class SceneDetailViewModel extends GetxController {
   bool get hasAnotherActiveSession =>
       homeViewModel.hasActiveSessionOutsideScene(scene.id);
   SessionEntity? get otherSession => homeViewModel.currentSession;
+  String get learningObjective => scene.description.trim();
+  String get missionObjective {
+    final String mission = scene.mission.trim();
+    if (mission.isNotEmpty) return mission;
+    return learningObjective;
+  }
 
   List<SceneLearningFocusItem> get learningFocusItems =>
       <SceneLearningFocusItem>[
@@ -31,7 +37,7 @@ class SceneDetailViewModel extends GetxController {
         SceneLearningFocusItem(
           icon: Icons.flag_rounded,
           title: AppStrings.sceneDetailFocusMissionTitle,
-          subtitle: scene.mission,
+          subtitle: missionObjective,
         ),
         SceneLearningFocusItem(
           icon: Icons.auto_awesome_rounded,

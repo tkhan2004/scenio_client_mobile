@@ -28,7 +28,13 @@ class SceneApiModel {
       estimatedMinutes: (map['estimatedMinutes'] as num?)?.toInt() ?? 6,
       characterName: map['characterName'] as String? ?? 'AI',
       characterRole: map['characterRole'] as String? ?? 'Conversation partner',
-      missionText: map['missionText'] as String?,
+      missionText: _firstNonEmptyString(map, const <String>[
+        'missionText',
+        'mission',
+        'learningObjective',
+        'objective',
+        'goal',
+      ]),
       vocabulary: (map['vocabulary'] as List<dynamic>? ?? const <dynamic>[])
           .whereType<Map<String, dynamic>>()
           .toList(),
@@ -49,6 +55,12 @@ class SceneApiModel {
   final String? starterPrompt;
 
   SceneEntity toEntity() {
+    final String resolvedDescription = _firstNonEmpty(<String?>[description]);
+    final String resolvedMission = _firstNonEmpty(<String?>[
+      missionText,
+      description,
+    ]);
+
     return SceneEntity(
       id: id,
       title: title,
@@ -57,8 +69,8 @@ class SceneApiModel {
       estimatedMinutes: estimatedMinutes,
       characterName: characterName,
       characterRole: characterRole,
-      description: description,
-      mission: missionText ?? description,
+      description: resolvedDescription,
+      mission: resolvedMission,
       vocabularyPreview: vocabulary
           .map((Map<String, dynamic> item) => item['word'] as String? ?? '')
           .where((String word) => word.trim().isNotEmpty)
@@ -112,4 +124,22 @@ List<String> buildFallbackAiReplyPool({
     'That makes sense. What would you say next in this situation?',
     'Great. Let’s wrap this up naturally.',
   ];
+}
+
+String? _firstNonEmptyString(Map<String, dynamic> map, List<String> keys) {
+  for (final String key in keys) {
+    final Object? value = map[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+  }
+  return null;
+}
+
+String _firstNonEmpty(List<String?> values) {
+  for (final String? value in values) {
+    final String normalized = value?.trim() ?? '';
+    if (normalized.isNotEmpty) return normalized;
+  }
+  return '';
 }

@@ -166,7 +166,7 @@ class SceneDetailView extends GetView<SceneDetailViewModel> {
                                     ),
                                   ),
                                   child: Text(
-                                    controller.scene.mission,
+                                    controller.learningObjective,
                                     style: AppTextStyles.bodyMedium.copyWith(
                                       color: AppColors.neutral900,
                                     ),
