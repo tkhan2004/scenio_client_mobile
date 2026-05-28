@@ -489,7 +489,7 @@ class HomeViewModel extends GetxController {
       startedAt: inProgressSession.startedAt,
       status: SessionStatus.active,
       completedTurns: 0,
-      targetTurns: 3,
+      targetTurns: inProgressSession.targetTurns,
     );
 
     activeMessages.assignAll(<MessageEntity>[
@@ -785,7 +785,8 @@ class HomeViewModel extends GetxController {
           DateTime.now(),
       status: SessionStatus.active,
       completedTurns: 0,
-      targetTurns: 3,
+      targetTurns:
+          int.tryParse(detailMap['activeSession.targetTurns'] ?? '') ?? 3,
     );
     activeMessages.assignAll(<MessageEntity>[
       MessageEntity(
@@ -842,7 +843,9 @@ class HomeViewModel extends GetxController {
 
     final SceneEntity scene = currentSessionScene ?? _scenes.first;
     final SessionEntity session = currentSession!;
-    final int nextTurn = (session.completedTurns + 1).clamp(0, 3).toInt();
+    final int nextTurn = (session.completedTurns + 1)
+        .clamp(0, session.targetTurns)
+        .toInt();
     final String trimmedText = text.trim();
 
     final MessageEntity userMessage = MessageEntity(
@@ -918,13 +921,13 @@ class HomeViewModel extends GetxController {
     return _repository.createRealtimeToken(session.id);
   }
 
-  void appendRealtimeTranscriptMessage({
+  int appendRealtimeTranscriptMessage({
     required MessageAuthor author,
     required String content,
     String? providerEventId,
   }) {
     final SessionEntity? session = currentSession;
-    if (session == null || content.trim().isEmpty) return;
+    if (session == null || content.trim().isEmpty) return 0;
 
     final int nextTurn = author == MessageAuthor.user
         ? (session.completedTurns + 1).clamp(0, session.targetTurns).toInt()
@@ -946,11 +949,14 @@ class HomeViewModel extends GetxController {
       activeSession.value = session.copyWith(completedTurns: nextTurn);
       unawaited(_persistActiveSession());
     }
+
+    return nextTurn;
   }
 
   Future<void> syncAudioTranscript({
     required MessageAuthor author,
     required String content,
+    int? turnIndex,
     String? providerEventId,
     int? audioStartMs,
     int? audioEndMs,
@@ -962,6 +968,7 @@ class HomeViewModel extends GetxController {
       sessionId: session.id,
       source: author == MessageAuthor.user ? 'USER_AUDIO' : 'AI_AUDIO',
       content: content,
+      turnIndex: turnIndex,
       providerEventId: providerEventId,
       audioStartMs: audioStartMs,
       audioEndMs: audioEndMs,

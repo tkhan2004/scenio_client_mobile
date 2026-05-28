@@ -405,7 +405,7 @@ class ChatViewModel extends GetxController {
       return;
     }
 
-    homeViewModel.appendRealtimeTranscriptMessage(
+    final int turnIndex = homeViewModel.appendRealtimeTranscriptMessage(
       author: event.author,
       content: event.content,
       providerEventId: eventId,
@@ -414,6 +414,7 @@ class ChatViewModel extends GetxController {
       homeViewModel.syncAudioTranscript(
         author: event.author,
         content: event.content,
+        turnIndex: turnIndex,
         providerEventId: event.providerEventId,
         audioStartMs: event.audioStartMs,
         audioEndMs: event.audioEndMs,
@@ -439,10 +440,15 @@ class ChatViewModel extends GetxController {
     );
     if (pending.isEmpty) return;
 
-    await Future.any(<Future<void>>[
-      Future.wait<void>(pending),
-      Future<void>.delayed(const Duration(seconds: 3)),
-    ]);
+    try {
+      await Future.wait<void>(pending).timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      throw const ApiException(
+        message:
+            'Đang đồng bộ transcript, vui lòng thử hoàn tất lại sau vài giây.',
+        code: 'TRANSCRIPT_SYNC_TIMEOUT',
+      );
+    }
   }
 
   void _startDurationTimer() {

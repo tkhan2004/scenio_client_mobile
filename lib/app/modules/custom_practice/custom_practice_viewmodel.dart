@@ -24,6 +24,7 @@ class CustomPracticePreset {
     required this.gender,
     required this.tone,
     required this.difficulty,
+    required this.conversationLength,
     this.location = '',
     this.successOutcome = '',
     this.accent = '',
@@ -46,6 +47,7 @@ class CustomPracticePreset {
   final String gender;
   final String tone;
   final String difficulty;
+  final String conversationLength;
   final String location;
   final String successOutcome;
   final String accent;
@@ -80,6 +82,8 @@ class CustomPracticeViewModel extends GetxController {
   final RxString aiGenderPresentation = 'NEUTRAL'.obs;
   final RxString aiVoiceTone = 'FRIENDLY'.obs;
   final RxString difficulty = 'A2'.obs;
+  final RxString conversationLength = 'MEDIUM'.obs;
+  final RxInt targetMinutes = 12.obs;
   final RxInt currentStep = 0.obs;
   final RxInt revealedStage = 0.obs;
   final RxBool isSubmitting = false.obs;
@@ -105,6 +109,7 @@ class CustomPracticeViewModel extends GetxController {
       gender: 'FEMALE',
       tone: 'CONFIDENT',
       difficulty: 'B1',
+      conversationLength: 'LONG',
       location: 'Google Meet',
       successOutcome:
           'Finish with a clear self-introduction and one good question.',
@@ -131,6 +136,7 @@ class CustomPracticeViewModel extends GetxController {
       gender: 'FEMALE',
       tone: 'CALM',
       difficulty: 'A2',
+      conversationLength: 'SHORT',
       location: 'On the phone',
       successOutcome:
           'Reschedule the appointment politely without getting lost.',
@@ -153,6 +159,7 @@ class CustomPracticeViewModel extends GetxController {
       gender: 'MALE',
       tone: 'FRIENDLY',
       difficulty: 'A2',
+      conversationLength: 'MEDIUM',
       location: 'Airport baggage service desk',
       successOutcome:
           'Report the problem clearly and understand the next steps.',
@@ -174,6 +181,16 @@ class CustomPracticeViewModel extends GetxController {
   void selectGender(String value) => aiGenderPresentation.value = value;
   void selectTone(String value) => aiVoiceTone.value = value;
   void selectDifficulty(String value) => difficulty.value = value;
+  void selectConversationLength(String value) {
+    conversationLength.value = value;
+    targetMinutes.value = _minutesForConversationLength(value);
+  }
+
+  void selectTargetMinutes(double value) {
+    final int rounded = value.round();
+    targetMinutes.value = rounded;
+    conversationLength.value = _conversationLengthForMinutes(rounded);
+  }
 
   void applyPreset(CustomPracticePreset preset) {
     _applyPreset(preset);
@@ -220,6 +237,8 @@ class CustomPracticeViewModel extends GetxController {
       aiVoiceTone: aiVoiceTone.value,
       aiAccentPreference: aiAccentController.text,
       difficulty: difficulty.value,
+      conversationLength: conversationLength.value,
+      targetMinutes: targetMinutes.value,
       customInstructions: customInstructionsController.text,
       specialConditions: specialConditionsController.text
           .split(',')
@@ -385,6 +404,25 @@ class CustomPracticeViewModel extends GetxController {
     aiGenderPresentation.value = preset.gender;
     aiVoiceTone.value = preset.tone;
     difficulty.value = preset.difficulty;
+    selectConversationLength(preset.conversationLength);
+  }
+
+  int _minutesForConversationLength(String value) {
+    switch (value) {
+      case 'SHORT':
+        return 8;
+      case 'LONG':
+        return 18;
+      case 'MEDIUM':
+      default:
+        return 12;
+    }
+  }
+
+  String _conversationLengthForMinutes(int minutes) {
+    if (minutes <= 9) return 'SHORT';
+    if (minutes >= 16) return 'LONG';
+    return 'MEDIUM';
   }
 
   @override

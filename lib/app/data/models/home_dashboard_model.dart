@@ -92,6 +92,7 @@ class InProgressSessionModel {
     required this.sourceType,
     required this.sceneTitle,
     required this.characterName,
+    required this.targetTurns,
     required this.startedAt,
   });
 
@@ -101,6 +102,7 @@ class InProgressSessionModel {
       sourceType: map['sourceType'] as String? ?? 'CURATED_SCENE',
       sceneTitle: map['sceneTitle'] as String? ?? 'Practice Session',
       characterName: map['characterName'] as String? ?? 'AI',
+      targetTurns: (map['targetTurns'] as num?)?.toInt() ?? 3,
       startedAt:
           DateTime.tryParse(map['startedAt'] as String? ?? '') ??
           DateTime.now(),
@@ -111,5 +113,6 @@ class InProgressSessionModel {
   final String sourceType;
   final String sceneTitle;
   final String characterName;
+  final int targetTurns;
   final DateTime startedAt;
 }

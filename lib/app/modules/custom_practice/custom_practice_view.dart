@@ -596,6 +596,26 @@ class _StepContent extends StatelessWidget {
                   onSelected: controller.selectDifficulty,
                 ),
                 const SizedBox(height: AppDimensions.md),
+                _FieldLabel(label: 'Conversation length'.tr),
+                Text(
+                  'Choose how much room you want for the dialogue.'.tr,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.sm),
+                _ChipWrap(
+                  values: const <String>['SHORT', 'MEDIUM', 'LONG'],
+                  selectedValue: controller.conversationLength.value,
+                  labelBuilder: _conversationLengthLabel,
+                  onSelected: controller.selectConversationLength,
+                ),
+                const SizedBox(height: AppDimensions.sm),
+                _DurationSlider(
+                  minutes: controller.targetMinutes.value,
+                  onChanged: controller.selectTargetMinutes,
+                ),
+                const SizedBox(height: AppDimensions.md),
                 _FieldLabel(label: 'Custom instructions'.tr),
                 _LongTextField(
                   controller: controller.customInstructionsController,
@@ -1006,6 +1026,76 @@ class _ChipWrap extends StatelessWidget {
   }
 }
 
+class _DurationSlider extends StatelessWidget {
+  const _DurationSlider({required this.minutes, required this.onChanged});
+
+  final int minutes;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.md,
+        vertical: AppDimensions.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary50,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: AppColors.primary200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Session time'.tr,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Text(
+                '$minutes ${'min'.tr}',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.primary900,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: AppColors.primary800,
+              inactiveTrackColor: AppColors.primary200,
+              thumbColor: AppColors.primary800,
+              overlayColor: AppColors.primary200.withValues(alpha: 0.32),
+              trackHeight: 5,
+            ),
+            child: Slider(
+              value: minutes.toDouble(),
+              min: 5,
+              max: 30,
+              divisions: 25,
+              label: '$minutes ${'min'.tr}',
+              onChanged: onChanged,
+            ),
+          ),
+          Text(
+            'Pick any duration from 5 to 30 minutes.'.tr,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LongTextField extends StatelessWidget {
   const _LongTextField({
     required this.controller,
@@ -1136,5 +1226,17 @@ String _toneLabel(String value) {
     case 'FRIENDLY':
     default:
       return 'Friendly';
+  }
+}
+
+String _conversationLengthLabel(String value) {
+  switch (value) {
+    case 'SHORT':
+      return 'Short • ~8 min'.tr;
+    case 'LONG':
+      return 'Long • ~18 min'.tr;
+    case 'MEDIUM':
+    default:
+      return 'Medium • ~12 min'.tr;
   }
 }

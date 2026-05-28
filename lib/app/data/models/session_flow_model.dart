@@ -7,6 +7,7 @@ class SessionStartModel {
     required this.sessionId,
     required this.openingMessage,
     required this.modality,
+    required this.targetTurns,
     required this.selectedVoiceName,
     required this.voiceSelectionSource,
   });
@@ -21,6 +22,7 @@ class SessionStartModel {
       sessionId: map['sessionId'] as String? ?? '',
       openingMessage: map['openingMessage'] as String? ?? '',
       modality: map['modality'] as String? ?? 'TEXT',
+      targetTurns: (map['targetTurns'] as num?)?.toInt() ?? 3,
       selectedVoiceName: voiceMap['displayName'] as String?,
       voiceSelectionSource: selectionMap['source'] as String?,
     );
@@ -29,6 +31,7 @@ class SessionStartModel {
   final String sessionId;
   final String openingMessage;
   final String modality;
+  final int targetTurns;
   final String? selectedVoiceName;
   final String? voiceSelectionSource;
 
@@ -44,7 +47,7 @@ class SessionStartModel {
       startedAt: DateTime.now(),
       status: SessionStatus.active,
       completedTurns: 0,
-      targetTurns: 3,
+      targetTurns: targetTurns,
     );
   }
 
@@ -70,6 +73,7 @@ class SessionResultModel {
     required this.grammarScore,
     required this.vocabularyScore,
     required this.naturalnessScore,
+    required this.targetTurns,
     required this.transcript,
     this.spokenCoaching,
     this.nextLearningAction,
@@ -121,6 +125,8 @@ class SessionResultModel {
       grammarScore: (scoresMap['grammar'] as num?)?.toInt() ?? 0,
       vocabularyScore: (scoresMap['vocabulary'] as num?)?.toInt() ?? 0,
       naturalnessScore: (scoresMap['naturalness'] as num?)?.toInt() ?? 0,
+      targetTurns:
+          (sessionMap['targetTurns'] as num?)?.toInt() ?? fallbackTargetTurns,
       transcript: transcript,
       spokenCoaching: spokenCoachingMap == null
           ? null
@@ -139,6 +145,7 @@ class SessionResultModel {
   final int grammarScore;
   final int vocabularyScore;
   final int naturalnessScore;
+  final int targetTurns;
   final List<MessageEntity> transcript;
   final SessionSpokenCoachingModel? spokenCoaching;
   final SessionNextLearningActionModel? nextLearningAction;
@@ -157,7 +164,7 @@ class SessionResultModel {
       vocabularyScore: vocabularyScore,
       naturalnessScore: naturalnessScore,
       completedTurns: completedTurns,
-      targetTurns: targetTurns,
+      targetTurns: this.targetTurns > 0 ? this.targetTurns : targetTurns,
       transcript: transcript,
       spokenCoaching: spokenCoaching?.toEntity(),
       nextLearningAction: nextLearningAction?.toEntity(),

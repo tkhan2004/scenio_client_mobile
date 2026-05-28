@@ -21,6 +21,8 @@ class CustomPracticeDraft {
     required this.aiVoiceTone,
     required this.aiAccentPreference,
     required this.difficulty,
+    required this.conversationLength,
+    required this.targetMinutes,
     required this.customInstructions,
     this.specialConditions = const <String>[],
   });
@@ -41,6 +43,8 @@ class CustomPracticeDraft {
   final String aiVoiceTone;
   final String aiAccentPreference;
   final String difficulty;
+  final String conversationLength;
+  final int targetMinutes;
   final String customInstructions;
   final List<String> specialConditions;
 
@@ -82,7 +86,8 @@ class CustomPracticeDraft {
       },
       'learningConfig': <String, dynamic>{
         'difficulty': difficulty,
-        'conversationLength': 'MEDIUM',
+        'conversationLength': conversationLength,
+        'targetMinutes': targetMinutes,
         'correctionStyle': 'END_ONLY',
         'hintFrequency': 'LOW',
         'responseComplexity': 'BALANCED',
@@ -134,10 +139,12 @@ class CustomPracticeStartModel {
   const CustomPracticeStartModel({
     required this.sessionId,
     required this.openingMessage,
+    required this.targetTurns,
     required this.displayTitle,
     required this.displaySubtitle,
     required this.missionText,
     required this.difficulty,
+    required this.conversationLength,
     required this.aiDisplayName,
     required this.aiRole,
     required this.contextType,
@@ -154,12 +161,15 @@ class CustomPracticeStartModel {
     return CustomPracticeStartModel(
       sessionId: map['sessionId'] as String? ?? '',
       openingMessage: map['openingMessage'] as String? ?? '',
+      targetTurns: (map['targetTurns'] as num?)?.toInt() ?? 5,
       displayTitle: customMap['displayTitle'] as String? ?? 'Custom Practice',
       displaySubtitle:
           customMap['displaySubtitle'] as String? ??
           'A focused session built from your goal.',
       missionText: customMap['missionText'] as String? ?? '',
       difficulty: customMap['difficulty'] as String? ?? 'A2',
+      conversationLength:
+          customMap['conversationLength'] as String? ?? 'MEDIUM',
       aiDisplayName: aiPersonaMap['displayName'] as String? ?? 'AI',
       aiRole: aiPersonaMap['role'] as String? ?? 'Conversation partner',
       contextType: customMap['contextType'] as String? ?? 'OTHER',
@@ -170,10 +180,12 @@ class CustomPracticeStartModel {
 
   final String sessionId;
   final String openingMessage;
+  final int targetTurns;
   final String displayTitle;
   final String displaySubtitle;
   final String missionText;
   final String difficulty;
+  final String conversationLength;
   final String aiDisplayName;
   final String aiRole;
   final String contextType;
@@ -212,7 +224,7 @@ class CustomPracticeStartModel {
       startedAt: DateTime.now(),
       status: SessionStatus.active,
       completedTurns: 0,
-      targetTurns: 3,
+      targetTurns: targetTurns,
     );
   }
 
