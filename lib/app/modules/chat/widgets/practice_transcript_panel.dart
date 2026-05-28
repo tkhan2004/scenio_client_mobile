@@ -69,14 +69,47 @@ class PracticeTranscriptPanel extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
-                    width: 38,
-                    child: Text(
-                      message.author.label,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: message.author == MessageAuthor.ai
-                            ? AppColors.primary700
-                            : AppColors.secondary500,
-                      ),
+                    width: 52,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          message.isHint
+                              ? AppStrings.practiceControlHint
+                              : message.author.label,
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: message.isHint
+                                ? AppColors.warning
+                                : message.author == MessageAuthor.ai
+                                ? AppColors.primary700
+                                : AppColors.secondary500,
+                          ),
+                        ),
+                        if (message.isHint) ...<Widget>[
+                          const SizedBox(height: 2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.warningBg,
+                              borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusFull,
+                              ),
+                              border: Border.all(
+                                color: AppColors.warning.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              'AI',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.warning,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   Expanded(
@@ -128,6 +161,16 @@ class _InteractiveTranscriptText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message.isHint) {
+      return Text(
+        message.text,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: AppColors.warning,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+
     final TextStyle baseStyle = AppTextStyles.bodySmall.copyWith(
       color: AppColors.textSecondary,
     );

@@ -223,6 +223,7 @@ class CustomPracticeStartModel {
       author: MessageAuthor.ai,
       text: openingMessage,
       createdAt: DateTime.now(),
+      isHint: false,
     );
   }
 }

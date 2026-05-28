@@ -968,9 +968,7 @@ class HomeViewModel extends GetxController {
     );
   }
 
-  void requestHint() {
-    unawaited(_requestHint());
-  }
+  Future<void> requestHint() => _requestHint();
 
   Future<void> _requestHint() async {
     if (!hasActiveSession) return;

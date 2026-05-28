@@ -20,6 +20,7 @@ class MessageEntity {
     required this.author,
     required this.text,
     required this.createdAt,
+    this.isHint = false,
   });
 
   final String id;
@@ -27,4 +28,5 @@ class MessageEntity {
   final MessageAuthor author;
   final String text;
   final DateTime createdAt;
+  final bool isHint;
 }

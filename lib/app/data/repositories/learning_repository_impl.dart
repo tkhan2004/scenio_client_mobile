@@ -155,6 +155,7 @@ class LearningRepositoryImpl implements LearningRepository {
       createdAt:
           DateTime.tryParse(messageMap['createdAt'] as String? ?? '') ??
           DateTime.now(),
+      isHint: messageMap['isHint'] as bool? ?? true,
     );
   }
 }

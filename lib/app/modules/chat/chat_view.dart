@@ -203,6 +203,8 @@ class ChatView extends GetView<ChatViewModel> {
                         onMicTap: controller.toggleVoiceSession,
                         onMuteTap: controller.toggleMicMute,
                         onFinish: controller.finishSession,
+                        hintEnabled: controller.canRequestHint,
+                        isHinting: controller.isRequestingHint.value,
                         isSending: controller.isSubmitting.value,
                         isFinishing: controller.isFinishingSession.value,
                         sendEnabled: controller.canSendReply.value,

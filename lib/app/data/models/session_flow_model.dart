@@ -55,6 +55,7 @@ class SessionStartModel {
       author: MessageAuthor.ai,
       text: openingMessage,
       createdAt: DateTime.now(),
+      isHint: false,
     );
   }
 }
@@ -102,6 +103,7 @@ class SessionResultModel {
                 createdAt:
                     DateTime.tryParse(item['createdAt'] as String? ?? '') ??
                     DateTime.now(),
+                isHint: item['isHint'] as bool? ?? false,
               );
             })
             .toList();

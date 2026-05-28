@@ -200,21 +200,60 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 SizedBox(
-                                  width: 36,
-                                  child: Text(
-                                    message.author.label,
-                                    style: AppTextStyles.labelMedium.copyWith(
-                                      color: message.author == MessageAuthor.ai
-                                          ? AppColors.primary700
-                                          : AppColors.secondary500,
-                                    ),
+                                  width: 52,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        message.isHint
+                                            ? AppStrings.practiceControlHint
+                                            : message.author.label,
+                                        style: AppTextStyles.labelMedium
+                                            .copyWith(
+                                              color: message.isHint
+                                                  ? AppColors.warning
+                                                  : message.author ==
+                                                        MessageAuthor.ai
+                                                  ? AppColors.primary700
+                                                  : AppColors.secondary500,
+                                            ),
+                                      ),
+                                      if (message.isHint) ...<Widget>[
+                                        const SizedBox(height: 2),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.warningBg,
+                                            borderRadius: BorderRadius.circular(
+                                              AppDimensions.radiusFull,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'AI',
+                                            style: AppTextStyles.caption
+                                                .copyWith(
+                                                  color: AppColors.warning,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                                 Expanded(
                                   child: Text(
                                     message.text,
                                     style: AppTextStyles.bodySmall.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: message.isHint
+                                          ? AppColors.warning
+                                          : AppColors.textSecondary,
+                                      fontStyle: message.isHint
+                                          ? FontStyle.italic
+                                          : FontStyle.normal,
                                     ),
                                   ),
                                 ),

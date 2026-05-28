@@ -15,6 +15,8 @@ class PracticeControlBar extends StatelessWidget {
     required this.onMicTap,
     required this.onMuteTap,
     required this.onFinish,
+    required this.hintEnabled,
+    required this.isHinting,
     required this.isSending,
     required this.isFinishing,
     required this.sendEnabled,
@@ -33,6 +35,8 @@ class PracticeControlBar extends StatelessWidget {
   final VoidCallback onMicTap;
   final VoidCallback onMuteTap;
   final VoidCallback onFinish;
+  final bool hintEnabled;
+  final bool isHinting;
   final bool isSending;
   final bool isFinishing;
   final bool sendEnabled;
@@ -79,7 +83,8 @@ class PracticeControlBar extends StatelessWidget {
               _SecondaryControlChip(
                 icon: Icons.lightbulb_outline_rounded,
                 label: AppStrings.practiceControlHint,
-                onTap: onHint,
+                onTap: hintEnabled ? onHint : null,
+                isLoading: isHinting,
               ),
               const Spacer(),
               _ReactiveMicButton(
@@ -345,8 +350,9 @@ class _SecondaryControlChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool enabled = onTap != null && !isLoading;
     return InkWell(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
       child: Container(
         padding: const EdgeInsets.symmetric(
@@ -354,9 +360,13 @@ class _SecondaryControlChip extends StatelessWidget {
           vertical: 7,
         ),
         decoration: BoxDecoration(
-          color: AppColors.primary50,
+          color: enabled
+              ? AppColors.primary50
+              : AppColors.neutral100.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
-          border: Border.all(color: AppColors.primary200),
+          border: Border.all(
+            color: enabled ? AppColors.primary200 : AppColors.neutral300,
+          ),
         ),
         child: Row(
           children: <Widget>[
@@ -372,10 +382,15 @@ class _SecondaryControlChip extends StatelessWidget {
                 : Icon(
                     icon,
                     size: AppDimensions.iconSm,
-                    color: AppColors.primary800,
+                    color: enabled ? AppColors.primary800 : AppColors.textHint,
                   ),
             const SizedBox(width: AppDimensions.xs),
-            Text(label, style: AppTextStyles.labelMedium),
+            Text(
+              label,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: enabled ? AppColors.textPrimary : AppColors.textHint,
+              ),
+            ),
           ],
         ),
       ),

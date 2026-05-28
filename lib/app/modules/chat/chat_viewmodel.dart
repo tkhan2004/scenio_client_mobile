@@ -29,6 +29,7 @@ class ChatViewModel extends GetxController {
   final RxBool isVoiceSessionActive = false.obs;
   final RxBool isVoiceConnecting = false.obs;
   final RxBool isFinishingSession = false.obs;
+  final RxBool isRequestingHint = false.obs;
   final RxBool isMicMuted = false.obs;
   final RxBool showEntryGuide = true.obs;
   final RxString partialAiCaption = ''.obs;
@@ -120,7 +121,46 @@ class ChatViewModel extends GetxController {
   }
 
   void showHint() {
-    homeViewModel.requestHint();
+    unawaited(_showHint());
+  }
+
+  bool get canRequestHint {
+    if (!hasActiveSession ||
+        isRequestingHint.value ||
+        isFinishingSession.value) {
+      return false;
+    }
+
+    switch (practiceState.value) {
+      case PracticeRealtimeState.requestingPermission:
+      case PracticeRealtimeState.connecting:
+      case PracticeRealtimeState.userSpeaking:
+      case PracticeRealtimeState.aiThinking:
+      case PracticeRealtimeState.aiSpeaking:
+      case PracticeRealtimeState.finishing:
+      case PracticeRealtimeState.completed:
+        return false;
+      case PracticeRealtimeState.idle:
+      case PracticeRealtimeState.starting:
+      case PracticeRealtimeState.active:
+      case PracticeRealtimeState.userTyping:
+      case PracticeRealtimeState.userListening:
+      case PracticeRealtimeState.reconnecting:
+      case PracticeRealtimeState.paused:
+      case PracticeRealtimeState.error:
+        return true;
+    }
+  }
+
+  Future<void> _showHint() async {
+    if (!canRequestHint) return;
+
+    isRequestingHint.value = true;
+    try {
+      await homeViewModel.requestHint();
+    } finally {
+      isRequestingHint.value = false;
+    }
   }
 
   Future<void> saveVocabularyCandidate({
