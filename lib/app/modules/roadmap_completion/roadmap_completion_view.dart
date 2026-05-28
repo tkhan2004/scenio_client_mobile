@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../data/models/learning_plan_model.dart';
 import '../home/widgets/scenio_icon_badge.dart';
 import 'roadmap_completion_viewmodel.dart';
 
@@ -15,49 +16,59 @@ class RoadmapCompletionView extends GetView<RoadmapCompletionViewModel> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(
-            AppDimensions.xxl,
-            AppDimensions.lg,
-            AppDimensions.xxl,
-            AppDimensions.xxxl,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              IconButton(
-                onPressed: controller.backHome,
-                icon: const Icon(Icons.close_rounded),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary800,
-                  side: const BorderSide(color: AppColors.primary200),
+        child: Obx(() {
+          if (controller.isLoading.value && controller.summary.value == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              AppDimensions.xxl,
+              AppDimensions.lg,
+              AppDimensions.xxl,
+              AppDimensions.xxxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                IconButton(
+                  onPressed: controller.backHome,
+                  icon: const Icon(Icons.close_rounded),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.primary800,
+                    side: const BorderSide(color: AppColors.primary200),
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppDimensions.lg),
-              _CompletionHero(controller: controller),
-              const SizedBox(height: AppDimensions.xl),
-              Text('Tiến bộ nổi bật'.tr, style: AppTextStyles.h2),
-              const SizedBox(height: AppDimensions.md),
-              const _ProgressDeltaGrid(),
-              const SizedBox(height: AppDimensions.xl),
-              Text('Scene đã hoàn thành'.tr, style: AppTextStyles.h2),
-              const SizedBox(height: AppDimensions.md),
-              Wrap(
-                spacing: AppDimensions.sm,
-                runSpacing: AppDimensions.sm,
-                children: controller.completedScenes
-                    .map((String title) => _SceneChip(title: title))
-                    .toList(growable: false),
-              ),
-              const SizedBox(height: AppDimensions.xl),
-              const _RewardSummaryCard(),
-              const SizedBox(height: AppDimensions.xl),
-              _NextRoadmapCard(onStart: controller.startNextRoadmap),
-            ],
-          ),
-        ),
+                const SizedBox(height: AppDimensions.lg),
+                _CompletionHero(controller: controller),
+                const SizedBox(height: AppDimensions.xl),
+                Text('Tiến bộ nổi bật'.tr, style: AppTextStyles.h2),
+                const SizedBox(height: AppDimensions.md),
+                _ProgressDeltaGrid(delta: controller.scoreDelta),
+                const SizedBox(height: AppDimensions.xl),
+                Text('Scene đã hoàn thành'.tr, style: AppTextStyles.h2),
+                const SizedBox(height: AppDimensions.md),
+                Wrap(
+                  spacing: AppDimensions.sm,
+                  runSpacing: AppDimensions.sm,
+                  children: controller.completedScenes
+                      .map((String title) => _SceneChip(title: title))
+                      .toList(growable: false),
+                ),
+                const SizedBox(height: AppDimensions.xl),
+                _RewardSummaryCard(controller: controller),
+                const SizedBox(height: AppDimensions.xl),
+                _NextRoadmapCard(
+                  title: controller.nextRoadmapTitle,
+                  isLoading: controller.isStartingNext.value,
+                  onStart: controller.startNextRoadmap,
+                ),
+              ],
+            ),
+          );
+        }),
       ),
       bottomNavigationBar: SafeArea(
         top: false,
@@ -68,9 +79,13 @@ class RoadmapCompletionView extends GetView<RoadmapCompletionViewModel> {
             AppDimensions.xxl,
             AppDimensions.xl,
           ),
-          child: ElevatedButton(
-            onPressed: controller.backHome,
-            child: Text('Back to Home'.tr),
+          child: Obx(
+            () => ElevatedButton(
+              onPressed: controller.isLoading.value
+                  ? null
+                  : controller.backHome,
+              child: Text('Back to Home'.tr),
+            ),
           ),
         ),
       ),
@@ -119,7 +134,7 @@ class _CompletionHero extends StatelessWidget {
           ),
           const SizedBox(height: AppDimensions.sm),
           Text(
-            'You finished ${controller.title} and can now handle short real-life conversations more clearly.',
+            'You finished ${controller.title} and earned ${controller.xpBonus} XP.',
             style: AppTextStyles.bodyMedium.copyWith(
               color: Colors.white.withValues(alpha: 0.82),
             ),
@@ -131,10 +146,13 @@ class _CompletionHero extends StatelessWidget {
             children: <Widget>[
               _LightPill(label: controller.level, icon: Icons.school_rounded),
               _LightPill(
-                label: 'Completion badge'.tr,
+                label: controller.badgeTitle,
                 icon: Icons.military_tech_rounded,
               ),
-              _LightPill(label: '+120 XP', icon: Icons.bolt_rounded),
+              _LightPill(
+                label: '+${controller.xpBonus} XP',
+                icon: Icons.bolt_rounded,
+              ),
             ],
           ),
         ],
@@ -144,17 +162,37 @@ class _CompletionHero extends StatelessWidget {
 }
 
 class _ProgressDeltaGrid extends StatelessWidget {
-  const _ProgressDeltaGrid();
+  const _ProgressDeltaGrid({required this.delta});
+
+  final RoadmapScoreDeltaModel delta;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const <Widget>[
-        Expanded(child: _DeltaCard(label: 'Grammar', before: 62, after: 74)),
-        SizedBox(width: AppDimensions.md),
-        Expanded(child: _DeltaCard(label: 'Vocabulary', before: 66, after: 73)),
-        SizedBox(width: AppDimensions.md),
-        Expanded(child: _DeltaCard(label: 'Natural', before: 58, after: 71)),
+      children: <Widget>[
+        Expanded(
+          child: _DeltaCard(
+            label: 'Grammar',
+            before: delta.grammar.before,
+            after: delta.grammar.after,
+          ),
+        ),
+        const SizedBox(width: AppDimensions.md),
+        Expanded(
+          child: _DeltaCard(
+            label: 'Vocabulary',
+            before: delta.vocabulary.before,
+            after: delta.vocabulary.after,
+          ),
+        ),
+        const SizedBox(width: AppDimensions.md),
+        Expanded(
+          child: _DeltaCard(
+            label: 'Natural',
+            before: delta.naturalness.before,
+            after: delta.naturalness.after,
+          ),
+        ),
       ],
     );
   }
@@ -221,7 +259,9 @@ class _SceneChip extends StatelessWidget {
 }
 
 class _RewardSummaryCard extends StatelessWidget {
-  const _RewardSummaryCard();
+  const _RewardSummaryCard({required this.controller});
+
+  final RoadmapCompletionViewModel controller;
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +289,7 @@ class _RewardSummaryCard extends StatelessWidget {
                 Text('Badge earned'.tr, style: AppTextStyles.h3),
                 const SizedBox(height: 2),
                 Text(
-                  'You unlocked a roadmap completion badge and bonus XP.'.tr,
+                  '${controller.badgeTitle} • +${controller.xpBonus} XP',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -264,8 +304,14 @@ class _RewardSummaryCard extends StatelessWidget {
 }
 
 class _NextRoadmapCard extends StatelessWidget {
-  const _NextRoadmapCard({required this.onStart});
+  const _NextRoadmapCard({
+    required this.title,
+    required this.isLoading,
+    required this.onStart,
+  });
 
+  final String title;
+  final bool isLoading;
   final VoidCallback onStart;
 
   @override
@@ -284,7 +330,7 @@ class _NextRoadmapCard extends StatelessWidget {
           Text('Recommended next roadmap'.tr, style: AppTextStyles.h3),
           const SizedBox(height: AppDimensions.xs),
           Text(
-            'Travel Vocabulary Expansion',
+            title,
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -293,9 +339,11 @@ class _NextRoadmapCard extends StatelessWidget {
           SizedBox(
             width: 172,
             child: OutlinedButton(
-              onPressed: onStart,
+              onPressed: isLoading ? null : onStart,
               style: OutlinedButton.styleFrom(minimumSize: const Size(172, 44)),
-              child: Text('Start next roadmap'.tr),
+              child: Text(
+                isLoading ? 'Đang lưu...'.tr : 'Start next roadmap'.tr,
+              ),
             ),
           ),
         ],

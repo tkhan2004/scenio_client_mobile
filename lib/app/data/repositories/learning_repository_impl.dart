@@ -44,6 +44,25 @@ class LearningRepositoryImpl implements LearningRepository {
   }
 
   @override
+  Future<RoadmapCompletionSummaryModel> fetchRoadmapCompletionSummary(
+    String planId,
+  ) async {
+    final Map<String, dynamic> map = await _provider
+        .fetchRoadmapCompletionSummary(planId);
+    final Object? completionSummary = map['completionSummary'];
+    return RoadmapCompletionSummaryModel.fromMap(
+      completionSummary is Map<String, dynamic> ? completionSummary : map,
+    );
+  }
+
+  @override
+  Future<StartNextRoadmapModel> startNextRoadmap(String planId) async {
+    return StartNextRoadmapModel.fromMap(
+      await _provider.startNextRoadmap(planId),
+    );
+  }
+
+  @override
   Future<List<SceneEntity>> fetchScenes({
     SceneCategory? category,
     SceneDifficulty? difficulty,

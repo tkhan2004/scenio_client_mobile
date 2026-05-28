@@ -26,6 +26,17 @@ class LearningProvider {
     return _apiClient.patch(ApiEndpoints.learningPlanStepComplete(stepId));
   }
 
+  Future<Map<String, dynamic>> fetchRoadmapCompletionSummary(String planId) {
+    return _apiClient.get(ApiEndpoints.learningPlanCompletionSummary(planId));
+  }
+
+  Future<Map<String, dynamic>> startNextRoadmap(String planId) {
+    return _apiClient.post(
+      ApiEndpoints.learningPlanStartNext(planId),
+      data: <String, dynamic>{},
+    );
+  }
+
   Future<Map<String, dynamic>> fetchScenes({
     String? category,
     String? difficulty,

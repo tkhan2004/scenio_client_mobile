@@ -192,7 +192,9 @@ class _LearningPlanHero extends StatelessWidget {
           ),
           const SizedBox(height: AppDimensions.sm),
           Text(
-            meta.summary.isEmpty
+            meta.targetOutcome?.trim().isNotEmpty == true
+                ? meta.targetOutcome!
+                : meta.summary.isEmpty
                 ? 'Scenio sẽ điều chỉnh lộ trình sau mỗi phiên luyện tập.'.tr
                 : meta.summary,
             maxLines: 3,
@@ -582,9 +584,16 @@ class _CompletionRuleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int coreScenes = plan.steps
-        .where((LearningPlanStepModel step) => step.type == 'SCENE')
-        .length;
+    final LearningPlanCompletionCriteriaModel criteria =
+        plan.plan.completionCriteria;
+    final int coreScenes = criteria.requiredCoreScenes > 0
+        ? criteria.requiredCoreScenes
+        : plan.steps
+              .where((LearningPlanStepModel step) => step.type == 'SCENE')
+              .length;
+    final int requiredSteps = criteria.requiredSteps > 0
+        ? criteria.requiredSteps
+        : plan.totalSteps;
 
     return Container(
       width: double.infinity,
@@ -612,7 +621,7 @@ class _CompletionRuleCard extends StatelessWidget {
             children: <Widget>[
               _RulePill(
                 icon: Icons.checklist_rounded,
-                label: '${plan.totalSteps} ${'bước học'.tr}',
+                label: '$requiredSteps ${'bước học'.tr}',
               ),
               _RulePill(
                 icon: Icons.theater_comedy_rounded,
@@ -620,7 +629,10 @@ class _CompletionRuleCard extends StatelessWidget {
               ),
               _RulePill(
                 icon: Icons.bar_chart_rounded,
-                label: 'Điểm gần đây >= 70'.tr,
+                label: 'Điểm gần đây >= 70'.tr.replaceAll(
+                  '70',
+                  '${criteria.minimumRecentAverageScore}',
+                ),
               ),
             ],
           ),
@@ -692,9 +704,15 @@ class _RoadmapRewardCard extends StatelessWidget {
             children: <Widget>[
               _RewardChip(
                 icon: Icons.military_tech_rounded,
-                label: '${plan.plan.level} completion badge',
+                label: plan.plan.reward.badgeTitle.isNotEmpty
+                    ? plan.plan.reward.badgeTitle
+                    : '${plan.plan.level} completion badge',
               ),
-              _RewardChip(icon: Icons.bolt_rounded, label: '+120 bonus XP'),
+              _RewardChip(
+                icon: Icons.bolt_rounded,
+                label:
+                    '+${plan.plan.reward.xpBonus > 0 ? plan.plan.reward.xpBonus : 120} bonus XP',
+              ),
               _RewardChip(
                 icon: Icons.route_rounded,
                 label: 'Next roadmap suggestion'.tr,
@@ -702,15 +720,21 @@ class _RoadmapRewardCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppDimensions.lg),
-          SizedBox(
-            width: 184,
-            child: OutlinedButton(
-              onPressed: () =>
-                  Get.toNamed(Routes.roadmapCompletion, arguments: plan),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(184, 44)),
-              child: Text('Preview summary'.tr),
+          if (plan.completionSummary != null ||
+              plan.plan.isCompleted) ...<Widget>[
+            const SizedBox(height: AppDimensions.lg),
+            SizedBox(
+              width: 184,
+              child: OutlinedButton(
+                onPressed: () =>
+                    Get.toNamed(Routes.roadmapCompletion, arguments: plan),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(184, 44),
+                ),
+                child: Text('Preview summary'.tr),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -1141,6 +1165,15 @@ String _labelForStatus(String value) {
 }
 
 List<String> _expectedOutcomes(LearningPlanModel plan) {
+  final String? targetOutcome = plan.targetOutcome?.trim();
+  if (targetOutcome != null && targetOutcome.isNotEmpty) {
+    return <String>[
+      targetOutcome,
+      'Biết mình cần sửa gì qua feedback sau từng phiên luyện.'.tr,
+      'Có đề xuất bước tiếp theo rõ ràng sau mỗi phiên luyện.'.tr,
+    ];
+  }
+
   final String goal = (plan.learningGoal ?? '').toUpperCase();
   final String level = plan.level;
   final String focus = _labelForFocus(plan.focusSkill).toLowerCase();

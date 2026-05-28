@@ -23,6 +23,10 @@ abstract class ApiEndpoints {
   static String sceneDetail(String sceneId) => '/scenes/$sceneId';
   static String learningPlanStepComplete(String stepId) =>
       '/learning-plan/steps/$stepId/complete';
+  static String learningPlanCompletionSummary(String planId) =>
+      '/learning-plan/$planId/completion-summary';
+  static String learningPlanStartNext(String planId) =>
+      '/learning-plan/$planId/start-next';
   static String vocabularyDeckDetail(String sessionId) =>
       '/vocabulary/decks/$sessionId';
   static String vocabularyReview(String vocabularyId) =>

@@ -15,6 +15,12 @@ abstract class LearningRepository {
 
   Future<LearningPlanResponseModel> completeLearningPlanStep(String stepId);
 
+  Future<RoadmapCompletionSummaryModel> fetchRoadmapCompletionSummary(
+    String planId,
+  );
+
+  Future<StartNextRoadmapModel> startNextRoadmap(String planId);
+
   Future<List<SceneEntity>> fetchScenes({
     SceneCategory? category,
     SceneDifficulty? difficulty,

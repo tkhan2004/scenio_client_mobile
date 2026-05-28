@@ -21,6 +21,7 @@ class LearningPlanViewModel extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isRefreshing = false.obs;
   final RxString completingStepId = ''.obs;
+  bool _completionNavigationScheduled = false;
 
   LearningPlanResponseModel? get currentPlan => plan.value;
   bool get hasPlan => plan.value != null;
@@ -45,6 +46,14 @@ class LearningPlanViewModel extends GetxController {
     try {
       _setPlan(await _repository.fetchCurrentLearningPlan());
     } on ApiException catch (error) {
+      if (error.statusCode == 409) {
+        plan.value = null;
+        _showError(
+          'Roadmap chưa sẵn sàng. Hãy hoàn tất onboarding để Scenio tạo lộ trình học phù hợp.'
+              .tr,
+        );
+        return;
+      }
       _showError(error.message);
     } catch (_) {
       _showError('Không thể tải lộ trình học lúc này.');
@@ -177,6 +186,18 @@ class LearningPlanViewModel extends GetxController {
     if (Get.isRegistered<HomeViewModel>()) {
       Get.find<HomeViewModel>().learningPlan.value = value;
     }
+    _openCompletionIfReady(value);
+  }
+
+  void _openCompletionIfReady(LearningPlanResponseModel value) {
+    if (_completionNavigationScheduled) return;
+    if (value.completionSummary == null && !value.plan.isCompleted) return;
+
+    _completionNavigationScheduled = true;
+    Future<void>.delayed(Duration.zero, () {
+      if (Get.currentRoute == Routes.roadmapCompletion) return;
+      Get.toNamed(Routes.roadmapCompletion, arguments: value);
+    });
   }
 
   void _showError(String message) {

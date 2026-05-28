@@ -200,6 +200,10 @@ class HomeViewModel extends GetxController {
     if (plan == null) {
       return 'Build clear, confident replies across everyday scenes.';
     }
+    final String? targetOutcome = plan.plan.targetOutcome?.trim();
+    if (targetOutcome != null && targetOutcome.isNotEmpty) {
+      return targetOutcome;
+    }
 
     final String goal = (plan.plan.learningGoal ?? '').toUpperCase();
     switch (goal) {
@@ -217,6 +221,9 @@ class HomeViewModel extends GetxController {
   String get learningPlanPhaseLabel {
     final LearningPlanResponseModel? plan = learningPlan.value;
     if (plan == null || plan.totalSteps == 0) return 'Roadmap setup';
+    if (plan.completionSummary != null || plan.plan.isCompleted) {
+      return 'Completed';
+    }
     if (plan.progress >= 0.75) return 'Final polish';
     if (plan.progress >= 0.38) return 'Core practice';
     if (plan.completedSteps > 0) return 'Foundation building';
@@ -242,11 +249,57 @@ class HomeViewModel extends GetxController {
   }
 
   String get learningPlanSuggestedDayLabel {
+    final LearningPlanScheduleModel? schedule =
+        learningPlan.value?.plan.schedule;
+    if (schedule != null) {
+      if (schedule.nextSuggestedAt != null) {
+        return _formatSuggestedDate(schedule.nextSuggestedAt!);
+      }
+      if (schedule.suggestedDays.isNotEmpty) {
+        return schedule.suggestedDays.map(_labelForSuggestedDay).join(' / ');
+      }
+    }
+
     final int target = learningPlan.value?.plan.weeklyTarget ?? 3;
     if (target >= 4) return 'Mon / Wed / Fri / Sun';
     if (target == 3) return 'Tue / Thu / Sat';
     if (target == 2) return 'Tue / Fri';
     return 'Thursday';
+  }
+
+  String _formatSuggestedDate(DateTime value) {
+    final DateTime local = value.toLocal();
+    const List<String> weekdays = <String>[
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+      'Sun',
+    ];
+    return '${weekdays[local.weekday - 1]} ${local.day}/${local.month}';
+  }
+
+  String _labelForSuggestedDay(String value) {
+    switch (value.toUpperCase()) {
+      case 'MON':
+        return 'Mon';
+      case 'TUE':
+        return 'Tue';
+      case 'WED':
+        return 'Wed';
+      case 'THU':
+        return 'Thu';
+      case 'FRI':
+        return 'Fri';
+      case 'SAT':
+        return 'Sat';
+      case 'SUN':
+        return 'Sun';
+      default:
+        return value;
+    }
   }
 
   List<SceneCategory?> get sceneCategoryFilters => <SceneCategory?>[
@@ -400,6 +453,11 @@ class HomeViewModel extends GetxController {
   Future<void> _loadLearningPlanQuietly() async {
     try {
       learningPlan.value = await _repository.fetchCurrentLearningPlan();
+    } on ApiException catch (error) {
+      if (error.statusCode == 409) {
+        learningPlan.value = null;
+      }
+      // Home vẫn dùng được nếu learning plan đang tạm lỗi hoặc backend chưa seed.
     } catch (_) {
       // Home vẫn dùng được nếu learning plan đang tạm lỗi hoặc backend chưa seed.
     }
