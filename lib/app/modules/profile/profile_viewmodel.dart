@@ -409,6 +409,9 @@ class ProfileViewModel extends GetxController {
   IconData _iconForBadge(String iconKey, String conditionType) {
     final String key = iconKey.toLowerCase();
     final String condition = conditionType.toUpperCase();
+    if (key.contains('roadmap') || condition.contains('ROADMAP')) {
+      return Icons.alt_route_rounded;
+    }
     if (key.contains('streak') || condition.contains('STREAK')) {
       return Icons.local_fire_department_rounded;
     }
