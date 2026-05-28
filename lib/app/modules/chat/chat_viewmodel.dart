@@ -58,6 +58,12 @@ class ChatViewModel extends GetxController {
 
   bool get hasActiveSession => homeViewModel.hasActiveSession;
   bool get canRenderSession => homeViewModel.currentSession != null;
+  bool get hasUserTranscript => messages.any(
+    (MessageEntity message) =>
+        message.author == MessageAuthor.user &&
+        !message.isHint &&
+        message.text.trim().isNotEmpty,
+  );
   String get latestAiCaption => partialAiCaption.value.isNotEmpty
       ? partialAiCaption.value
       : _lastMessageFor(MessageAuthor.ai);
@@ -216,7 +222,7 @@ class ChatViewModel extends GetxController {
     try {
       final RealtimeTokenModel token = await homeViewModel
           .createRealtimeTokenForCurrentSession();
-      await realtimeService.connect(token);
+      await realtimeService.connect(token, openingMessage: scene.starterPrompt);
       isVoiceSessionActive.value = true;
       isMicMuted.value = false;
       ScenioAlert.show(
@@ -249,7 +255,15 @@ class ChatViewModel extends GetxController {
   }
 
   void leaveSession() {
-    unawaited(realtimeService.disconnect());
+    unawaited(_leaveSession());
+  }
+
+  Future<void> _leaveSession() async {
+    if (!hasUserTranscript && !(await _confirmEndWithoutScore())) {
+      return;
+    }
+
+    await realtimeService.disconnect();
     homeViewModel.abandonCurrentSession();
     Get.offAllNamed(Routes.home);
   }
@@ -268,6 +282,18 @@ class ChatViewModel extends GetxController {
     isFinishingSession.value = true;
     homeViewModel.setPracticeState(PracticeRealtimeState.finishing);
     try {
+      if (!hasUserTranscript) {
+        final bool shouldEnd = await _confirmEndWithoutScore();
+        if (shouldEnd) {
+          await realtimeService.disconnect();
+          homeViewModel.abandonCurrentSession();
+          Get.offAllNamed(Routes.home);
+        } else {
+          homeViewModel.setPracticeState(PracticeRealtimeState.userListening);
+        }
+        return;
+      }
+
       if (isVoiceSessionActive.value) {
         await realtimeService.setMicrophoneEnabled(false);
         isMicMuted.value = true;
@@ -296,6 +322,31 @@ class ChatViewModel extends GetxController {
     } finally {
       isFinishingSession.value = false;
     }
+  }
+
+  Future<bool> _confirmEndWithoutScore() async {
+    final bool? shouldEnd = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('Chưa có câu trả lời để chấm điểm'.tr),
+        content: Text(
+          'Bạn chưa nói hoặc nhập câu trả lời nào. Bạn có thể tiếp tục luyện, hoặc kết thúc phiên này mà không chấm điểm.'
+              .tr,
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('Tiếp tục luyện'.tr),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('Kết thúc không chấm'.tr),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    return shouldEnd == true;
   }
 
   String labelForState(PracticeRealtimeState state) {

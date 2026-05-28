@@ -58,10 +58,12 @@ class RealtimeConversationService extends GetxService {
   bool _aiResponseInProgress = false;
   bool _manualResponsePending = false;
   bool _acceptedUserSpeechTurn = false;
+  bool _openingResponseSent = false;
   DateTime? _lastAiPlaybackAt;
   DateTime? _currentAiPlaybackStartedAt;
   DateTime? _microphoneLockedUntil;
   String? _lastAiFinalTranscript;
+  String? _pendingOpeningMessage;
 
   Stream<RealtimeConnectionPhase> get phaseStream => _phaseController.stream;
   Stream<RealtimeTranscriptEvent> get transcriptStream =>
@@ -69,7 +71,10 @@ class RealtimeConversationService extends GetxService {
   RealtimeConnectionPhase get phase => _phase;
   bool get isConnected => _phase.isLive;
 
-  Future<void> connect(RealtimeTokenModel token) async {
+  Future<void> connect(
+    RealtimeTokenModel token, {
+    String? openingMessage,
+  }) async {
     if (token.clientSecret.value.isEmpty) {
       throw const RealtimeConversationException('Realtime token không hợp lệ.');
     }
@@ -106,10 +111,12 @@ class RealtimeConversationService extends GetxService {
       _aiResponseInProgress = false;
       _manualResponsePending = false;
       _acceptedUserSpeechTurn = false;
+      _openingResponseSent = false;
       _lastAiPlaybackAt = null;
       _currentAiPlaybackStartedAt = null;
       _microphoneLockedUntil = null;
       _lastAiFinalTranscript = null;
+      _pendingOpeningMessage = openingMessage?.trim();
       _applyLocalMicrophoneState();
 
       _peerConnection = await createPeerConnection(<String, dynamic>{
@@ -135,6 +142,7 @@ class RealtimeConversationService extends GetxService {
         ..onDataChannelState = (RTCDataChannelState state) {
           if (state == RTCDataChannelState.RTCDataChannelOpen) {
             _emitPhase(RealtimeConnectionPhase.connected);
+            _requestOpeningResponseIfNeeded();
           }
         };
 
@@ -172,6 +180,7 @@ class RealtimeConversationService extends GetxService {
         RTCSessionDescription(answerSdp, 'answer'),
       );
       _emitPhase(RealtimeConnectionPhase.connected);
+      _requestOpeningResponseIfNeeded();
     } on RealtimeConversationException {
       await _resetAfterFailedConnect();
       rethrow;
@@ -397,6 +406,29 @@ class RealtimeConversationService extends GetxService {
     });
   }
 
+  void _requestOpeningResponseIfNeeded() {
+    final String openingMessage = _pendingOpeningMessage?.trim() ?? '';
+    if (openingMessage.isEmpty || _openingResponseSent) return;
+
+    final RTCDataChannel? dataChannel = _dataChannel;
+    if (dataChannel == null ||
+        dataChannel.state != RTCDataChannelState.RTCDataChannelOpen) {
+      return;
+    }
+
+    _openingResponseSent = true;
+    _suppressMicrophoneForPlayback();
+    _sendRealtimeClientEvent(<String, dynamic>{
+      'type': 'response.create',
+      'response': <String, dynamic>{
+        'modalities': <String>['audio'],
+        'instructions':
+            'Start this session now by saying exactly this opening line, without adding anything else: "$openingMessage"',
+      },
+    });
+    _emitPhase(RealtimeConnectionPhase.aiThinking);
+  }
+
   bool _isValidUserTurnTranscript(String content) {
     final String normalized = content.trim();
     if (normalized.length < 2) return false;
@@ -450,10 +482,12 @@ class RealtimeConversationService extends GetxService {
     _aiResponseInProgress = false;
     _manualResponsePending = false;
     _acceptedUserSpeechTurn = false;
+    _openingResponseSent = false;
     _lastAiPlaybackAt = null;
     _currentAiPlaybackStartedAt = null;
     _microphoneLockedUntil = null;
     _lastAiFinalTranscript = null;
+    _pendingOpeningMessage = null;
 
     if (_phase != RealtimeConnectionPhase.idle) {
       _emitPhase(RealtimeConnectionPhase.finishing);

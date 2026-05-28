@@ -667,11 +667,24 @@ class _ScoreCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            '$score',
-            style: AppTextStyles.scoreNumber.copyWith(
-              color: tint,
-              fontSize: 30,
+          RichText(
+            text: TextSpan(
+              children: <InlineSpan>[
+                TextSpan(
+                  text: '$score',
+                  style: AppTextStyles.scoreNumber.copyWith(
+                    color: tint,
+                    fontSize: 30,
+                  ),
+                ),
+                TextSpan(
+                  text: '/100',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: AppDimensions.xs),
@@ -707,7 +720,10 @@ class _MetricPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text('$score', style: AppTextStyles.labelLarge.copyWith(color: tint)),
+          Text(
+            '$score/100',
+            style: AppTextStyles.labelLarge.copyWith(color: tint),
+          ),
           const SizedBox(width: AppDimensions.sm),
           Text(
             label,
