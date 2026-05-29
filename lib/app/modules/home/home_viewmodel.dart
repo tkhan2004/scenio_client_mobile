@@ -312,7 +312,48 @@ class HomeViewModel extends GetxController {
     ...SceneDifficulty.values,
   ];
 
-  SceneEntity get heroScene => currentSessionScene ?? recommendedScenes.first;
+  SceneEntity get heroScene =>
+      currentSessionScene ?? roadmapNextStepScene ?? recommendedScenes.first;
+
+  SceneEntity? get roadmapNextStepScene {
+    final LearningPlanResponseModel? plan = learningPlan.value;
+    final LearningPlanNextStepModel? nextStep = plan?.nextStep;
+    if (plan == null || nextStep == null) return null;
+
+    LearningPlanStepModel? matchingStep;
+    for (final LearningPlanStepModel step in plan.steps) {
+      if (step.id == nextStep.id ||
+          (nextStep.sceneId != null && step.sceneId == nextStep.sceneId)) {
+        matchingStep = step;
+        break;
+      }
+    }
+
+    final SceneEntity? stepScene = matchingStep?.scene;
+    if (stepScene != null) return stepScene;
+
+    final String? sceneId = nextStep.sceneId;
+    if (sceneId != null && sceneId.isNotEmpty) {
+      for (final SceneEntity scene in _scenes) {
+        if (scene.id == sceneId) return scene;
+      }
+    }
+
+    return SceneEntity(
+      id: sceneId?.isNotEmpty == true ? sceneId! : 'roadmap-${nextStep.id}',
+      title: nextStep.title,
+      category: _categoryForRoadmapStep(plan, nextStep.title),
+      difficulty: _difficultyFromLearningPlanLevel(plan.plan.level),
+      estimatedMinutes: 10,
+      characterName: 'Scenio AI',
+      characterRole: _labelForFocusSkill(nextStep.focusSkill),
+      description: matchingStep?.description ?? learningPlanNextReason,
+      mission: matchingStep?.description ?? learningPlanNextReason,
+      vocabularyPreview: const <String>[],
+      starterPrompt: '',
+      aiReplyPool: const <String>[],
+    );
+  }
 
   SceneEntity? get currentSessionScene {
     final SessionEntity? session = currentSession;
@@ -362,12 +403,16 @@ class HomeViewModel extends GetxController {
 
   String get continueCardLabel => hasActiveSession
       ? AppStrings.homeContinueResumeLabel
+      : roadmapNextStepScene != null
+      ? 'Theo roadmap của bạn'
       : AppStrings.homeContinueStartLabel;
 
   String get continueCardTitle => heroScene.title;
 
   String get continueCardTime => hasActiveSession
       ? 'Started ${_formatSessionStart(currentSession!.startedAt)}'
+      : roadmapNextStepScene != null
+      ? 'Roadmap next • ${heroScene.estimatedMinutes} min'
       : 'Suggested next • ${heroScene.estimatedMinutes} min';
 
   String get continueCardCharacter =>
@@ -384,6 +429,8 @@ class HomeViewModel extends GetxController {
 
   String get continueStatusValue => hasActiveSession
       ? '${currentSession!.completedTurns}/${currentSession!.targetTurns} turns'
+      : roadmapNextStepScene != null
+      ? learningPlanFocusLabel
       : heroScene.categoryLabel;
 
   @override
@@ -629,6 +676,11 @@ class HomeViewModel extends GetxController {
   void handleHeroSceneTap() {
     if (hasActiveSession) {
       openPracticeSession();
+      return;
+    }
+
+    if (roadmapNextStepScene != null) {
+      openLearningPlanNextStep();
       return;
     }
 
@@ -1174,6 +1226,51 @@ class HomeViewModel extends GetxController {
         return Get.locale?.languageCode == 'vi' ? 'Tự tin' : 'Confidence';
       default:
         return Get.locale?.languageCode == 'vi' ? 'Cá nhân hóa' : 'Personal';
+    }
+  }
+
+  SceneCategory _categoryForRoadmapStep(
+    LearningPlanResponseModel plan,
+    String title,
+  ) {
+    final String normalized = '${plan.plan.learningGoal ?? ''} $title'
+        .toLowerCase();
+    if (normalized.contains('travel') ||
+        normalized.contains('hotel') ||
+        normalized.contains('taxi') ||
+        normalized.contains('airport')) {
+      return SceneCategory.travel;
+    }
+    if (normalized.contains('work') ||
+        normalized.contains('interview') ||
+        normalized.contains('meeting') ||
+        normalized.contains('project')) {
+      return SceneCategory.work;
+    }
+    if (normalized.contains('friend') ||
+        normalized.contains('weekend') ||
+        normalized.contains('plan')) {
+      return SceneCategory.social;
+    }
+    if (normalized.contains('service') ||
+        normalized.contains('shop') ||
+        normalized.contains('restaurant')) {
+      return SceneCategory.service;
+    }
+    return SceneCategory.dailyLife;
+  }
+
+  SceneDifficulty _difficultyFromLearningPlanLevel(String raw) {
+    switch (raw.toUpperCase()) {
+      case 'A1':
+        return SceneDifficulty.a1;
+      case 'B1':
+        return SceneDifficulty.b1;
+      case 'B2':
+        return SceneDifficulty.b2;
+      case 'A2':
+      default:
+        return SceneDifficulty.a2;
     }
   }
 
