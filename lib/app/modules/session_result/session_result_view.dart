@@ -1103,7 +1103,7 @@ class _NextStepCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(AppStrings.sessionResultNextStepTitle, style: AppTextStyles.h3),
+          Text('AI gợi ý luyện tiếp', style: AppTextStyles.h3),
           const SizedBox(height: AppDimensions.sm),
           Text(
             title,
@@ -1130,7 +1130,7 @@ class _NextStepCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
               ),
               child: Text(
-                suggestedQuery,
+                'Chủ đề đề xuất: $suggestedQuery',
                 style: AppTextStyles.labelMedium.copyWith(
                   color: AppColors.secondary700,
                 ),

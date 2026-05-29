@@ -14,6 +14,8 @@ import 'widgets/home_pill_nav_bar.dart';
 import 'widgets/home_practice_tab.dart';
 import 'widgets/home_scenes_tab.dart';
 import '../profile/profile_view.dart';
+import '../profile/profile_viewmodel.dart';
+import '../profile/widgets/profile_history_card.dart';
 import '../vocabulary/vocabulary_view.dart';
 import 'widgets/scenio_icon_badge.dart';
 
@@ -202,6 +204,8 @@ class _HomeDashboardSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ProfileViewModel profileViewModel = Get.find<ProfileViewModel>();
+
     return Obx(
       () => Container(
         width: double.infinity,
@@ -293,6 +297,11 @@ class _HomeDashboardSheet extends StatelessWidget {
                         }
                       }).toList(),
                     ),
+                  ),
+                  SizedBox(height: AppDimensions.xl),
+                  _HomeConversationHistorySection(
+                    homeViewModel: viewModel,
+                    profileViewModel: profileViewModel,
                   ),
                   if (viewModel.hasLearningPlan) ...<Widget>[
                     SizedBox(height: AppDimensions.xl),
@@ -396,6 +405,140 @@ class _HomeDashboardSkeleton extends StatelessWidget {
         const SizedBox(height: AppDimensions.md),
         const _SceneSkeletonCard(),
       ],
+    );
+  }
+}
+
+class _HomeConversationHistorySection extends StatelessWidget {
+  const _HomeConversationHistorySection({
+    required this.homeViewModel,
+    required this.profileViewModel,
+  });
+
+  final HomeViewModel homeViewModel;
+  final ProfileViewModel profileViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final history = profileViewModel.profileHistory.take(2).toList();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _SectionHeader(
+            title: 'Lịch sử cuộc hội thoại',
+            actionLabel: history.isEmpty ? null : 'Xem tất cả',
+            onActionTap: () => homeViewModel.selectTab(4),
+          ),
+          const SizedBox(height: AppDimensions.md),
+          if (profileViewModel.isLoadingProfile.value && history.isEmpty)
+            const _ConversationHistorySkeleton()
+          else if (history.isEmpty)
+            _ConversationHistoryEmptyCard(
+              onTap: () => homeViewModel.selectTab(2),
+            )
+          else
+            ...history.map(
+              (item) => Padding(
+                padding: EdgeInsets.only(
+                  bottom: item == history.last ? 0 : AppDimensions.md,
+                ),
+                child: ProfileHistoryCard(
+                  item: item,
+                  onTap: () => profileViewModel.openHistorySession(item),
+                ),
+              ),
+            ),
+        ],
+      );
+    });
+  }
+}
+
+class _ConversationHistoryEmptyCard extends StatelessWidget {
+  const _ConversationHistoryEmptyCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppDimensions.lg),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(
+              color: AppColors.primary200.withValues(alpha: 0.9),
+            ),
+          ),
+          child: Row(
+            children: <Widget>[
+              ScenioIconBadge(
+                icon: Icons.history_rounded,
+                tint: AppColors.primary700,
+                size: 44,
+              ),
+              const SizedBox(width: AppDimensions.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Chưa có lịch sử', style: AppTextStyles.h3),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Hoàn thành một cuộc hội thoại để xem lại transcript, điểm và AI gợi ý luyện tiếp.',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ConversationHistorySkeleton extends StatelessWidget {
+  const _ConversationHistorySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ScenioSkeletonCard(
+      child: Row(
+        children: <Widget>[
+          ScenioSkeletonBox(
+            width: 44,
+            height: 44,
+            radius: AppDimensions.radiusFull,
+          ),
+          SizedBox(width: AppDimensions.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ScenioSkeletonLine(widthFactor: 0.72, height: 18),
+                SizedBox(height: AppDimensions.sm),
+                ScenioSkeletonLine(widthFactor: 0.52, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
