@@ -99,6 +99,9 @@ class SessionResultModel {
         (map['messages'] as List<dynamic>? ?? const <dynamic>[])
             .whereType<Map<String, dynamic>>()
             .map<MessageEntity>((Map<String, dynamic> item) {
+              final Map<String, dynamic> feedbackDetails =
+                  item['feedbackDetails'] as Map<String, dynamic>? ??
+                  <String, dynamic>{};
               return MessageEntity(
                 id: item['id'] as String? ?? '',
                 sessionId: sessionMap['id'] as String? ?? '',
@@ -108,6 +111,23 @@ class SessionResultModel {
                     DateTime.tryParse(item['createdAt'] as String? ?? '') ??
                     DateTime.now(),
                 isHint: item['isHint'] as bool? ?? false,
+                hasError: item['hasError'] as bool?,
+                errorType: item['errorType'] as String?,
+                originalPhrase: item['originalPhrase'] as String?,
+                suggestion: item['suggestion'] as String?,
+                explanation: item['explanation'] as String?,
+                isGood: item['isGood'] as bool?,
+                feedbackIssues:
+                    (feedbackDetails['issues'] as List<dynamic>? ??
+                            const <dynamic>[])
+                        .whereType<Map<String, dynamic>>()
+                        .map<MessageFeedbackIssueModel>(
+                          MessageFeedbackIssueModel.fromMap,
+                        )
+                        .map(
+                          (MessageFeedbackIssueModel issue) => issue.toEntity(),
+                        )
+                        .toList(growable: false),
               );
             })
             .toList();
@@ -168,6 +188,42 @@ class SessionResultModel {
       transcript: transcript,
       spokenCoaching: spokenCoaching?.toEntity(),
       nextLearningAction: nextLearningAction?.toEntity(),
+    );
+  }
+}
+
+class MessageFeedbackIssueModel {
+  const MessageFeedbackIssueModel({
+    required this.type,
+    required this.subtype,
+    required this.originalPhrase,
+    required this.suggestion,
+    required this.explanation,
+  });
+
+  factory MessageFeedbackIssueModel.fromMap(Map<String, dynamic> map) {
+    return MessageFeedbackIssueModel(
+      type: map['type'] as String? ?? '',
+      subtype: map['subtype'] as String?,
+      originalPhrase: map['originalPhrase'] as String?,
+      suggestion: map['suggestion'] as String?,
+      explanation: map['explanation'] as String?,
+    );
+  }
+
+  final String type;
+  final String? subtype;
+  final String? originalPhrase;
+  final String? suggestion;
+  final String? explanation;
+
+  MessageFeedbackIssueEntity toEntity() {
+    return MessageFeedbackIssueEntity(
+      type: type,
+      subtype: subtype,
+      originalPhrase: originalPhrase,
+      suggestion: suggestion,
+      explanation: explanation,
     );
   }
 }

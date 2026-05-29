@@ -13,6 +13,22 @@ extension MessageAuthorX on MessageAuthor {
   }
 }
 
+class MessageFeedbackIssueEntity {
+  const MessageFeedbackIssueEntity({
+    required this.type,
+    required this.subtype,
+    required this.originalPhrase,
+    required this.suggestion,
+    required this.explanation,
+  });
+
+  final String type;
+  final String? subtype;
+  final String? originalPhrase;
+  final String? suggestion;
+  final String? explanation;
+}
+
 class MessageEntity {
   const MessageEntity({
     required this.id,
@@ -21,6 +37,13 @@ class MessageEntity {
     required this.text,
     required this.createdAt,
     this.isHint = false,
+    this.hasError,
+    this.errorType,
+    this.originalPhrase,
+    this.suggestion,
+    this.explanation,
+    this.isGood,
+    this.feedbackIssues = const <MessageFeedbackIssueEntity>[],
   });
 
   final String id;
@@ -29,4 +52,11 @@ class MessageEntity {
   final String text;
   final DateTime createdAt;
   final bool isHint;
+  final bool? hasError;
+  final String? errorType;
+  final String? originalPhrase;
+  final String? suggestion;
+  final String? explanation;
+  final bool? isGood;
+  final List<MessageFeedbackIssueEntity> feedbackIssues;
 }

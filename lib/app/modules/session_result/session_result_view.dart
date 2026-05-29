@@ -15,6 +15,10 @@ class SessionResultView extends GetView<SessionResultViewModel> {
 
   @override
   Widget build(BuildContext context) {
+    final List<MessageEntity> detailedFeedbackMessages = _feedbackMessages(
+      controller.result.transcript,
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -153,6 +157,10 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                 _TurnHighlightsCard(
                   highlights: controller.result.spokenCoaching!.turnHighlights,
                 ),
+              ],
+              if (detailedFeedbackMessages.isNotEmpty) ...<Widget>[
+                const SizedBox(height: AppDimensions.xl),
+                _DetailedFeedbackCard(messages: detailedFeedbackMessages),
               ],
               if (controller.hasNextLearningAction) ...<Widget>[
                 const SizedBox(height: AppDimensions.xl),
@@ -300,6 +308,21 @@ class SessionResultView extends GetView<SessionResultViewModel> {
         ),
       ),
     );
+  }
+
+  List<MessageEntity> _feedbackMessages(List<MessageEntity> messages) {
+    return messages
+        .where(
+          (MessageEntity message) =>
+              message.author == MessageAuthor.user &&
+              !message.isHint &&
+              (message.hasError != null ||
+                  message.isGood != null ||
+                  message.feedbackIssues.isNotEmpty ||
+                  (message.suggestion ?? '').trim().isNotEmpty ||
+                  (message.explanation ?? '').trim().isNotEmpty),
+        )
+        .toList(growable: false);
   }
 }
 
@@ -573,6 +596,209 @@ class _TurnHighlightsCard extends StatelessWidget {
             );
           }),
         ],
+      ),
+    );
+  }
+}
+
+class _DetailedFeedbackCard extends StatelessWidget {
+  const _DetailedFeedbackCard({required this.messages});
+
+  final List<MessageEntity> messages;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: AppColors.primary200.withValues(alpha: 0.9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('Chấm chi tiết từng lượt', style: AppTextStyles.h3),
+          const SizedBox(height: AppDimensions.xs),
+          Text(
+            'Mỗi lượt bên dưới lấy từ feedback AI theo transcript đã lưu, gồm lỗi, câu gợi ý sửa và lý do.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.md),
+          ...List<Widget>.generate(messages.length, (int index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == messages.length - 1 ? 0 : AppDimensions.md,
+              ),
+              child: _DetailedFeedbackTile(
+                message: messages[index],
+                turnNumber: index + 1,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailedFeedbackTile extends StatelessWidget {
+  const _DetailedFeedbackTile({
+    required this.message,
+    required this.turnNumber,
+  });
+
+  final MessageEntity message;
+  final int turnNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasError = message.hasError == true;
+    final Color tint = hasError ? AppColors.accent500 : AppColors.secondary500;
+    final List<MessageFeedbackIssueEntity> issues =
+        message.feedbackIssues.isNotEmpty
+        ? message.feedbackIssues
+        : <MessageFeedbackIssueEntity>[
+            MessageFeedbackIssueEntity(
+              type: message.errorType ?? (hasError ? 'NATURALNESS' : 'GOOD'),
+              subtype: null,
+              originalPhrase: message.originalPhrase,
+              suggestion: message.suggestion,
+              explanation: message.explanation,
+            ),
+          ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.md),
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        border: Border.all(color: tint.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text(
+                'Lượt $turnNumber',
+                style: AppTextStyles.labelLarge.copyWith(color: tint),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.sm,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+                ),
+                child: Text(
+                  hasError ? 'Cần sửa' : 'Ổn',
+                  style: AppTextStyles.caption.copyWith(color: tint),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.sm),
+          Text(
+            message.text,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.md),
+          if (!hasError && !issues.any(_hasUsefulIssueDetail))
+            Text(
+              'Không phát hiện lỗi rõ trong lượt này. Có thể giữ cách diễn đạt này.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            )
+          else
+            ...issues.map((MessageFeedbackIssueEntity issue) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppDimensions.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      _feedbackIssueTitle(issue),
+                      style: AppTextStyles.labelMedium.copyWith(color: tint),
+                    ),
+                    if ((issue.originalPhrase ?? '').trim().isNotEmpty)
+                      _FeedbackDetailLine(
+                        label: 'Cụm cần chú ý',
+                        text: issue.originalPhrase!,
+                      ),
+                    if ((issue.suggestion ?? '').trim().isNotEmpty)
+                      _FeedbackDetailLine(
+                        label: 'Nên nói',
+                        text: issue.suggestion!,
+                      ),
+                    if ((issue.explanation ?? '').trim().isNotEmpty)
+                      _FeedbackDetailLine(
+                        label: 'Lý do',
+                        text: issue.explanation!,
+                      ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  bool _hasUsefulIssueDetail(MessageFeedbackIssueEntity issue) {
+    return (issue.originalPhrase ?? '').trim().isNotEmpty ||
+        (issue.suggestion ?? '').trim().isNotEmpty ||
+        (issue.explanation ?? '').trim().isNotEmpty;
+  }
+
+  String _feedbackIssueTitle(MessageFeedbackIssueEntity issue) {
+    final String typeLabel = switch (issue.type.toUpperCase()) {
+      'GRAMMAR' => 'Ngữ pháp',
+      'VOCABULARY' => 'Từ vựng',
+      'NATURALNESS' => 'Độ tự nhiên',
+      'GOOD' => 'Câu ổn',
+      _ => issue.type.trim().isEmpty ? 'Nhận xét' : issue.type,
+    };
+    final String subtype = (issue.subtype ?? '').trim();
+    if (subtype.isEmpty) return typeLabel;
+    return '$typeLabel • ${subtype.replaceAll('_', ' ').toLowerCase()}';
+  }
+}
+
+class _FeedbackDetailLine extends StatelessWidget {
+  const _FeedbackDetailLine({required this.label, required this.text});
+
+  final String label;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: RichText(
+        text: TextSpan(
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.28,
+          ),
+          children: <InlineSpan>[
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            TextSpan(text: text),
+          ],
+        ),
       ),
     );
   }
