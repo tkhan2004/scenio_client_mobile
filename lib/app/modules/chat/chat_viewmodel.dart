@@ -231,6 +231,14 @@ class ChatViewModel extends GetxController {
         isSuccess: true,
       );
     } on ApiException catch (error) {
+      if (error.code == 'SESSION_NOT_ACTIVE') {
+        await homeViewModel.clearStaleActiveSession();
+        _handleVoiceStartError(
+          'Phiên này đã kết thúc hoặc không còn hợp lệ. Hãy tạo phiên học mới để mở voice realtime.',
+        );
+        Get.offAllNamed(Routes.home);
+        return;
+      }
       _handleVoiceStartError(error.message);
     } on RealtimeConversationException catch (error) {
       _handleVoiceStartError(error.message);

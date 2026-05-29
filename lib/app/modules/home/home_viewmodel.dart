@@ -979,6 +979,13 @@ class HomeViewModel extends GetxController {
     return _repository.createRealtimeToken(session.id);
   }
 
+  Future<void> clearStaleActiveSession() async {
+    activeSession.value = null;
+    activeMessages.clear();
+    await _storageService.clearActivePracticeSession();
+    practiceState.value = PracticeRealtimeState.idle;
+  }
+
   int appendRealtimeTranscriptMessage({
     required MessageAuthor author,
     required String content,
@@ -1100,10 +1107,7 @@ class HomeViewModel extends GetxController {
     } catch (_) {
       // Dù backend abandon lỗi, vẫn dọn local state để user không bị kẹt UI.
     } finally {
-      activeSession.value = null;
-      activeMessages.clear();
-      await _storageService.clearActivePracticeSession();
-      practiceState.value = PracticeRealtimeState.idle;
+      await clearStaleActiveSession();
       if (showAlert) {
         ScenioAlert.show(
           title: AppStrings.appName,
