@@ -16,7 +16,7 @@ class VocabProvider {
 
   Future<Map<String, dynamic>> saveManualVocabulary({
     required String word,
-    required String definition,
+    String? definition,
     required String sourceSessionId,
     required String sampleSentence,
     String? sourceMessageId,
@@ -25,7 +25,8 @@ class VocabProvider {
       ApiEndpoints.vocabulary,
       data: <String, dynamic>{
         'word': word,
-        'definition': definition,
+        if (definition != null && definition.trim().isNotEmpty)
+          'definition': definition.trim(),
         'sourceSessionId': sourceSessionId,
         'sampleSentence': sampleSentence,
         if (sourceMessageId != null && sourceMessageId.isNotEmpty)

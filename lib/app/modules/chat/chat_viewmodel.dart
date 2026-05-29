@@ -191,7 +191,6 @@ class ChatViewModel extends GetxController {
     try {
       await vocabRepository.saveManualVocabulary(
         word: normalizedWord,
-        definition: 'A word saved from your practice transcript for review.',
         sourceSessionId: session.id,
         sourceMessageId: message.id,
         sampleSentence: message.text,

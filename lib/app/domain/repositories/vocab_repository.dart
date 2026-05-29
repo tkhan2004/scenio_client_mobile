@@ -8,7 +8,7 @@ abstract class VocabRepository {
 
   Future<void> saveManualVocabulary({
     required String word,
-    required String definition,
+    String? definition,
     required String sourceSessionId,
     required String sampleSentence,
     String? sourceMessageId,
