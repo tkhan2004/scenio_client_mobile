@@ -120,6 +120,7 @@ class LearningProvider {
     return _apiClient.post(
       ApiEndpoints.sessionComplete(sessionId),
       data: <String, dynamic>{},
+      receiveTimeout: const Duration(seconds: 90),
     );
   }
 

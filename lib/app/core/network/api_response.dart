@@ -49,6 +49,14 @@ ApiException mapApiException(Object error) {
   }
 
   if (error is DioException) {
+    if (_isTimeoutError(error)) {
+      return const ApiException(
+        message:
+            'Tác vụ AI đang xử lý lâu hơn bình thường. Vui lòng thử lại sau vài giây.',
+        code: 'REQUEST_TIMEOUT',
+      );
+    }
+
     final dynamic responseData = error.response?.data;
     if (responseData is Map<String, dynamic>) {
       final dynamic errorMap = responseData['error'];
@@ -73,6 +81,12 @@ ApiException mapApiException(Object error) {
   }
 
   return const ApiException(message: 'Đã có lỗi không xác định xảy ra.');
+}
+
+bool _isTimeoutError(DioException error) {
+  return error.type == DioExceptionType.connectionTimeout ||
+      error.type == DioExceptionType.sendTimeout ||
+      error.type == DioExceptionType.receiveTimeout;
 }
 
 String _friendlyApiMessage(String rawMessage, int? statusCode) {

@@ -141,12 +141,20 @@ class ApiClient extends GetxService {
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
+    Duration? receiveTimeout,
+    Duration? sendTimeout,
   }) async {
     try {
       final dio.Response<dynamic> response = await _dio.post<dynamic>(
         path,
         data: data,
         queryParameters: _sanitizeQueryParameters(queryParameters),
+        options: receiveTimeout == null && sendTimeout == null
+            ? null
+            : dio.Options(
+                receiveTimeout: receiveTimeout,
+                sendTimeout: sendTimeout,
+              ),
       );
       return _unwrapData(response);
     } catch (error) {

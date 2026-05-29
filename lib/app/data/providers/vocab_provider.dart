@@ -32,6 +32,7 @@ class VocabProvider {
         if (sourceMessageId != null && sourceMessageId.isNotEmpty)
           'sourceMessageId': sourceMessageId,
       },
+      receiveTimeout: const Duration(seconds: 45),
     );
   }
 
