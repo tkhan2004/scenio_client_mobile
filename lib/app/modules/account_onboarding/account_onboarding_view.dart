@@ -13,6 +13,93 @@ import 'account_onboarding_viewmodel.dart';
 class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
   const AccountOnboardingView({super.key});
 
+  List<_ChoiceOption> get _goalOptions => <_ChoiceOption>[
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingGoalWork,
+      caption: AppStrings.accountOnboardingGoalWorkCaption,
+      value: 'WORK',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingGoalTravel,
+      caption: AppStrings.accountOnboardingGoalTravelCaption,
+      value: 'TRAVEL',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingGoalDaily,
+      caption: AppStrings.accountOnboardingGoalDailyCaption,
+      value: 'DAILY',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingGoalMixed,
+      caption: AppStrings.accountOnboardingGoalMixedCaption,
+      value: 'ALL',
+    ),
+  ];
+
+  List<_ChoiceOption> get _levelOptions => <_ChoiceOption>[
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingLevelA1,
+      caption: AppStrings.accountOnboardingLevelA1Caption,
+      value: 'A1',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingLevelA2,
+      caption: AppStrings.accountOnboardingLevelA2Caption,
+      value: 'A2',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingLevelB1,
+      caption: AppStrings.accountOnboardingLevelB1Caption,
+      value: 'B1',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingLevelB2,
+      caption: AppStrings.accountOnboardingLevelB2Caption,
+      value: 'B2',
+    ),
+  ];
+
+  List<_ChoiceOption> get _frequencyOptions => <_ChoiceOption>[
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFrequencyLight,
+      caption: AppStrings.accountOnboardingFrequencyLightCaption,
+      value: 'LIGHT',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFrequencyRegular,
+      caption: AppStrings.accountOnboardingFrequencyRegularCaption,
+      value: 'REGULAR',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFrequencyIntensive,
+      caption: AppStrings.accountOnboardingFrequencyIntensiveCaption,
+      value: 'INTENSIVE',
+    ),
+  ];
+
+  List<_ChoiceOption> get _focusOptions => <_ChoiceOption>[
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFocusVocabulary,
+      caption: AppStrings.accountOnboardingFocusVocabularyCaption,
+      value: 'VOCABULARY',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFocusGrammar,
+      caption: AppStrings.accountOnboardingFocusGrammarCaption,
+      value: 'GRAMMAR',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFocusNaturalness,
+      caption: AppStrings.accountOnboardingFocusNaturalnessCaption,
+      value: 'NATURALNESS',
+    ),
+    _ChoiceOption(
+      label: AppStrings.accountOnboardingFocusConfidence,
+      caption: AppStrings.accountOnboardingFocusConfidenceCaption,
+      value: 'CONFIDENCE',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final double bottomSafeInset = MediaQuery.paddingOf(context).bottom;
@@ -24,158 +111,33 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(
-                  AppDimensions.xxl,
-                  AppDimensions.xl,
-                  AppDimensions.xxl,
-                  AppDimensions.xl,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const _SetupHero(),
-                    const SizedBox(height: AppDimensions.xxl),
-                    Obx(
-                      () => _ChoiceSection(
-                        icon: Icons.flag_rounded,
-                        title: AppStrings.accountOnboardingGoalTitle,
-                        subtitle: AppStrings.accountOnboardingGoalSubtitle,
-                        selectedValue: controller.selectedLearningGoal.value,
-                        errorText: controller.learningGoalError.value,
-                        options: <_ChoiceOption>[
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingGoalWork,
-                            caption:
-                                AppStrings.accountOnboardingGoalWorkCaption,
-                            value: 'WORK',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingGoalTravel,
-                            caption:
-                                AppStrings.accountOnboardingGoalTravelCaption,
-                            value: 'TRAVEL',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingGoalDaily,
-                            caption:
-                                AppStrings.accountOnboardingGoalDailyCaption,
-                            value: 'DAILY',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingGoalMixed,
-                            caption:
-                                AppStrings.accountOnboardingGoalMixedCaption,
-                            value: 'ALL',
-                          ),
-                        ],
-                        onSelected: controller.selectLearningGoal,
+              child: Obx(
+                () => SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppDimensions.xxl,
+                    AppDimensions.xl,
+                    AppDimensions.xxl,
+                    AppDimensions.xl,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const _SetupHero(),
+                      const SizedBox(height: AppDimensions.lg),
+                      _StepProgress(
+                        label: controller.progressLabel,
+                        progress:
+                            (controller.currentStep.value + 1) /
+                            controller.totalSteps,
                       ),
-                    ),
-                    const SizedBox(height: AppDimensions.lg),
-                    Obx(
-                      () => _ChoiceSection(
-                        icon: Icons.school_rounded,
-                        title: AppStrings.accountOnboardingLevelTitle,
-                        subtitle: AppStrings.accountOnboardingLevelSubtitle,
-                        selectedValue: controller.selectedLevel.value,
-                        errorText: controller.levelError.value,
-                        options: <_ChoiceOption>[
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingLevelA1,
-                            caption: AppStrings.accountOnboardingLevelA1Caption,
-                            value: 'A1',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingLevelA2,
-                            caption: AppStrings.accountOnboardingLevelA2Caption,
-                            value: 'A2',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingLevelB1,
-                            caption: AppStrings.accountOnboardingLevelB1Caption,
-                            value: 'B1',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingLevelB2,
-                            caption: AppStrings.accountOnboardingLevelB2Caption,
-                            value: 'B2',
-                          ),
-                        ],
-                        onSelected: controller.selectLevel,
+                      const SizedBox(height: AppDimensions.xl),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: _currentStepSection(),
                       ),
-                    ),
-                    const SizedBox(height: AppDimensions.lg),
-                    Obx(
-                      () => _ChoiceSection(
-                        icon: Icons.calendar_month_rounded,
-                        title: AppStrings.accountOnboardingFrequencyTitle,
-                        subtitle: AppStrings.accountOnboardingFrequencySubtitle,
-                        selectedValue: controller.selectedStudyFrequency.value,
-                        errorText: controller.studyFrequencyError.value,
-                        options: <_ChoiceOption>[
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFrequencyLight,
-                            caption: AppStrings
-                                .accountOnboardingFrequencyLightCaption,
-                            value: 'LIGHT',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFrequencyRegular,
-                            caption: AppStrings
-                                .accountOnboardingFrequencyRegularCaption,
-                            value: 'REGULAR',
-                          ),
-                          _ChoiceOption(
-                            label:
-                                AppStrings.accountOnboardingFrequencyIntensive,
-                            caption: AppStrings
-                                .accountOnboardingFrequencyIntensiveCaption,
-                            value: 'INTENSIVE',
-                          ),
-                        ],
-                        onSelected: controller.selectStudyFrequency,
-                      ),
-                    ),
-                    const SizedBox(height: AppDimensions.lg),
-                    Obx(
-                      () => _ChoiceSection(
-                        icon: Icons.auto_awesome_rounded,
-                        title: AppStrings.accountOnboardingFocusTitle,
-                        subtitle: AppStrings.accountOnboardingFocusSubtitle,
-                        selectedValue: controller.selectedSelfAssessment.value,
-                        errorText: controller.selfAssessmentError.value,
-                        options: <_ChoiceOption>[
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFocusVocabulary,
-                            caption: AppStrings
-                                .accountOnboardingFocusVocabularyCaption,
-                            value: 'VOCABULARY',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFocusGrammar,
-                            caption:
-                                AppStrings.accountOnboardingFocusGrammarCaption,
-                            value: 'GRAMMAR',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFocusNaturalness,
-                            caption: AppStrings
-                                .accountOnboardingFocusNaturalnessCaption,
-                            value: 'NATURALNESS',
-                          ),
-                          _ChoiceOption(
-                            label: AppStrings.accountOnboardingFocusConfidence,
-                            caption: AppStrings
-                                .accountOnboardingFocusConfidenceCaption,
-                            value: 'CONFIDENCE',
-                          ),
-                        ],
-                        onSelected: controller.selectSelfAssessment,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -203,13 +165,29 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
                       bottomSafeInset + AppDimensions.xl,
                     ),
                     child: Obx(
-                      () => AuthPrimaryButton(
-                        label: controller.isSubmitting.value
-                            ? AppStrings.accountOnboardingSavingButton
-                            : AppStrings.accountOnboardingSubmitButton,
-                        onPressed: controller.isSubmitting.value
-                            ? null
-                            : controller.submit,
+                      () => Row(
+                        children: <Widget>[
+                          if (!controller.isFirstStep) ...<Widget>[
+                            SizedBox(
+                              width: 104,
+                              child: OutlinedButton(
+                                onPressed: controller.isSubmitting.value
+                                    ? null
+                                    : controller.previousStep,
+                                child: Text('Back'.tr),
+                              ),
+                            ),
+                            const SizedBox(width: AppDimensions.md),
+                          ],
+                          Expanded(
+                            child: AuthPrimaryButton(
+                              label: controller.primaryButtonLabel,
+                              onPressed: controller.isSubmitting.value
+                                  ? null
+                                  : controller.handlePrimaryAction,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -220,6 +198,68 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
         ),
       ),
     );
+  }
+
+  Widget _currentStepSection() {
+    switch (controller.currentStep.value) {
+      case 0:
+        return _ChoiceSection(
+          key: const ValueKey<String>('goals'),
+          icon: Icons.flag_rounded,
+          title: AppStrings.accountOnboardingGoalTitle,
+          subtitle:
+              '${AppStrings.accountOnboardingGoalSubtitle} ${'You can choose more than one.'.tr}',
+          selectedValues: controller.selectedLearningGoals.toList(),
+          errorText: controller.learningGoalError.value,
+          options: _goalOptions,
+          onSelected: controller.selectLearningGoal,
+          multiSelect: true,
+        );
+      case 1:
+        return _ChoiceSection(
+          key: const ValueKey<String>('level'),
+          icon: Icons.school_rounded,
+          title: AppStrings.accountOnboardingLevelTitle,
+          subtitle: AppStrings.accountOnboardingLevelSubtitle,
+          selectedValues: <String>[controller.selectedLevel.value],
+          errorText: controller.levelError.value,
+          options: _levelOptions,
+          onSelected: controller.selectLevel,
+        );
+      case 2:
+        return _ChoiceSection(
+          key: const ValueKey<String>('frequency'),
+          icon: Icons.calendar_month_rounded,
+          title: AppStrings.accountOnboardingFrequencyTitle,
+          subtitle: AppStrings.accountOnboardingFrequencySubtitle,
+          selectedValues: <String>[controller.selectedStudyFrequency.value],
+          errorText: controller.studyFrequencyError.value,
+          options: _frequencyOptions,
+          onSelected: controller.selectStudyFrequency,
+        );
+      case 3:
+        return _ChoiceSection(
+          key: const ValueKey<String>('focus'),
+          icon: Icons.auto_awesome_rounded,
+          title: AppStrings.accountOnboardingFocusTitle,
+          subtitle:
+              '${AppStrings.accountOnboardingFocusSubtitle} ${'Pick every blocker that feels true.'.tr}',
+          selectedValues: controller.selectedSelfAssessments.toList(),
+          errorText: controller.selfAssessmentError.value,
+          options: _focusOptions,
+          onSelected: controller.selectSelfAssessment,
+          multiSelect: true,
+        );
+      case 4:
+      default:
+        return _SummarySection(
+          key: const ValueKey<String>('summary'),
+          goals: controller.selectedLearningGoals.toList(),
+          level: controller.selectedLevel.value,
+          frequency: controller.selectedStudyFrequency.value,
+          focuses: controller.selectedSelfAssessments.toList(),
+        );
+    }
   }
 }
 
@@ -299,24 +339,61 @@ class _SetupHero extends StatelessWidget {
   }
 }
 
+class _StepProgress extends StatelessWidget {
+  const _StepProgress({required this.label, required this.progress});
+
+  final String label;
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: AppDimensions.sm),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+          child: LinearProgressIndicator(
+            value: progress.clamp(0, 1),
+            minHeight: 8,
+            backgroundColor: AppColors.primary200,
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              AppColors.primary800,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ChoiceSection extends StatelessWidget {
   const _ChoiceSection({
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.selectedValue,
+    required this.selectedValues,
     required this.errorText,
     required this.options,
     required this.onSelected,
+    this.multiSelect = false,
+    super.key,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
-  final String selectedValue;
+  final List<String> selectedValues;
   final String errorText;
   final List<_ChoiceOption> options;
   final ValueChanged<String> onSelected;
+  final bool multiSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +453,8 @@ class _ChoiceSection extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: AppDimensions.sm),
                 child: _ChoiceTile(
                   option: option,
-                  isSelected: selectedValue == option.value,
+                  isSelected: selectedValues.contains(option.value),
+                  multiSelect: multiSelect,
                   onTap: () => onSelected(option.value),
                 ),
               ),
@@ -403,11 +481,13 @@ class _ChoiceTile extends StatelessWidget {
   const _ChoiceTile({
     required this.option,
     required this.isSelected,
+    required this.multiSelect,
     required this.onTap,
   });
 
   final _ChoiceOption option;
   final bool isSelected;
+  final bool multiSelect;
   final VoidCallback onTap;
 
   @override
@@ -452,7 +532,10 @@ class _ChoiceTile extends StatelessWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary700 : Colors.white,
-                  shape: BoxShape.circle,
+                  shape: multiSelect ? BoxShape.rectangle : BoxShape.circle,
+                  borderRadius: multiSelect
+                      ? BorderRadius.circular(AppDimensions.radiusSm)
+                      : null,
                   border: Border.all(
                     color: isSelected
                         ? AppColors.primary700
@@ -471,6 +554,111 @@ class _ChoiceTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SummarySection extends StatelessWidget {
+  const _SummarySection({
+    required this.goals,
+    required this.level,
+    required this.frequency,
+    required this.focuses,
+    super.key,
+  });
+
+  final List<String> goals;
+  final String level;
+  final String frequency;
+  final List<String> focuses;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+        border: Border.all(
+          color: AppColors.primary200.withValues(alpha: 0.86),
+          width: 0.8,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimensions.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('Review your setup'.tr, style: AppTextStyles.h2),
+            const SizedBox(height: AppDimensions.sm),
+            Text(
+              'Scenio will use this to create your first roadmap.'.tr,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppDimensions.lg),
+            _SummaryRow(label: 'Goals'.tr, values: goals),
+            _SummaryRow(label: 'Level'.tr, values: <String>[level]),
+            _SummaryRow(
+              label: 'Practice rhythm'.tr,
+              values: <String>[frequency],
+            ),
+            _SummaryRow(label: 'Focus'.tr, values: focuses),
+            const SizedBox(height: AppDimensions.md),
+            Text(
+              'XP will track effort and rewards. Level should increase only after enough completed sessions, strong recent scores, or a level test.'
+                  .tr,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({required this.label, required this.values});
+
+  final String label;
+  final List<String> values;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimensions.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(label, style: AppTextStyles.labelLarge),
+          const SizedBox(height: AppDimensions.sm),
+          Wrap(
+            spacing: AppDimensions.sm,
+            runSpacing: AppDimensions.sm,
+            children: values
+                .where((String value) => value.trim().isNotEmpty)
+                .map(
+                  (String value) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.md,
+                      vertical: AppDimensions.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary50,
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusFull,
+                      ),
+                      border: Border.all(color: AppColors.primary200),
+                    ),
+                    child: Text(value, style: AppTextStyles.labelMedium),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ],
       ),
     );
   }
