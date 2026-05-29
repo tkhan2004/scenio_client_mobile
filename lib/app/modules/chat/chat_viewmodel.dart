@@ -438,6 +438,10 @@ class ChatViewModel extends GetxController {
       case RealtimeConnectionPhase.error:
         _setPracticeStateSmooth(PracticeRealtimeState.error, immediate: true);
         isVoiceSessionActive.value = false;
+        isMicMuted.value = false;
+        if (!isVoiceConnecting.value) {
+          _showRealtimeRuntimeError();
+        }
         break;
     }
   }
@@ -536,6 +540,17 @@ class ChatViewModel extends GetxController {
       PracticeRealtimeState.userListening,
       immediate: true,
     );
+    ScenioAlert.show(
+      title: AppStrings.appName,
+      message: message,
+      isError: true,
+    );
+  }
+
+  void _showRealtimeRuntimeError() {
+    final String message =
+        realtimeService.lastErrorMessage ??
+        AppStrings.practiceVoiceFallbackError;
     ScenioAlert.show(
       title: AppStrings.appName,
       message: message,

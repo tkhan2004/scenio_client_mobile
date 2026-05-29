@@ -64,12 +64,14 @@ class RealtimeConversationService extends GetxService {
   DateTime? _microphoneLockedUntil;
   String? _lastAiFinalTranscript;
   String? _pendingOpeningMessage;
+  String? _lastErrorMessage;
 
   Stream<RealtimeConnectionPhase> get phaseStream => _phaseController.stream;
   Stream<RealtimeTranscriptEvent> get transcriptStream =>
       _transcriptController.stream;
   RealtimeConnectionPhase get phase => _phase;
   bool get isConnected => _phase.isLive;
+  String? get lastErrorMessage => _lastErrorMessage;
 
   Future<void> connect(
     RealtimeTokenModel token, {
@@ -80,6 +82,7 @@ class RealtimeConversationService extends GetxService {
     }
 
     await disconnect();
+    _lastErrorMessage = null;
     _emitPhase(RealtimeConnectionPhase.requestingPermission);
 
     await _ensureMicrophonePermission();
@@ -421,9 +424,8 @@ class RealtimeConversationService extends GetxService {
     _sendRealtimeClientEvent(<String, dynamic>{
       'type': 'response.create',
       'response': <String, dynamic>{
-        'modalities': <String>['audio'],
         'instructions':
-            'Start this session now by saying exactly this opening line, without adding anything else: "$openingMessage"',
+            'Start this session now. Say exactly this opening line and do not add anything else:\n$openingMessage',
       },
     });
     _emitPhase(RealtimeConnectionPhase.aiThinking);
@@ -488,6 +490,7 @@ class RealtimeConversationService extends GetxService {
     _microphoneLockedUntil = null;
     _lastAiFinalTranscript = null;
     _pendingOpeningMessage = null;
+    _lastErrorMessage = null;
 
     if (_phase != RealtimeConnectionPhase.idle) {
       _emitPhase(RealtimeConnectionPhase.finishing);
@@ -605,6 +608,7 @@ class RealtimeConversationService extends GetxService {
         return;
       case 'error':
         _manualResponsePending = false;
+        _lastErrorMessage = _messageFromRealtimeEventError(decoded);
         _emitPhase(RealtimeConnectionPhase.error);
         return;
     }
@@ -732,6 +736,15 @@ class RealtimeConversationService extends GetxService {
       }
     }
     return null;
+  }
+
+  String _messageFromRealtimeEventError(Map<String, dynamic> event) {
+    final String providerMessage = _providerErrorMessage(event);
+    if (providerMessage.isNotEmpty) {
+      return 'Voice realtime bị từ chối: $providerMessage';
+    }
+
+    return 'Voice realtime gặp lỗi trong phiên hiện tại. Hãy thử tắt voice rồi bật lại.';
   }
 
   int? _firstInt(Map<String, dynamic> map, String key) {
