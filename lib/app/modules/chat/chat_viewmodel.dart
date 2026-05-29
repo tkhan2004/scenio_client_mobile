@@ -49,6 +49,7 @@ class ChatViewModel extends GetxController {
   final Set<String> _syncedProviderEvents = <String>{};
   final Set<Future<void>> _pendingTranscriptSyncs = <Future<void>>{};
   ApiException? _lastTranscriptSyncError;
+  bool _voiceOpeningRequested = false;
 
   SceneEntity get scene =>
       homeViewModel.currentSessionScene ?? _sceneFromActiveSession();
@@ -220,10 +221,7 @@ class ChatViewModel extends GetxController {
     if (isVoiceConnecting.value || !hasActiveSession) return;
 
     if (isVoiceSessionActive.value) {
-      await realtimeService.disconnect();
-      isVoiceSessionActive.value = false;
-      isMicMuted.value = false;
-      homeViewModel.setPracticeState(PracticeRealtimeState.userListening);
+      await _toggleMicMute();
       return;
     }
 
@@ -233,7 +231,11 @@ class ChatViewModel extends GetxController {
     try {
       final RealtimeTokenModel token = await homeViewModel
           .createRealtimeTokenForCurrentSession();
-      await realtimeService.connect(token, openingMessage: scene.starterPrompt);
+      final String? openingMessage = _voiceOpeningRequested
+          ? null
+          : scene.starterPrompt;
+      await realtimeService.connect(token, openingMessage: openingMessage);
+      _voiceOpeningRequested = true;
       isVoiceSessionActive.value = true;
       isMicMuted.value = false;
       ScenioAlert.show(

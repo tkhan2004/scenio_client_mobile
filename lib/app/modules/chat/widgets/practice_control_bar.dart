@@ -286,12 +286,16 @@ class _ReactiveMicButtonState extends State<_ReactiveMicButton>
                   widget.aiSpeaking
                       ? AppColors.neutral300
                       : widget.active
-                      ? AppColors.error
+                      ? widget.muted
+                            ? AppColors.warning
+                            : AppColors.secondary500
                       : AppColors.primary800,
                   widget.aiSpeaking
                       ? AppColors.primary200
                       : widget.active
-                      ? AppColors.accent500
+                      ? widget.muted
+                            ? AppColors.accent500
+                            : AppColors.primary700
                       : AppColors.primary700,
                 ],
               ),
@@ -323,7 +327,9 @@ class _ReactiveMicButtonState extends State<_ReactiveMicButton>
                     widget.aiSpeaking
                         ? Icons.lock_rounded
                         : widget.active
-                        ? Icons.call_end_rounded
+                        ? widget.muted
+                              ? Icons.mic_off_rounded
+                              : Icons.mic_rounded
                         : Icons.mic_none_rounded,
                     size: AppDimensions.iconMd,
                     color: Colors.white,
