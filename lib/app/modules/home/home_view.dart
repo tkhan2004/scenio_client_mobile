@@ -332,17 +332,7 @@ class _HomeDashboardSheet extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: AppDimensions.lg),
-                  _SectionHeader(
-                    title: AppStrings.homeRecommendedSection,
-                    actionLabel: AppStrings.homeSeeAll,
-                  ),
-                  const SizedBox(height: AppDimensions.md),
-                  ...viewModel.recommendedScenes.expand(
-                    (SceneEntity scene) => <Widget>[
-                      _SceneCard(scene: scene),
-                      const SizedBox(height: AppDimensions.md),
-                    ],
-                  ),
+                  _RoadmapRecommendationSection(viewModel: viewModel),
                 ],
         ),
       ),
@@ -1343,6 +1333,136 @@ class _RoadmapReminderCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RoadmapRecommendationSection extends StatelessWidget {
+  const _RoadmapRecommendationSection({required this.viewModel});
+
+  final HomeViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final LearningPlanNextStepModel? nextStep =
+        viewModel.currentLearningPlan?.nextStep;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _SectionHeader(
+          title: nextStep == null
+              ? AppStrings.homeRecommendedSection
+              : 'Theo roadmap của bạn',
+          actionLabel: nextStep == null ? AppStrings.homeSeeAll : 'Xem roadmap',
+          onActionTap: nextStep == null
+              ? () => viewModel.selectTab(1)
+              : viewModel.handleLearningPlanTap,
+        ),
+        const SizedBox(height: AppDimensions.md),
+        if (nextStep != null)
+          _RoadmapRecommendedPracticeCard(
+            nextStep: nextStep,
+            reason: viewModel.learningPlanNextReason,
+            onStart: viewModel.openLearningPlanNextStep,
+          )
+        else
+          ...viewModel.recommendedScenes.expand(
+            (SceneEntity scene) => <Widget>[
+              _SceneCard(scene: scene),
+              const SizedBox(height: AppDimensions.md),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _RoadmapRecommendedPracticeCard extends StatelessWidget {
+  const _RoadmapRecommendedPracticeCard({
+    required this.nextStep,
+    required this.reason,
+    required this.onStart,
+  });
+
+  final LearningPlanNextStepModel nextStep;
+  final String reason;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(
+          color: AppColors.secondary300.withValues(alpha: 0.45),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.secondary500.withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ScenioIconBadge(
+            icon: Icons.route_rounded,
+            tint: AppColors.secondary500,
+            size: 52,
+            iconColor: AppColors.secondary700,
+          ),
+          const SizedBox(width: AppDimensions.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Bước tiếp theo trong lộ trình',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.secondary700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  nextStep.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: AppDimensions.xs),
+                Text(
+                  reason,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.md),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: onStart,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(138, 42),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimensions.md,
+                      ),
+                    ),
+                    child: const Text('Bắt đầu bước này'),
                   ),
                 ),
               ],
