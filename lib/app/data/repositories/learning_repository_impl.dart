@@ -142,8 +142,12 @@ class LearningRepositoryImpl implements LearningRepository {
   }
 
   @override
-  Future<void> completeSession(String sessionId) async {
-    await _provider.completeSession(sessionId);
+  Future<SessionResultModel> completeSession(String sessionId) async {
+    return SessionResultModel.fromMap(
+      await _provider.completeSession(sessionId),
+      fallbackSceneId: '',
+      fallbackTargetTurns: 3,
+    );
   }
 
   @override

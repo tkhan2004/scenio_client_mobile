@@ -50,7 +50,7 @@ abstract class LearningRepository {
     int? audioEndMs,
   });
 
-  Future<void> completeSession(String sessionId);
+  Future<SessionResultModel> completeSession(String sessionId);
 
   Future<SessionResultModel> fetchSessionResult(String sessionId);
 

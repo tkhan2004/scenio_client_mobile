@@ -1067,20 +1067,18 @@ class HomeViewModel extends GetxController {
 
   Future<SessionResultEntity> completeCurrentSession() async {
     final SessionEntity session = currentSession!;
+    late final SessionResultModel resultModel;
 
     try {
-      await _repository.completeSession(session.id);
+      resultModel = await _repository.completeSession(session.id);
     } on ApiException catch (error) {
       if (error.code != 'SESSION_NOT_ACTIVE') {
         rethrow;
       }
       // Backend may have already completed the session from a previous
       // request. Try loading the result before treating local state as stale.
+      resultModel = await _repository.fetchSessionResult(session.id);
     }
-
-    final SessionResultModel resultModel = await _repository.fetchSessionResult(
-      session.id,
-    );
     final SessionResultEntity result = resultModel.toEntity(
       completedTurns: session.completedTurns,
       targetTurns: session.targetTurns,
