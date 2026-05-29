@@ -18,6 +18,10 @@ class SessionResultView extends GetView<SessionResultViewModel> {
     final List<MessageEntity> detailedFeedbackMessages = _feedbackMessages(
       controller.result.transcript,
     );
+    final List<_ImprovementAction> improvementActions = _improvementActions(
+      controller.result,
+      detailedFeedbackMessages,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -150,6 +154,10 @@ class SessionResultView extends GetView<SessionResultViewModel> {
                 _CoachingSummaryCard(
                   coaching: controller.result.spokenCoaching!,
                 ),
+              ],
+              if (improvementActions.isNotEmpty) ...<Widget>[
+                const SizedBox(height: AppDimensions.xl),
+                _ImprovementPlanCard(actions: improvementActions),
               ],
               if (controller.result.spokenCoaching?.turnHighlights.isNotEmpty ??
                   false) ...<Widget>[
@@ -324,6 +332,165 @@ class SessionResultView extends GetView<SessionResultViewModel> {
         )
         .toList(growable: false);
   }
+
+  List<_ImprovementAction> _improvementActions(
+    SessionResultEntity result,
+    List<MessageEntity> feedbackMessages,
+  ) {
+    final Map<String, int> issueCounts = <String, int>{};
+    final List<String> suggestions = <String>[];
+
+    for (final MessageEntity message in feedbackMessages) {
+      final List<MessageFeedbackIssueEntity> issues =
+          message.feedbackIssues.isNotEmpty
+          ? message.feedbackIssues
+          : <MessageFeedbackIssueEntity>[
+              MessageFeedbackIssueEntity(
+                type: message.errorType ?? '',
+                subtype: null,
+                originalPhrase: message.originalPhrase,
+                suggestion: message.suggestion,
+                explanation: message.explanation,
+              ),
+            ];
+
+      for (final MessageFeedbackIssueEntity issue in issues) {
+        final String type = issue.type.trim().toUpperCase();
+        if (type.isNotEmpty && type != 'GOOD') {
+          issueCounts[type] = (issueCounts[type] ?? 0) + 1;
+        }
+        final String suggestion = (issue.suggestion ?? '').trim();
+        if (suggestion.isNotEmpty && !suggestions.contains(suggestion)) {
+          suggestions.add(suggestion);
+        }
+      }
+    }
+
+    final List<_ImprovementAction> actions = <_ImprovementAction>[];
+    final String weakestFocus = _weakestFocus(result, issueCounts);
+
+    actions.add(
+      _ImprovementAction(
+        title: 'Việc cần làm ngay',
+        body: _primaryPracticeTask(weakestFocus),
+        example: suggestions.isNotEmpty
+            ? 'Nói lại bằng câu mẫu: ${suggestions.first}'
+            : _defaultExampleForFocus(weakestFocus),
+        tint: AppColors.secondary500,
+      ),
+    );
+
+    if (issueCounts.containsKey('NATURALNESS') ||
+        result.naturalnessScore <= result.grammarScore ||
+        result.naturalnessScore <= result.vocabularyScore) {
+      actions.add(
+        const _ImprovementAction(
+          title: 'Luyện độ tự nhiên',
+          body:
+              'Trước khi trả lời, chọn một cấu trúc tiếng Anh quen dùng rồi nói theo ý, đừng dịch từng chữ từ tiếng Việt.',
+          example:
+              'Dùng khung: I worked on..., I was responsible for..., What I learned was...',
+          tint: AppColors.primary700,
+        ),
+      );
+    }
+
+    if (issueCounts.containsKey('GRAMMAR') || result.grammarScore < 65) {
+      actions.add(
+        const _ImprovementAction(
+          title: 'Sửa cấu trúc câu',
+          body:
+              'Với mỗi câu dài, tách thành 2 câu ngắn: một câu nói việc bạn làm, một câu nói kết quả hoặc lý do.',
+          example:
+              'I built the home screen. It helps users start a practice session faster.',
+          tint: AppColors.accent500,
+        ),
+      );
+    }
+
+    if (issueCounts.containsKey('VOCABULARY') || result.vocabularyScore < 65) {
+      actions.add(
+        const _ImprovementAction(
+          title: 'Tăng từ vựng theo ngữ cảnh',
+          body:
+              'Chuẩn bị 5 cụm từ đúng chủ đề phiên học và bắt buộc dùng ít nhất 2 cụm trong lần luyện sau.',
+          example:
+              'Ví dụ: responsive UI, user flow, reusable component, API integration, error handling.',
+          tint: AppColors.warning,
+        ),
+      );
+    }
+
+    actions.add(
+      _ImprovementAction(
+        title: 'Bài tập 5 phút trước phiên sau',
+        body:
+            'Viết lại lượt trả lời yếu nhất thành 3 phiên bản: ngắn, tự nhiên, và chuyên nghiệp hơn. Sau đó đọc lại thành tiếng một lần.',
+        example: suggestions.length > 1
+            ? 'Ưu tiên câu: ${suggestions[1]}'
+            : 'Mục tiêu: trả lời dài hơn hiện tại 1 ý nhưng vẫn rõ và tự nhiên.',
+        tint: AppColors.secondary700,
+      ),
+    );
+
+    return actions.take(4).toList(growable: false);
+  }
+
+  String _weakestFocus(
+    SessionResultEntity result,
+    Map<String, int> issueCounts,
+  ) {
+    if (issueCounts.isNotEmpty) {
+      return issueCounts.entries
+          .reduce((a, b) => a.value >= b.value ? a : b)
+          .key;
+    }
+
+    final Map<String, int> scores = <String, int>{
+      'GRAMMAR': result.grammarScore,
+      'VOCABULARY': result.vocabularyScore,
+      'NATURALNESS': result.naturalnessScore,
+    };
+    return scores.entries.reduce((a, b) => a.value <= b.value ? a : b).key;
+  }
+
+  String _primaryPracticeTask(String focus) {
+    switch (focus) {
+      case 'GRAMMAR':
+        return 'Phiên sau ưu tiên nói câu đúng cấu trúc trước. Đừng cố nói dài ngay; hãy nói rõ chủ ngữ, động từ, thời, rồi mới thêm chi tiết.';
+      case 'VOCABULARY':
+        return 'Phiên sau ưu tiên dùng từ cụ thể hơn. Thay vì nói chung chung, hãy gọi đúng tên kỹ năng, công việc, công cụ hoặc kết quả.';
+      case 'NATURALNESS':
+      default:
+        return 'Phiên sau ưu tiên nói tự nhiên hơn. Giữ ý chính của bạn, nhưng đổi sang cách người bản ngữ hay dùng trong hội thoại.';
+    }
+  }
+
+  String _defaultExampleForFocus(String focus) {
+    switch (focus) {
+      case 'GRAMMAR':
+        return 'Mẫu: I built..., then I improved..., so users can...';
+      case 'VOCABULARY':
+        return 'Mẫu: I worked on API integration and reusable UI components.';
+      case 'NATURALNESS':
+      default:
+        return 'Mẫu: I think I would be a good fit because I learn fast and care about user experience.';
+    }
+  }
+}
+
+class _ImprovementAction {
+  const _ImprovementAction({
+    required this.title,
+    required this.body,
+    required this.example,
+    required this.tint,
+  });
+
+  final String title;
+  final String body;
+  final String example;
+  final Color tint;
 }
 
 class _MissionOutcomeCard extends StatelessWidget {
@@ -595,6 +762,112 @@ class _TurnHighlightsCard extends StatelessWidget {
               child: _HighlightTile(highlight: highlight),
             );
           }),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImprovementPlanCard extends StatelessWidget {
+  const _ImprovementPlanCard({required this.actions});
+
+  final List<_ImprovementAction> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.lg),
+      decoration: BoxDecoration(
+        color: AppColors.secondary50.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(
+          color: AppColors.secondary300.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('Kế hoạch cải thiện', style: AppTextStyles.h3),
+          const SizedBox(height: AppDimensions.xs),
+          Text(
+            'Các bước này lấy từ lỗi từng lượt và điểm yếu nhất của phiên vừa rồi.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.md),
+          ...List<Widget>.generate(actions.length, (int index) {
+            final _ImprovementAction action = actions[index];
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == actions.length - 1 ? 0 : AppDimensions.md,
+              ),
+              child: _ImprovementActionTile(action: action, index: index + 1),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImprovementActionTile extends StatelessWidget {
+  const _ImprovementActionTile({required this.action, required this.index});
+
+  final _ImprovementAction action;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.md),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.86),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        border: Border.all(color: action.tint.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: action.tint.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$index',
+              style: AppTextStyles.labelMedium.copyWith(color: action.tint),
+            ),
+          ),
+          const SizedBox(width: AppDimensions.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(action.title, style: AppTextStyles.labelLarge),
+                const SizedBox(height: AppDimensions.xs),
+                Text(
+                  action.body,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.sm),
+                Text(
+                  action.example,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: action.tint,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -476,6 +476,11 @@ class ChatViewModel extends GetxController {
 
     if (!event.isFinal || event.content.trim().isEmpty) return;
 
+    if (event.author == MessageAuthor.ai &&
+        _isDuplicateAiTranscript(event.content)) {
+      return;
+    }
+
     final String? eventId = event.providerEventId;
     if (eventId != null && !_syncedProviderEvents.add(eventId)) {
       return;
@@ -496,6 +501,30 @@ class ChatViewModel extends GetxController {
         audioEndMs: event.audioEndMs,
       ),
     );
+  }
+
+  bool _isDuplicateAiTranscript(String content) {
+    final String normalizedContent = _normalizeTranscriptForCompare(content);
+    if (normalizedContent.isEmpty) return false;
+
+    for (final MessageEntity message in messages.reversed) {
+      if (message.isHint || message.author != MessageAuthor.ai) continue;
+      final String normalizedMessage = _normalizeTranscriptForCompare(
+        message.text,
+      );
+      if (normalizedMessage == normalizedContent) return true;
+      return false;
+    }
+
+    return false;
+  }
+
+  String _normalizeTranscriptForCompare(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .replaceAll(RegExp(r'[^\w\s]'), '')
+        .trim();
   }
 
   void _trackTranscriptSync(Future<void> future) {
