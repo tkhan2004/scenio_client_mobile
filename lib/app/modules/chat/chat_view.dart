@@ -175,13 +175,22 @@ class ChatView extends GetView<ChatViewModel> {
                               );
                             }),
                             const SizedBox(height: AppDimensions.sm),
+                            Obx(() {
+                              final String hint = controller.latestHintText;
+                              if (hint.isEmpty) return const SizedBox.shrink();
+
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppDimensions.sm,
+                                ),
+                                child: _PracticeHintCard(hint: hint),
+                              );
+                            }),
                             ConstrainedBox(
                               constraints: const BoxConstraints(minHeight: 154),
                               child: Obx(
                                 () => PracticeTranscriptPanel(
-                                  messages: controller.messages.toList(
-                                    growable: false,
-                                  ),
+                                  messages: controller.conversationMessages,
                                   expanded:
                                       controller.isTranscriptExpanded.value,
                                   onToggle: controller.toggleTranscript,
@@ -233,6 +242,69 @@ class ChatView extends GetView<ChatViewModel> {
         ),
       );
     });
+  }
+}
+
+class _PracticeHintCard extends StatelessWidget {
+  const _PracticeHintCard({required this.hint});
+
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.md),
+      decoration: BoxDecoration(
+        color: AppColors.warningBg,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.warning.withValues(alpha: 0.24),
+              ),
+            ),
+            child: const Icon(
+              Icons.lightbulb_outline_rounded,
+              color: AppColors.warning,
+              size: AppDimensions.iconSm,
+            ),
+          ),
+          const SizedBox(width: AppDimensions.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  AppStrings.practiceControlHint,
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  hint,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.neutral700,
+                    height: 1.28,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

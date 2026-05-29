@@ -54,6 +54,9 @@ class ChatViewModel extends GetxController {
       homeViewModel.currentSessionScene ?? _sceneFromActiveSession();
   SessionEntity get session => homeViewModel.currentSession!;
   RxList<MessageEntity> get messages => homeViewModel.activeMessages;
+  List<MessageEntity> get conversationMessages => messages
+      .where((MessageEntity message) => !message.isHint)
+      .toList(growable: false);
   Rx<PracticeRealtimeState> get practiceState => homeViewModel.practiceState;
 
   bool get hasActiveSession => homeViewModel.hasActiveSession;
@@ -70,6 +73,15 @@ class ChatViewModel extends GetxController {
   String get latestUserCaption => partialUserCaption.value.isNotEmpty
       ? partialUserCaption.value
       : _lastMessageFor(MessageAuthor.user);
+  String get latestHintText {
+    for (final MessageEntity message in messages.reversed) {
+      if (message.isHint && message.text.trim().isNotEmpty) {
+        return message.text.trim();
+      }
+    }
+    return '';
+  }
+
   String get voiceStatusText => isVoiceSessionActive.value
       ? isMicMuted.value
             ? AppStrings.practiceVoiceStatusMuted
@@ -617,7 +629,7 @@ class ChatViewModel extends GetxController {
 
   String _lastMessageFor(MessageAuthor author) {
     for (final MessageEntity message in messages.reversed) {
-      if (message.author == author) return message.text;
+      if (!message.isHint && message.author == author) return message.text;
     }
     return author == MessageAuthor.ai ? scene.starterPrompt : '...';
   }

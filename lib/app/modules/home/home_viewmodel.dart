@@ -1046,25 +1046,17 @@ class HomeViewModel extends GetxController {
     if (!hasActiveSession) return;
 
     try {
-      practiceState.value = PracticeRealtimeState.aiThinking;
       final MessageEntity hintMessage = await _repository.requestHint(
         currentSession!.id,
       );
       activeMessages.add(hintMessage);
-      practiceState.value = PracticeRealtimeState.aiSpeaking;
-      await Future<void>.delayed(const Duration(milliseconds: 720));
-      if (hasActiveSession) {
-        practiceState.value = PracticeRealtimeState.userListening;
-      }
     } on ApiException catch (error) {
       if (error.statusCode == 401) {
         await _handleUnauthorized();
         return;
       }
-      practiceState.value = PracticeRealtimeState.userListening;
       _showError(error.message);
     } catch (_) {
-      practiceState.value = PracticeRealtimeState.userListening;
       _showError('Không thể xin hint lúc này.');
     }
   }
