@@ -132,7 +132,7 @@ const Map<String, String> viVN = {
   'homeTabProfile': 'Hồ sơ',
   'homeCurrentPageLabel': 'Bạn đang ở',
   'homeGreeting': 'Chào ngày mới',
-  'homeDisplayName': 'Khang Nguyễn',
+  'homeDisplayName': 'Nguoi hoc',
   'homeGreetingSubtitle': 'Cùng luyện nói thật tự tin hôm nay nhé!',
   'homeContinueLabel': 'Tiếp tục học',
   'homeContinueTitle': 'Trò chuyện quán Cafe',

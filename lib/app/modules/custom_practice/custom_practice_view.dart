@@ -211,6 +211,7 @@ class CustomPracticeView extends GetView<CustomPracticeViewModel> {
                           ),
                         ),
                       ),
+
                     ],
                   ],
                 ),

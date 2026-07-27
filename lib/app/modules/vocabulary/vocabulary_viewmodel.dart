@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/network/api_response.dart';
@@ -18,7 +21,8 @@ class VocabularyViewModel extends GetxController {
     : _repository = repository;
 
   final VocabRepository _repository;
-  final FlutterTts _flutterTts = FlutterTts();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final FlutterTts _deviceTts = FlutterTts();
 
   final RxList<VocabDeckModel> decks = <VocabDeckModel>[].obs;
   final RxList<VocabCardModel> activeCards = <VocabCardModel>[].obs;
@@ -68,8 +72,16 @@ class VocabularyViewModel extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _configureTts();
+    _configureAudioPlayer();
+    unawaited(_configureDeviceTts());
     unawaited(loadDecks());
+  }
+
+  @override
+  void onClose() {
+    unawaited(_audioPlayer.dispose());
+    unawaited(_deviceTts.stop());
+    super.onClose();
   }
 
   Future<void> loadDecks() async {
@@ -120,6 +132,18 @@ class VocabularyViewModel extends GetxController {
         barrierDismissible: false,
         barrierColor: Colors.black.withValues(alpha: 0.56),
       );
+    } on ApiException catch (error) {
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: error.message,
+        isError: true,
+      );
+    } catch (_) {
+      ScenioAlert.show(
+        title: AppStrings.appName,
+        message: 'Chưa thể tải danh sách từ vựng trong bộ này.',
+        isError: true,
+      );
     } finally {
       await _stopSpeaking();
       _resetStageState();
@@ -149,17 +173,28 @@ class VocabularyViewModel extends GetxController {
 
     try {
       isSpeaking.value = true;
-      await _flutterTts.stop();
-      await _flutterTts.speak(card.word);
+      await _audioPlayer.stop();
+      await _deviceTts.stop();
+      final bytes = await _repository.fetchPronunciationAudio(card.word);
+
+      // Write bytes to a local temporary file with .mp3 extension to resolve iOS AVPlayer codec issue
+      final directory = await getTemporaryDirectory();
+      final String filename = 'vocab_${card.id}_${DateTime.now().millisecondsSinceEpoch}.mp3';
+      final file = File('${directory.path}/$filename');
+      await file.writeAsBytes(bytes);
+
+      await _audioPlayer.play(DeviceFileSource(file.path));
     } catch (_) {
-      ScenioAlert.show(
-        title: AppStrings.appName,
-        message: AppStrings.vocabularySpeechError,
-        icon: Icons.volume_off_rounded,
-        isError: true,
-      );
-    } finally {
-      isSpeaking.value = false;
+      final bool fallbackSpoken = await _speakWithDeviceTts(card.word);
+      if (!fallbackSpoken) {
+        isSpeaking.value = false;
+        ScenioAlert.show(
+          title: AppStrings.appName,
+          message: AppStrings.vocabularySpeechError,
+          icon: Icons.volume_off_rounded,
+          isError: true,
+        );
+      }
     }
   }
 
@@ -224,20 +259,48 @@ class VocabularyViewModel extends GetxController {
     }
   }
 
-  Future<void> _configureTts() async {
-    await _flutterTts.setLanguage('en-US');
-    await _flutterTts.setSpeechRate(0.44);
-    await _flutterTts.setPitch(1.0);
-    await _flutterTts.awaitSpeakCompletion(false);
-  }
-
   Future<void> _stopSpeaking() async {
     try {
-      await _flutterTts.stop();
+      await _audioPlayer.stop();
+      await _deviceTts.stop();
     } catch (_) {
-      // Ignore stop failures from platform TTS.
+      // Ignore stop failures from audio player.
     } finally {
       isSpeaking.value = false;
+    }
+  }
+
+  void _configureAudioPlayer() {
+    _audioPlayer.onPlayerComplete.listen((_) {
+      isSpeaking.value = false;
+    });
+  }
+
+  Future<void> _configureDeviceTts() async {
+    await _deviceTts.setLanguage('en-US');
+    await _deviceTts.setSpeechRate(0.42);
+    await _deviceTts.setPitch(1.0);
+    await _deviceTts.awaitSpeakCompletion(true);
+    _deviceTts.setCompletionHandler(() {
+      isSpeaking.value = false;
+    });
+    _deviceTts.setCancelHandler(() {
+      isSpeaking.value = false;
+    });
+    _deviceTts.setErrorHandler((_) {
+      isSpeaking.value = false;
+    });
+  }
+
+  Future<bool> _speakWithDeviceTts(String text) async {
+    final String normalized = text.trim();
+    if (normalized.isEmpty) return false;
+
+    try {
+      await _deviceTts.speak(normalized);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -261,11 +324,5 @@ class VocabularyViewModel extends GetxController {
     reviewSessionCount.value = 0;
     isCardFront.value = true;
     isHintVisible.value = false;
-  }
-
-  @override
-  void onClose() {
-    unawaited(_stopSpeaking());
-    super.onClose();
   }
 }

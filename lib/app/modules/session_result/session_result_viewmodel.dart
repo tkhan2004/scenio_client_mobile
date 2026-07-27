@@ -52,6 +52,10 @@ class SessionResultViewModel extends GetxController {
   }
 
   String get nextStepTitle {
+    if (result.isCustomPractice) {
+      return 'AI đề xuất một phiên custom tương tự';
+    }
+
     switch (result.nextLearningAction?.focus.toUpperCase()) {
       case 'GRAMMAR':
         return AppStrings.sessionResultNextStepGrammarTitle;
@@ -67,6 +71,13 @@ class SessionResultViewModel extends GetxController {
     final SessionNextLearningActionEntity? action = result.nextLearningAction;
     if (action == null) return '';
 
+    if (result.isCustomPractice) {
+      final String topic = action.suggestedSceneQuery.trim().isEmpty
+          ? result.sceneTitle
+          : action.suggestedSceneQuery.trim();
+      return 'Scenio sẽ tạo một cuộc hội thoại mới gần với "$topic", nhưng đổi góc hỏi và tập trung vào điểm cần cải thiện.';
+    }
+
     switch (action.focus.toUpperCase()) {
       case 'GRAMMAR':
         return AppStrings.sessionResultNextStepGrammarBody;
@@ -79,6 +90,10 @@ class SessionResultViewModel extends GetxController {
   }
 
   String get nextStepButtonLabel {
+    if (result.isCustomPractice) {
+      return 'Tạo phiên tương tự';
+    }
+
     switch (result.nextLearningAction?.focus.toUpperCase()) {
       case 'GRAMMAR':
         return AppStrings.sessionResultNextStepGrammarButton;

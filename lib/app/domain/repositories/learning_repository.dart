@@ -40,11 +40,16 @@ abstract class LearningRepository {
     CustomPracticeDraft draft,
   );
 
-  Future<void> syncMessage({
+  Future<List<SavedCustomPracticeModel>> fetchRecentCustomPractices({
+    int limit = 10,
+  });
+
+  Future<MessageEntity?> syncMessage({
     required String sessionId,
     required String source,
     required String content,
     int? turnIndex,
+    bool generateAiReply = false,
     String? providerEventId,
     int? audioStartMs,
     int? audioEndMs,

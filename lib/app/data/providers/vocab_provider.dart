@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../core/network/api_client.dart';
 import '../../core/network/api_endpoints.dart';
 
@@ -12,6 +14,14 @@ class VocabProvider {
 
   Future<Map<String, dynamic>> fetchDeckCards(String deckId) {
     return _apiClient.get(ApiEndpoints.vocabularyDeckDetail(deckId));
+  }
+
+  Future<Uint8List> fetchPronunciationAudio(String text) {
+    return _apiClient.postBytes(
+      ApiEndpoints.vocabularyPronounce,
+      data: <String, dynamic>{'text': text},
+      receiveTimeout: const Duration(seconds: 45),
+    );
   }
 
   Future<Map<String, dynamic>> saveManualVocabulary({

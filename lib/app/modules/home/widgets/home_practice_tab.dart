@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../data/models/custom_practice_model.dart';
 import '../../../domain/entities/scene_entity.dart';
 import '../home_viewmodel.dart';
 import 'scenio_icon_badge.dart';
@@ -40,6 +41,36 @@ class HomePracticeTab extends StatelessWidget {
             ],
             SizedBox(height: AppDimensions.xl),
             _CustomPracticeCard(viewModel: viewModel),
+            Obx(() {
+              if (viewModel.recentCustomPractices.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: AppDimensions.xl),
+                  Text('Luyện lại gần đây'.tr, style: AppTextStyles.h2),
+                  const SizedBox(height: AppDimensions.md),
+                  SizedBox(
+                    height: 150,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: viewModel.recentCustomPractices.length,
+                      separatorBuilder: (_, int index) =>
+                          const SizedBox(width: AppDimensions.md),
+                      itemBuilder: (BuildContext context, int index) {
+                        final SavedCustomPracticeModel practice =
+                            viewModel.recentCustomPractices[index];
+                        return _SavedPracticeCard(
+                          practice: practice,
+                          onTap: () => viewModel.startSavedCustomPractice(practice),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }),
             SizedBox(height: AppDimensions.xl),
             Text(AppStrings.scenesRecommendedSection, style: AppTextStyles.h2),
             const SizedBox(height: AppDimensions.md),
@@ -470,5 +501,110 @@ IconData _iconForScene(SceneEntity scene) {
       return Icons.groups_rounded;
     case SceneCategory.service:
       return Icons.hotel_rounded;
+  }
+}
+
+class _SavedPracticeCard extends StatelessWidget {
+  const _SavedPracticeCard({required this.practice, required this.onTap});
+
+  final SavedCustomPracticeModel practice;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+      child: Container(
+        width: 248,
+        padding: const EdgeInsets.all(AppDimensions.lg),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          border: Border.all(color: AppColors.primary200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary50,
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                  ),
+                  child: const Icon(
+                    Icons.history_rounded,
+                    color: AppColors.primary700,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: AppDimensions.sm),
+                Expanded(
+                  child: Text(
+                    practice.displayTitle,
+                    style: AppTextStyles.h3,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.sm),
+            Text(
+              practice.topicSummary.isEmpty
+                  ? practice.displaySubtitle
+                  : practice.topicSummary,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            Row(
+              children: <Widget>[
+                _MiniMetaPill(label: practice.difficulty),
+                const SizedBox(width: AppDimensions.xs),
+                _MiniMetaPill(label: '${practice.targetMinutes} min'),
+                const Spacer(),
+                Text(
+                  'Luyện lại'.tr,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniMetaPill extends StatelessWidget {
+  const _MiniMetaPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.sm,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary50,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary700),
+      ),
+    );
   }
 }

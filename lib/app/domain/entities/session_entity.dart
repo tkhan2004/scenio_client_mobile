@@ -79,6 +79,7 @@ class SessionEntity {
 class SessionResultEntity {
   const SessionResultEntity({
     required this.sessionId,
+    required this.sourceType,
     required this.sceneId,
     required this.sceneTitle,
     required this.characterName,
@@ -89,11 +90,13 @@ class SessionResultEntity {
     required this.completedTurns,
     required this.targetTurns,
     required this.transcript,
+    required this.improvementPlan,
     this.spokenCoaching,
     this.nextLearningAction,
   });
 
   final String sessionId;
+  final String sourceType;
   final String sceneId;
   final String sceneTitle;
   final String characterName;
@@ -104,8 +107,31 @@ class SessionResultEntity {
   final int completedTurns;
   final int targetTurns;
   final List<MessageEntity> transcript;
+  final List<SessionImprovementPlanItemEntity> improvementPlan;
   final SessionSpokenCoachingEntity? spokenCoaching;
   final SessionNextLearningActionEntity? nextLearningAction;
+
+  bool get isCustomPractice => sourceType.toUpperCase() == 'CUSTOM_PRACTICE';
+}
+
+class SessionImprovementPlanItemEntity {
+  const SessionImprovementPlanItemEntity({
+    required this.title,
+    required this.body,
+    required this.focus,
+    required this.priority,
+    this.example,
+    this.sourceMessageId,
+    this.turnIndex,
+  });
+
+  final String title;
+  final String body;
+  final String focus;
+  final int priority;
+  final String? example;
+  final String? sourceMessageId;
+  final int? turnIndex;
 }
 
 class SessionSpokenCoachingEntity {

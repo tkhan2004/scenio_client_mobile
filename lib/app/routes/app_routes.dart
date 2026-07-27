@@ -11,4 +11,5 @@ abstract class Routes {
   static const String practiceSession = '/practice-session';
   static const String sessionResult = '/session-result';
   static const String notifications = '/notifications';
+  static const String history = '/history';
 }

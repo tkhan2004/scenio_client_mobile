@@ -179,6 +179,42 @@ class ApiClient extends GetxService {
     }
   }
 
+  Future<Uint8List> postBytes(
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    Duration? receiveTimeout,
+    Duration? sendTimeout,
+  }) async {
+    try {
+      final dio.Response<dynamic> response = await _dio.post<dynamic>(
+        path,
+        data: data,
+        queryParameters: _sanitizeQueryParameters(queryParameters),
+        options: dio.Options(
+          responseType: dio.ResponseType.bytes,
+          receiveTimeout: receiveTimeout,
+          sendTimeout: sendTimeout,
+          headers: const <String, String>{
+            'Accept': 'audio/mpeg, audio/wav, application/octet-stream',
+          },
+        ),
+      );
+      final dynamic payload = response.data;
+      if (payload is Uint8List) {
+        return payload;
+      }
+      if (payload is List<int>) {
+        return Uint8List.fromList(payload);
+      }
+      throw const ApiException(
+        message: 'Phản hồi audio từ máy chủ không đúng định dạng.',
+      );
+    } catch (error) {
+      throw mapApiException(error);
+    }
+  }
+
   Map<String, dynamic>? _sanitizeQueryParameters(
     Map<String, dynamic>? queryParameters,
   ) {

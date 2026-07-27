@@ -5,6 +5,8 @@ import 'custom_practice_viewmodel.dart';
 class CustomPracticeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CustomPracticeViewModel>(CustomPracticeViewModel.new);
+    Get.lazyPut<CustomPracticeViewModel>(
+      () => CustomPracticeViewModel(),
+    );
   }
 }

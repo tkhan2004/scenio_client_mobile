@@ -56,6 +56,7 @@ class CustomPracticePreset {
 }
 
 class CustomPracticeViewModel extends GetxController {
+  CustomPracticeViewModel();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final HomeViewModel homeViewModel = Get.find<HomeViewModel>();
 
@@ -197,6 +198,8 @@ class CustomPracticeViewModel extends GetxController {
     update();
   }
 
+
+
   void previousStep() {
     if (isFirstStep) return;
     currentStep.value = currentStep.value - 1;
@@ -337,6 +340,8 @@ class CustomPracticeViewModel extends GetxController {
     revealedStage.value = 3;
   }
 
+
+
   bool _validateCurrentStep() {
     final FormState? form = formKey.currentState;
     if (form != null && !form.validate()) {
@@ -406,6 +411,8 @@ class CustomPracticeViewModel extends GetxController {
     difficulty.value = preset.difficulty;
     selectConversationLength(preset.conversationLength);
   }
+
+
 
   int _minutesForConversationLength(String value) {
     switch (value) {

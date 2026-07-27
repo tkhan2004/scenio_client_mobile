@@ -121,23 +121,73 @@ class LearningRepositoryImpl implements LearningRepository {
   }
 
   @override
-  Future<void> syncMessage({
+  Future<List<SavedCustomPracticeModel>> fetchRecentCustomPractices({
+    int limit = 10,
+  }) async {
+    final Map<String, dynamic> map = await _provider.fetchRecentCustomPractices(
+      limit: limit,
+    );
+    return (map['items'] as List<dynamic>? ?? const <dynamic>[])
+        .whereType<Map<String, dynamic>>()
+        .map(SavedCustomPracticeModel.fromMap)
+        .toList(growable: false);
+  }
+
+  @override
+  Future<MessageEntity?> syncMessage({
     required String sessionId,
     required String source,
     required String content,
     int? turnIndex,
+    bool generateAiReply = false,
     String? providerEventId,
     int? audioStartMs,
     int? audioEndMs,
   }) async {
-    await _provider.syncMessage(
+    final Map<String, dynamic> map = await _provider.syncMessage(
       sessionId: sessionId,
       source: source,
       content: content,
       turnIndex: turnIndex,
+      generateAiReply: generateAiReply,
       providerEventId: providerEventId,
       audioStartMs: audioStartMs,
       audioEndMs: audioEndMs,
+    );
+
+    final Map<String, dynamic>? messageMap =
+        map['aiReply'] as Map<String, dynamic>?;
+    if (messageMap == null) {
+      return null;
+    }
+
+    final Map<String, dynamic> feedbackDetails =
+        messageMap['feedbackDetails'] as Map<String, dynamic>? ??
+        <String, dynamic>{};
+
+    return MessageEntity(
+      id: messageMap['id'] as String? ?? '',
+      sessionId: sessionId,
+      author: _mapRepositoryMessageAuthor(
+        messageMap['role'] as String? ?? 'AI',
+      ),
+      text: messageMap['content'] as String? ?? '',
+      createdAt:
+          DateTime.tryParse(messageMap['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      isHint: messageMap['isHint'] as bool? ?? false,
+      hasError: messageMap['hasError'] as bool?,
+      errorType: messageMap['errorType'] as String?,
+      originalPhrase: messageMap['originalPhrase'] as String?,
+      suggestion: messageMap['suggestion'] as String?,
+      explanation: messageMap['explanation'] as String?,
+      isGood: messageMap['isGood'] as bool?,
+      feedbackIssues:
+          (feedbackDetails['issues'] as List<dynamic>? ?? const <dynamic>[])
+              .whereType<Map<String, dynamic>>()
+              .map<MessageFeedbackIssueModel>(MessageFeedbackIssueModel.fromMap)
+              .map((MessageFeedbackIssueModel issue) => issue.toEntity())
+              .toList(growable: false),
     );
   }
 
@@ -195,5 +245,17 @@ String _mapCategoryQuery(SceneCategory category) {
       return 'SOCIAL';
     case SceneCategory.dailyLife:
       return 'DAILY';
+  }
+}
+
+MessageAuthor _mapRepositoryMessageAuthor(String raw) {
+  switch (raw.toUpperCase()) {
+    case 'USER':
+      return MessageAuthor.user;
+    case 'SYSTEM':
+      return MessageAuthor.system;
+    case 'AI':
+    default:
+      return MessageAuthor.ai;
   }
 }

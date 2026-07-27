@@ -16,6 +16,7 @@ import 'widgets/home_scenes_tab.dart';
 import '../profile/profile_view.dart';
 import '../profile/profile_viewmodel.dart';
 import '../profile/widgets/profile_history_card.dart';
+import '../history/history_view.dart';
 import '../vocabulary/vocabulary_view.dart';
 import 'widgets/scenio_icon_badge.dart';
 
@@ -411,7 +412,7 @@ class _HomeConversationHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final history = profileViewModel.profileHistory.take(2).toList();
+      final history = profileViewModel.profileHistory.take(1).toList();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +420,7 @@ class _HomeConversationHistorySection extends StatelessWidget {
           _SectionHeader(
             title: 'Lịch sử cuộc hội thoại',
             actionLabel: history.isEmpty ? null : 'Xem tất cả',
-            onActionTap: () => homeViewModel.selectTab(4),
+            onActionTap: () => Get.to(() => const HistoryView()),
           ),
           const SizedBox(height: AppDimensions.md),
           if (profileViewModel.isLoadingProfile.value && history.isEmpty)

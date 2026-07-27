@@ -99,6 +99,9 @@ class HomeViewModel extends GetxController {
   final RxBool isLoadingScenes = false.obs;
   final RxBool isRefreshingLearningPlan = false.obs;
   final RxInt unreadNotificationsCount = 0.obs;
+  final RxList<SavedCustomPracticeModel> recentCustomPractices =
+      <SavedCustomPracticeModel>[].obs;
+  final RxBool isLoadingRecentCustomPractices = false.obs;
 
   final RxList<SceneEntity> _scenes = <SceneEntity>[..._fallbackScenes()].obs;
   final RxList<SceneEntity> _recommendedScenes = <SceneEntity>[
@@ -138,16 +141,12 @@ class HomeViewModel extends GetxController {
 
   String get displayName {
     final String? currentName = currentUser.value?.effectiveDisplayName.trim();
-    if (currentName != null &&
-        currentName.isNotEmpty &&
-        !_isGenericDisplayName(currentName)) {
+    if (currentName != null && currentName.isNotEmpty) {
       return currentName;
     }
 
     final String? storedName = _storageService.displayName?.trim();
-    if (storedName != null &&
-        storedName.isNotEmpty &&
-        !_isGenericDisplayName(storedName)) {
+    if (storedName != null && storedName.isNotEmpty) {
       return storedName;
     }
 
@@ -448,6 +447,7 @@ class HomeViewModel extends GetxController {
     _hydrateCachedActiveSession();
     isLoadingDashboard.value = true;
     isLoadingScenes.value = true;
+    unawaited(loadRecentCustomPractices());
 
     try {
       final HomeDashboardModel dashboard = await _repository.fetchDashboard();
@@ -758,6 +758,31 @@ class HomeViewModel extends GetxController {
     Get.toNamed(Routes.customPractice);
   }
 
+  Future<void> loadRecentCustomPractices() async {
+    if (isLoadingRecentCustomPractices.value) return;
+    isLoadingRecentCustomPractices.value = true;
+    try {
+      final List<SavedCustomPracticeModel> recent =
+          await _repository.fetchRecentCustomPractices(limit: 8);
+      recentCustomPractices.assignAll(recent);
+    } catch (_) {
+      recentCustomPractices.clear();
+    } finally {
+      isLoadingRecentCustomPractices.value = false;
+    }
+  }
+
+  Future<void> startSavedCustomPractice(SavedCustomPracticeModel practice) async {
+    final CustomPracticeDraft draft = practice.toDraft();
+    final bool started = await startCustomPracticeSession(draft);
+    if (started && currentSession != null) {
+      Get.toNamed(
+        Routes.practiceSession,
+        arguments: currentSession!.id,
+      );
+    }
+  }
+
   bool hasActiveSessionForScene(String sceneId) {
     return hasActiveSession && currentSession!.sceneId == sceneId;
   }
@@ -842,6 +867,7 @@ class HomeViewModel extends GetxController {
       activeMessages.assignAll(<MessageEntity>[start.toOpeningMessage()]);
       practiceState.value = PracticeRealtimeState.userListening;
       unawaited(_persistActiveSession());
+      unawaited(loadRecentCustomPractices());
       return true;
     } on ApiException catch (error) {
       if (error.statusCode == 409 &&
@@ -951,7 +977,6 @@ class HomeViewModel extends GetxController {
   Future<void> submitPracticeReply(String text) async {
     if (!hasActiveSession) return;
 
-    final SceneEntity scene = currentSessionScene ?? _scenes.first;
     final SessionEntity session = currentSession!;
     final int nextTurn = (session.completedTurns + 1)
         .clamp(0, session.targetTurns)
@@ -971,50 +996,36 @@ class HomeViewModel extends GetxController {
     unawaited(_persistActiveSession());
     practiceState.value = PracticeRealtimeState.aiThinking;
 
+    MessageEntity? aiReplyMessage;
     try {
-      await _repository.syncMessage(
+      aiReplyMessage = await _repository.syncMessage(
         sessionId: session.id,
         source: 'USER_TEXT',
         content: trimmedText,
         turnIndex: nextTurn,
+        generateAiReply: true,
       );
     } on ApiException catch (error) {
       if (error.statusCode == 401) {
         await _handleUnauthorized();
         return;
       }
+      practiceState.value = PracticeRealtimeState.userListening;
       _showError(error.message);
+      return;
     } catch (_) {
+      practiceState.value = PracticeRealtimeState.userListening;
       _showError('Không thể đồng bộ câu trả lời của bạn.');
+      return;
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 620));
-
-    final int replyIndex = (nextTurn - 1).clamp(
-      0,
-      scene.aiReplyPool.length - 1,
-    );
-    final String aiReply = scene.aiReplyPool[replyIndex];
-    final MessageEntity aiMessage = MessageEntity(
-      id: '${session.id}-ai-$nextTurn-${DateTime.now().millisecondsSinceEpoch}',
-      sessionId: session.id,
-      author: MessageAuthor.ai,
-      text: aiReply,
-      createdAt: DateTime.now(),
-    );
-
-    activeMessages.add(aiMessage);
-
-    try {
-      await _repository.syncMessage(
-        sessionId: session.id,
-        source: 'AI_TEXT',
-        content: aiReply,
-        turnIndex: nextTurn,
-      );
-    } catch (_) {
-      // Giữ local AI placeholder để test flow UI ngay cả khi sync AI turn lỗi.
+    if (aiReplyMessage == null) {
+      practiceState.value = PracticeRealtimeState.userListening;
+      _showError('AI chưa thể phản hồi cho lượt chat này.');
+      return;
     }
+
+    activeMessages.add(aiReplyMessage);
 
     practiceState.value = PracticeRealtimeState.aiSpeaking;
     await Future<void>.delayed(const Duration(milliseconds: 900));
@@ -1186,13 +1197,6 @@ class HomeViewModel extends GetxController {
     if (Get.currentRoute != Routes.auth) {
       Get.offAllNamed(Routes.auth);
     }
-  }
-
-  bool _isGenericDisplayName(String value) {
-    final String normalized = value.trim().toLowerCase();
-    return normalized == 'scenio learner' ||
-        normalized == 'learner' ||
-        normalized == 'user';
   }
 
   void _replaceOrInsertScene(SceneEntity scene) {

@@ -103,6 +103,8 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
   @override
   Widget build(BuildContext context) {
     final double bottomSafeInset = MediaQuery.paddingOf(context).bottom;
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final bool isCompactHeight = screenHeight < 860;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -111,34 +113,69 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Obx(
-                () => SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(
-                    AppDimensions.xxl,
-                    AppDimensions.xl,
-                    AppDimensions.xxl,
-                    AppDimensions.xl,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const _SetupHero(),
-                      const SizedBox(height: AppDimensions.lg),
-                      _StepProgress(
-                        label: controller.progressLabel,
-                        progress:
-                            (controller.currentStep.value + 1) /
-                            controller.totalSteps,
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final EdgeInsets contentPadding = EdgeInsets.fromLTRB(
+                    AppDimensions.lg,
+                    isCompactHeight ? AppDimensions.sm : AppDimensions.md,
+                    AppDimensions.lg,
+                    isCompactHeight ? AppDimensions.sm : AppDimensions.md,
+                  );
+
+                  if (isCompactHeight) {
+                    return Padding(
+                      padding: contentPadding,
+                      child: Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const _SetupHero(compact: true),
+                            const SizedBox(height: AppDimensions.sm),
+                            _StepProgress(
+                              label: controller.progressLabel,
+                              progress:
+                                  (controller.currentStep.value + 1) /
+                                  controller.totalSteps,
+                              compact: true,
+                            ),
+                            const SizedBox(height: AppDimensions.sm),
+                            Expanded(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 220),
+                                child: _currentStepSection(compact: true),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: AppDimensions.xl),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 220),
-                        child: _currentStepSection(),
+                    );
+                  }
+
+                  return Obx(
+                    () => SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: contentPadding,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const _SetupHero(compact: false),
+                          const SizedBox(height: AppDimensions.md),
+                          _StepProgress(
+                            label: controller.progressLabel,
+                            progress:
+                                (controller.currentStep.value + 1) /
+                                controller.totalSteps,
+                          ),
+                          const SizedBox(height: AppDimensions.lg),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            child: _currentStepSection(compact: false),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ),
             ClipRRect(
@@ -160,9 +197,12 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       AppDimensions.xxl,
-                      AppDimensions.md,
+                      isCompactHeight ? AppDimensions.sm : AppDimensions.md,
                       AppDimensions.xxl,
-                      bottomSafeInset + AppDimensions.xl,
+                      bottomSafeInset +
+                          (isCompactHeight
+                              ? AppDimensions.lg
+                              : AppDimensions.xl),
                     ),
                     child: Obx(
                       () => Row(
@@ -200,7 +240,7 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
     );
   }
 
-  Widget _currentStepSection() {
+  Widget _currentStepSection({required bool compact}) {
     switch (controller.currentStep.value) {
       case 0:
         return _ChoiceSection(
@@ -214,6 +254,7 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
           options: _goalOptions,
           onSelected: controller.selectLearningGoal,
           multiSelect: true,
+          compact: compact,
         );
       case 1:
         return _ChoiceSection(
@@ -225,6 +266,7 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
           errorText: controller.levelError.value,
           options: _levelOptions,
           onSelected: controller.selectLevel,
+          compact: compact,
         );
       case 2:
         return _ChoiceSection(
@@ -236,6 +278,7 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
           errorText: controller.studyFrequencyError.value,
           options: _frequencyOptions,
           onSelected: controller.selectStudyFrequency,
+          compact: compact,
         );
       case 3:
         return _ChoiceSection(
@@ -249,6 +292,7 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
           options: _focusOptions,
           onSelected: controller.selectSelfAssessment,
           multiSelect: true,
+          compact: compact,
         );
       case 4:
       default:
@@ -258,13 +302,16 @@ class AccountOnboardingView extends GetView<AccountOnboardingViewModel> {
           level: controller.selectedLevel.value,
           frequency: controller.selectedStudyFrequency.value,
           focuses: controller.selectedSelfAssessments.toList(),
+          compact: compact,
         );
     }
   }
 }
 
 class _SetupHero extends StatelessWidget {
-  const _SetupHero();
+  const _SetupHero({required this.compact});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -282,20 +329,21 @@ class _SetupHero extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppColors.primary700.withValues(alpha: 0.24),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+            color: AppColors.primary700.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.xxl),
+        padding: EdgeInsets.all(compact ? AppDimensions.md : AppDimensions.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              width: 46,
-              height: 46,
+              width: compact ? 34 : 40,
+              height: compact ? 34 : 40,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
@@ -307,28 +355,38 @@ class _SetupHero extends StatelessWidget {
               child: const Icon(
                 Icons.route_rounded,
                 color: Colors.white,
-                size: AppDimensions.iconLg,
+                size: AppDimensions.iconSm,
               ),
             ),
-            const SizedBox(height: AppDimensions.xl),
+            SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
             Text(
               AppStrings.accountOnboardingEyebrow,
-              style: AppTextStyles.labelLarge.copyWith(
+              style: (compact
+                      ? AppTextStyles.caption
+                      : AppTextStyles.labelMedium)
+                  .copyWith(
                 color: Colors.white.withValues(alpha: 0.76),
               ),
             ),
-            const SizedBox(height: AppDimensions.sm),
+            const SizedBox(height: 2),
             Text(
               AppStrings.accountOnboardingTitle,
-              style: AppTextStyles.displayLarge.copyWith(
+              style: (compact
+                      ? AppTextStyles.h2.copyWith(fontSize: 18)
+                      : AppTextStyles.h1.copyWith(fontSize: 22))
+                  .copyWith(
                 color: Colors.white,
-                height: 1.16,
+                height: 1.15,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: AppDimensions.md),
+            SizedBox(height: compact ? AppDimensions.xs : AppDimensions.sm),
             Text(
               AppStrings.accountOnboardingSubtitle,
-              style: AppTextStyles.bodyMedium.copyWith(
+              style: (compact
+                      ? AppTextStyles.caption.copyWith(height: 1.3)
+                      : AppTextStyles.bodySmall.copyWith(height: 1.35))
+                  .copyWith(
                 color: Colors.white.withValues(alpha: 0.82),
               ),
             ),
@@ -340,10 +398,15 @@ class _SetupHero extends StatelessWidget {
 }
 
 class _StepProgress extends StatelessWidget {
-  const _StepProgress({required this.label, required this.progress});
+  const _StepProgress({
+    required this.label,
+    required this.progress,
+    this.compact = false,
+  });
 
   final String label;
   final double progress;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -352,16 +415,19 @@ class _StepProgress extends StatelessWidget {
       children: <Widget>[
         Text(
           label,
-          style: AppTextStyles.labelMedium.copyWith(
+          style: (compact
+                  ? AppTextStyles.caption
+                  : AppTextStyles.labelMedium)
+              .copyWith(
             color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: AppDimensions.sm),
+        SizedBox(height: compact ? AppDimensions.xs : AppDimensions.sm),
         ClipRRect(
           borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
           child: LinearProgressIndicator(
             value: progress.clamp(0, 1),
-            minHeight: 8,
+            minHeight: compact ? 6 : 8,
             backgroundColor: AppColors.primary200,
             valueColor: const AlwaysStoppedAnimation<Color>(
               AppColors.primary800,
@@ -383,6 +449,7 @@ class _ChoiceSection extends StatelessWidget {
     required this.options,
     required this.onSelected,
     this.multiSelect = false,
+    this.compact = false,
     super.key,
   });
 
@@ -394,6 +461,7 @@ class _ChoiceSection extends StatelessWidget {
   final List<_ChoiceOption> options;
   final ValueChanged<String> onSelected;
   final bool multiSelect;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -414,7 +482,7 @@ class _ChoiceSection extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.lg),
+        padding: EdgeInsets.all(compact ? AppDimensions.sm : AppDimensions.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -422,8 +490,8 @@ class _ChoiceSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: compact ? 30 : 36,
+                  height: compact ? 30 : 36,
                   decoration: BoxDecoration(
                     color: AppColors.primary50,
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
@@ -431,31 +499,47 @@ class _ChoiceSection extends StatelessWidget {
                   child: Icon(
                     icon,
                     color: AppColors.primary800,
-                    size: AppDimensions.iconMd,
+                    size: compact ? AppDimensions.iconSm - 2 : AppDimensions.iconSm,
                   ),
                 ),
-                const SizedBox(width: AppDimensions.md),
+                SizedBox(width: compact ? AppDimensions.sm : AppDimensions.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(title, style: AppTextStyles.h3),
+                      Text(
+                        title,
+                        style: compact
+                            ? AppTextStyles.labelLarge.copyWith(
+                                fontSize: 14,
+                                color: AppColors.textPrimary,
+                              )
+                            : AppTextStyles.h3,
+                      ),
                       const SizedBox(height: 2),
-                      Text(subtitle, style: AppTextStyles.bodySmall),
+                      Text(
+                        subtitle,
+                        style: compact
+                            ? AppTextStyles.caption.copyWith(fontSize: 10, height: 1.25)
+                            : AppTextStyles.bodySmall,
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.lg),
+            SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
             ...options.map(
               (_ChoiceOption option) => Padding(
-                padding: const EdgeInsets.only(bottom: AppDimensions.sm),
+                padding: EdgeInsets.only(
+                  bottom: compact ? 6 : AppDimensions.xs,
+                ),
                 child: _ChoiceTile(
                   option: option,
                   isSelected: selectedValues.contains(option.value),
                   multiSelect: multiSelect,
                   onTap: () => onSelected(option.value),
+                  compact: compact,
                 ),
               ),
             ),
@@ -483,12 +567,14 @@ class _ChoiceTile extends StatelessWidget {
     required this.isSelected,
     required this.multiSelect,
     required this.onTap,
+    this.compact = false,
   });
 
   final _ChoiceOption option;
   final bool isSelected;
   final bool multiSelect;
   final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +586,10 @@ class _ChoiceTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.all(AppDimensions.md),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.md,
+            vertical: compact ? 10 : AppDimensions.sm,
+          ),
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.primary700.withValues(alpha: 0.12)
@@ -519,17 +608,27 @@ class _ChoiceTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(option.label, style: AppTextStyles.labelLarge),
-                    const SizedBox(height: 2),
-                    Text(option.caption, style: AppTextStyles.caption),
+                    Text(
+                      option.label,
+                      style: compact
+                          ? AppTextStyles.labelLarge.copyWith(fontSize: 13)
+                          : AppTextStyles.labelLarge,
+                    ),
+                    SizedBox(height: compact ? 1 : 2),
+                    Text(
+                      option.caption,
+                      maxLines: compact ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption,
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: AppDimensions.md),
+              SizedBox(width: compact ? AppDimensions.sm : AppDimensions.md),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                width: 24,
-                height: 24,
+                width: compact ? 20 : 24,
+                height: compact ? 20 : 24,
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary700 : Colors.white,
                   shape: multiSelect ? BoxShape.rectangle : BoxShape.circle,
@@ -547,7 +646,7 @@ class _ChoiceTile extends StatelessWidget {
                     ? const Icon(
                         Icons.check_rounded,
                         color: Colors.white,
-                        size: 16,
+                        size: 14,
                       )
                     : null,
               ),
@@ -565,6 +664,7 @@ class _SummarySection extends StatelessWidget {
     required this.level,
     required this.frequency,
     required this.focuses,
+    this.compact = false,
     super.key,
   });
 
@@ -572,6 +672,7 @@ class _SummarySection extends StatelessWidget {
   final String level;
   final String frequency;
   final List<String> focuses;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -585,26 +686,35 @@ class _SummarySection extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.lg),
+        padding: EdgeInsets.all(compact ? AppDimensions.sm : AppDimensions.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Review your setup'.tr, style: AppTextStyles.h2),
-            const SizedBox(height: AppDimensions.sm),
+            Text(
+              'Review your setup'.tr,
+              style: compact
+                  ? AppTextStyles.h3.copyWith(fontSize: 15)
+                  : AppTextStyles.h2,
+            ),
+            SizedBox(height: compact ? 2 : AppDimensions.xs),
             Text(
               'Scenio will use this to create your first roadmap.'.tr,
-              style: AppTextStyles.bodySmall.copyWith(
+              style: (compact
+                      ? AppTextStyles.caption.copyWith(fontSize: 10)
+                      : AppTextStyles.bodySmall)
+                  .copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: AppDimensions.lg),
-            _SummaryRow(label: 'Goals'.tr, values: goals),
-            _SummaryRow(label: 'Level'.tr, values: <String>[level]),
+            SizedBox(height: compact ? AppDimensions.sm : AppDimensions.md),
+            _SummaryRow(label: 'Goals'.tr, values: goals, compact: compact),
+            _SummaryRow(label: 'Level'.tr, values: <String>[level], compact: compact),
             _SummaryRow(
               label: 'Practice rhythm'.tr,
               values: <String>[frequency],
+              compact: compact,
             ),
-            _SummaryRow(label: 'Focus'.tr, values: focuses),
+            _SummaryRow(label: 'Focus'.tr, values: focuses, compact: compact),
             const SizedBox(height: AppDimensions.md),
             Text(
               'XP will track effort and rewards. Level should increase only after enough completed sessions, strong recent scores, or a level test.'
@@ -621,20 +731,26 @@ class _SummarySection extends StatelessWidget {
 }
 
 class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.label, required this.values});
+  const _SummaryRow({required this.label, required this.values, this.compact = false});
 
   final String label;
   final List<String> values;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppDimensions.md),
+      padding: EdgeInsets.only(bottom: compact ? 6 : AppDimensions.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(label, style: AppTextStyles.labelLarge),
-          const SizedBox(height: AppDimensions.sm),
+          Text(
+            label,
+            style: compact
+                ? AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.bold)
+                : AppTextStyles.labelLarge,
+          ),
+          SizedBox(height: compact ? AppDimensions.xs : AppDimensions.sm),
           Wrap(
             spacing: AppDimensions.sm,
             runSpacing: AppDimensions.sm,
@@ -642,9 +758,9 @@ class _SummaryRow extends StatelessWidget {
                 .where((String value) => value.trim().isNotEmpty)
                 .map(
                   (String value) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimensions.md,
-                      vertical: AppDimensions.sm,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: compact ? AppDimensions.sm : AppDimensions.md,
+                      vertical: compact ? 4 : AppDimensions.sm,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.primary50,
@@ -653,7 +769,15 @@ class _SummaryRow extends StatelessWidget {
                       ),
                       border: Border.all(color: AppColors.primary200),
                     ),
-                    child: Text(value, style: AppTextStyles.labelMedium),
+                    child: Text(
+                      value,
+                      style: compact
+                          ? AppTextStyles.caption.copyWith(
+                              color: AppColors.primary800,
+                              fontWeight: FontWeight.w600,
+                            )
+                          : AppTextStyles.labelMedium,
+                    ),
                   ),
                 )
                 .toList(growable: false),

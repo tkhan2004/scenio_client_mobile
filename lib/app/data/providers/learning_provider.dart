@@ -86,11 +86,19 @@ class LearningProvider {
     );
   }
 
+  Future<Map<String, dynamic>> fetchRecentCustomPractices({int limit = 10}) {
+    return _apiClient.get(
+      ApiEndpoints.recentCustomPractices,
+      queryParameters: <String, dynamic>{'limit': limit},
+    );
+  }
+
   Future<Map<String, dynamic>> syncMessage({
     required String sessionId,
     required String source,
     required String content,
     int? turnIndex,
+    bool generateAiReply = false,
     String? providerEventId,
     int? audioStartMs,
     int? audioEndMs,
@@ -99,6 +107,7 @@ class LearningProvider {
       'source': source,
       'content': content,
       'isFinal': true,
+      'generateAiReply': generateAiReply,
     };
     if (turnIndex != null) {
       data['turnIndex'] = turnIndex;

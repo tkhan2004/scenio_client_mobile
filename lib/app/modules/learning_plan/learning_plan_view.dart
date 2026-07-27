@@ -148,7 +148,10 @@ class _LearningPlanHero extends StatelessWidget {
     final LearningPlanNextStepModel? nextStep = plan.nextStep;
 
     return Container(
-      padding: const EdgeInsets.all(AppDimensions.xl),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.lg,
+        vertical: AppDimensions.md,
+      ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -158,9 +161,9 @@ class _LearningPlanHero extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppColors.primary900.withValues(alpha: 0.18),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+            color: AppColors.primary900.withValues(alpha: 0.16),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -172,7 +175,7 @@ class _LearningPlanHero extends StatelessWidget {
               ScenioIconBadge(
                 icon: Icons.route_rounded,
                 tint: AppColors.accent500,
-                size: 54,
+                size: 44,
                 iconColor: AppColors.primary800,
               ),
               const Spacer(),
@@ -183,49 +186,53 @@ class _LearningPlanHero extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.xl),
+          const SizedBox(height: AppDimensions.md),
           Text(
             meta.title,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.displayMedium.copyWith(color: Colors.white),
+            style: AppTextStyles.h2.copyWith(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: AppDimensions.sm),
+          const SizedBox(height: 4),
           Text(
             meta.targetOutcome?.trim().isNotEmpty == true
                 ? meta.targetOutcome!
                 : meta.summary.isEmpty
                 ? 'Scenio sẽ điều chỉnh lộ trình sau mỗi phiên luyện tập.'.tr
                 : meta.summary,
-            maxLines: 3,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodyMedium.copyWith(
+            style: AppTextStyles.bodySmall.copyWith(
               color: Colors.white.withValues(alpha: 0.82),
             ),
           ),
-          const SizedBox(height: AppDimensions.lg),
+          const SizedBox(height: AppDimensions.md),
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDimensions.radiusFull),
             child: LinearProgressIndicator(
               value: plan.progress,
-              minHeight: 9,
+              minHeight: 6,
               backgroundColor: Colors.white.withValues(alpha: 0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppColors.accent200,
               ),
             ),
           ),
-          const SizedBox(height: AppDimensions.sm),
+          const SizedBox(height: AppDimensions.xs),
           Text(
             '${plan.completedSteps}/${plan.totalSteps} ${'bước đã hoàn thành'.tr}',
-            style: AppTextStyles.labelMedium.copyWith(
+            style: AppTextStyles.caption.copyWith(
               color: Colors.white.withValues(alpha: 0.86),
             ),
           ),
-          const SizedBox(height: AppDimensions.lg),
+          const SizedBox(height: AppDimensions.md),
           Wrap(
-            spacing: AppDimensions.sm,
-            runSpacing: AppDimensions.sm,
+            spacing: AppDimensions.xs,
+            runSpacing: AppDimensions.xs,
             children: <Widget>[
               _LightPlanChip(label: meta.level, icon: Icons.school_rounded),
               _LightPlanChip(
@@ -243,10 +250,13 @@ class _LearningPlanHero extends StatelessWidget {
             ],
           ),
           if (nextStep != null) ...<Widget>[
-            const SizedBox(height: AppDimensions.lg),
+            const SizedBox(height: AppDimensions.md),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(AppDimensions.md),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.md,
+                vertical: 10,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.13),
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
@@ -260,37 +270,40 @@ class _LearningPlanHero extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           'Bước tiếp theo'.tr,
-                          style: AppTextStyles.labelMedium.copyWith(
+                          style: AppTextStyles.caption.copyWith(
                             color: Colors.white.withValues(alpha: 0.72),
+                            fontSize: 10,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 1),
                         Text(
                           nextStep.title,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.labelLarge.copyWith(
+                          style: AppTextStyles.labelMedium.copyWith(
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: AppDimensions.md),
+                  const SizedBox(width: AppDimensions.sm),
                   SizedBox(
-                    width: 88,
+                    width: 76,
+                    height: 32,
                     child: ElevatedButton(
                       onPressed: onStartNext,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: AppColors.primary800,
-                        minimumSize: const Size(88, AppDimensions.buttonHeight),
+                        minimumSize: const Size(76, 32),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimensions.md,
-                          vertical: AppDimensions.sm,
+                          horizontal: AppDimensions.sm,
+                          vertical: 0,
                         ),
                       ),
-                      child: Text('Mở'.tr),
+                      child: Text('Mở'.tr, style: const TextStyle(fontSize: 12)),
                     ),
                   ),
                 ],
@@ -1013,8 +1026,8 @@ class _LightPlanChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.md,
-        vertical: AppDimensions.sm,
+        horizontal: AppDimensions.sm,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.14),
@@ -1024,11 +1037,14 @@ class _LightPlanChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(icon, color: Colors.white, size: AppDimensions.iconSm),
-          const SizedBox(width: AppDimensions.xs),
+          Icon(icon, color: Colors.white, size: 14),
+          const SizedBox(width: 6),
           Text(
             label,
-            style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+            style: AppTextStyles.caption.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

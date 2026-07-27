@@ -120,7 +120,7 @@ const Map<String, String> enUS = {
   'homeTabProfile': 'Profile',
   'homeCurrentPageLabel': 'Current page',
   'homeGreeting': 'Good Morning',
-  'homeDisplayName': 'Nguyen Thanh Khang',
+  'homeDisplayName': 'Learner',
   'homeGreetingSubtitle': 'Let\'s speak with confidence today',
   'homeContinueLabel': 'Continue learning',
   'homeContinueTitle': 'Cafe small talk',

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../domain/repositories/vocab_repository.dart';
 import '../models/vocab_card_model.dart';
 import '../models/vocab_deck_model.dart';
@@ -33,6 +35,11 @@ class VocabRepositoryImpl implements VocabRepository {
               VocabCardModel.fromApiMap(item, deckId: deckId),
         )
         .toList();
+  }
+
+  @override
+  Future<Uint8List> fetchPronunciationAudio(String text) {
+    return _provider.fetchPronunciationAudio(text);
   }
 
   @override

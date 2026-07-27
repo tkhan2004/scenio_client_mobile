@@ -103,6 +103,125 @@ class CustomPracticeDraft {
   }
 }
 
+class SavedCustomPracticeModel {
+  const SavedCustomPracticeModel({
+    required this.id,
+    required this.displayTitle,
+    required this.displaySubtitle,
+    required this.practiceGoal,
+    required this.successOutcome,
+    required this.topicSummary,
+    required this.contextType,
+    required this.location,
+    required this.conversationChannel,
+    required this.userRole,
+    required this.userIntent,
+    required this.aiRole,
+    required this.aiDisplayName,
+    required this.aiBehaviorStyle,
+    required this.aiPrimaryGoal,
+    required this.aiGenderPresentation,
+    required this.aiVoiceTone,
+    required this.aiAccentPreference,
+    required this.difficulty,
+    required this.conversationLength,
+    required this.targetMinutes,
+    required this.customInstructions,
+    required this.specialConditions,
+    this.updatedAt,
+  });
+
+  factory SavedCustomPracticeModel.fromMap(Map<String, dynamic> map) {
+    return SavedCustomPracticeModel(
+      id: map['id'] as String? ?? '',
+      displayTitle: map['displayTitle'] as String? ?? 'Custom Practice',
+      displaySubtitle:
+          map['displaySubtitle'] as String? ??
+          'A focused session built from your goal.',
+      practiceGoal: map['practiceGoal'] as String? ?? '',
+      successOutcome: map['successOutcome'] as String? ?? '',
+      topicSummary: map['topicSummary'] as String? ?? '',
+      contextType: map['contextType'] as String? ?? 'OTHER',
+      location: map['location'] as String? ?? '',
+      conversationChannel: map['conversationChannel'] as String? ?? 'IN_PERSON',
+      userRole: map['userRole'] as String? ?? '',
+      userIntent: map['userIntent'] as String? ?? '',
+      aiRole: map['aiRole'] as String? ?? '',
+      aiDisplayName: map['aiDisplayName'] as String? ?? 'AI',
+      aiBehaviorStyle: map['aiBehaviorStyle'] as String? ?? '',
+      aiPrimaryGoal: map['aiPrimaryGoal'] as String? ?? '',
+      aiGenderPresentation: map['aiGenderPresentation'] as String? ?? 'NEUTRAL',
+      aiVoiceTone: map['aiVoiceTone'] as String? ?? 'FRIENDLY',
+      aiAccentPreference: map['aiAccentPreference'] as String? ?? '',
+      difficulty: map['difficulty'] as String? ?? 'A2',
+      conversationLength: map['conversationLength'] as String? ?? 'MEDIUM',
+      targetMinutes:
+          (map['targetMinutes'] as num?)?.toInt() ??
+          (map['estimatedMinutes'] as num?)?.toInt() ??
+          12,
+      customInstructions: map['customInstructions'] as String? ?? '',
+      specialConditions: _stringList(map['specialConditions']),
+      updatedAt: DateTime.tryParse(map['updatedAt'] as String? ?? ''),
+    );
+  }
+
+  final String id;
+  final String displayTitle;
+  final String displaySubtitle;
+  final String practiceGoal;
+  final String successOutcome;
+  final String topicSummary;
+  final String contextType;
+  final String location;
+  final String conversationChannel;
+  final String userRole;
+  final String userIntent;
+  final String aiRole;
+  final String aiDisplayName;
+  final String aiBehaviorStyle;
+  final String aiPrimaryGoal;
+  final String aiGenderPresentation;
+  final String aiVoiceTone;
+  final String aiAccentPreference;
+  final String difficulty;
+  final String conversationLength;
+  final int targetMinutes;
+  final String customInstructions;
+  final List<String> specialConditions;
+  final DateTime? updatedAt;
+
+  CustomPracticeDraft toDraft() {
+    return CustomPracticeDraft(
+      practiceGoal: practiceGoal,
+      successOutcome: successOutcome,
+      topicSummary: topicSummary,
+      contextType: contextType,
+      location: location,
+      conversationChannel: conversationChannel,
+      userRole: userRole,
+      userIntent: userIntent,
+      aiRole: aiRole,
+      aiDisplayName: aiDisplayName,
+      aiBehaviorStyle: aiBehaviorStyle,
+      aiPrimaryGoal: aiPrimaryGoal,
+      aiGenderPresentation: aiGenderPresentation,
+      aiVoiceTone: aiVoiceTone,
+      aiAccentPreference: aiAccentPreference,
+      difficulty: difficulty,
+      conversationLength: conversationLength,
+      targetMinutes: targetMinutes,
+      customInstructions: customInstructions,
+      specialConditions: specialConditions,
+    );
+  }
+}
+
+List<String> _stringList(Object? raw) {
+  return (raw as List<dynamic>? ?? const <dynamic>[])
+      .whereType<String>()
+      .toList(growable: false);
+}
+
 Map<String, dynamic> _withoutNullValues(Map<String, dynamic> map) {
   final Map<String, dynamic> sanitized = <String, dynamic>{};
 

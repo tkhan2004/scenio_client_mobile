@@ -17,6 +17,7 @@ abstract class ApiEndpoints {
   static const String usersBadges = '/users/badges';
   static const String vocabulary = '/vocabulary';
   static const String vocabularyDecks = '/vocabulary/decks';
+  static const String vocabularyPronounce = '/vocabulary/pronounce';
   static const String notifications = '/notifications';
   static const String notificationsReadAll = '/notifications/read-all';
 
@@ -36,6 +37,8 @@ abstract class ApiEndpoints {
 
   static const String startSession = '/sessions/start';
   static const String startCustomSession = '/sessions/start-custom';
+  static const String recentCustomPractices =
+      '/sessions/custom-practices/recent';
   static String sessionMessage(String sessionId) =>
       '/sessions/$sessionId/message';
   static String sessionComplete(String sessionId) =>

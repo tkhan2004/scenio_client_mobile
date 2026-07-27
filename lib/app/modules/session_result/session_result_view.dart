@@ -337,8 +337,28 @@ class SessionResultView extends GetView<SessionResultViewModel> {
     SessionResultEntity result,
     List<MessageEntity> feedbackMessages,
   ) {
-    final Map<String, int> issueCounts = <String, int>{};
-    final List<String> suggestions = <String>[];
+    if (result.improvementPlan.isNotEmpty) {
+      return result.improvementPlan
+          .where(
+            (SessionImprovementPlanItemEntity item) =>
+                item.title.trim().isNotEmpty || item.body.trim().isNotEmpty,
+          )
+          .map(
+            (SessionImprovementPlanItemEntity item) => _ImprovementAction(
+              title: item.title.trim().isEmpty
+                  ? _fallbackActionTitle(item.focus)
+                  : item.title.trim(),
+              body: item.body.trim(),
+              example: (item.example ?? '').trim(),
+              tint: _tintForFocus(item.focus),
+            ),
+          )
+          .take(4)
+          .toList(growable: false);
+    }
+
+    final List<_ImprovementAction> actions = <_ImprovementAction>[];
+    final Set<String> seen = <String>{};
 
     for (final MessageEntity message in feedbackMessages) {
       final List<MessageFeedbackIssueEntity> issues =
@@ -355,126 +375,66 @@ class SessionResultView extends GetView<SessionResultViewModel> {
             ];
 
       for (final MessageFeedbackIssueEntity issue in issues) {
-        final String type = issue.type.trim().toUpperCase();
-        if (type.isNotEmpty && type != 'GOOD') {
-          issueCounts[type] = (issueCounts[type] ?? 0) + 1;
-        }
-        final String suggestion = (issue.suggestion ?? '').trim();
-        if (suggestion.isNotEmpty && !suggestions.contains(suggestion)) {
-          suggestions.add(suggestion);
-        }
+        final String focus = issue.type.trim().isEmpty
+            ? message.errorType ?? 'NATURALNESS'
+            : issue.type;
+        final String body = (issue.explanation ?? message.explanation ?? '')
+            .trim();
+        final String suggestion = (issue.suggestion ?? message.suggestion ?? '')
+            .trim();
+        final String original =
+            (issue.originalPhrase ?? message.originalPhrase ?? message.text)
+                .trim();
+        if (body.isEmpty && suggestion.isEmpty && original.isEmpty) continue;
+
+        final String dedupeKey = <String>[
+          focus,
+          body,
+          suggestion,
+          original,
+        ].join('|').toLowerCase();
+        if (!seen.add(dedupeKey)) continue;
+
+        actions.add(
+          _ImprovementAction(
+            title: _fallbackActionTitle(focus),
+            body: body.isNotEmpty
+                ? body
+                : 'Xem lại lượt nói được AI đánh dấu trong transcript.',
+            example: suggestion.isNotEmpty
+                ? 'Gợi ý nói lại: $suggestion'
+                : 'Câu cần xem lại: $original',
+            tint: _tintForFocus(focus),
+          ),
+        );
       }
     }
-
-    final List<_ImprovementAction> actions = <_ImprovementAction>[];
-    final String weakestFocus = _weakestFocus(result, issueCounts);
-
-    actions.add(
-      _ImprovementAction(
-        title: 'Việc cần làm ngay',
-        body: _primaryPracticeTask(weakestFocus),
-        example: suggestions.isNotEmpty
-            ? 'Nói lại bằng câu mẫu: ${suggestions.first}'
-            : _defaultExampleForFocus(weakestFocus),
-        tint: AppColors.secondary500,
-      ),
-    );
-
-    if (issueCounts.containsKey('NATURALNESS') ||
-        result.naturalnessScore <= result.grammarScore ||
-        result.naturalnessScore <= result.vocabularyScore) {
-      actions.add(
-        const _ImprovementAction(
-          title: 'Luyện độ tự nhiên',
-          body:
-              'Trước khi trả lời, chọn một cấu trúc tiếng Anh quen dùng rồi nói theo ý, đừng dịch từng chữ từ tiếng Việt.',
-          example:
-              'Dùng khung: I worked on..., I was responsible for..., What I learned was...',
-          tint: AppColors.primary700,
-        ),
-      );
-    }
-
-    if (issueCounts.containsKey('GRAMMAR') || result.grammarScore < 65) {
-      actions.add(
-        const _ImprovementAction(
-          title: 'Sửa cấu trúc câu',
-          body:
-              'Với mỗi câu dài, tách thành 2 câu ngắn: một câu nói việc bạn làm, một câu nói kết quả hoặc lý do.',
-          example:
-              'I built the home screen. It helps users start a practice session faster.',
-          tint: AppColors.accent500,
-        ),
-      );
-    }
-
-    if (issueCounts.containsKey('VOCABULARY') || result.vocabularyScore < 65) {
-      actions.add(
-        const _ImprovementAction(
-          title: 'Tăng từ vựng theo ngữ cảnh',
-          body:
-              'Chuẩn bị 5 cụm từ đúng chủ đề phiên học và bắt buộc dùng ít nhất 2 cụm trong lần luyện sau.',
-          example:
-              'Ví dụ: responsive UI, user flow, reusable component, API integration, error handling.',
-          tint: AppColors.warning,
-        ),
-      );
-    }
-
-    actions.add(
-      _ImprovementAction(
-        title: 'Bài tập 5 phút trước phiên sau',
-        body:
-            'Viết lại lượt trả lời yếu nhất thành 3 phiên bản: ngắn, tự nhiên, và chuyên nghiệp hơn. Sau đó đọc lại thành tiếng một lần.',
-        example: suggestions.length > 1
-            ? 'Ưu tiên câu: ${suggestions[1]}'
-            : 'Mục tiêu: trả lời dài hơn hiện tại 1 ý nhưng vẫn rõ và tự nhiên.',
-        tint: AppColors.secondary700,
-      ),
-    );
 
     return actions.take(4).toList(growable: false);
   }
 
-  String _weakestFocus(
-    SessionResultEntity result,
-    Map<String, int> issueCounts,
-  ) {
-    if (issueCounts.isNotEmpty) {
-      return issueCounts.entries
-          .reduce((a, b) => a.value >= b.value ? a : b)
-          .key;
-    }
-
-    final Map<String, int> scores = <String, int>{
-      'GRAMMAR': result.grammarScore,
-      'VOCABULARY': result.vocabularyScore,
-      'NATURALNESS': result.naturalnessScore,
-    };
-    return scores.entries.reduce((a, b) => a.value <= b.value ? a : b).key;
-  }
-
-  String _primaryPracticeTask(String focus) {
-    switch (focus) {
+  String _fallbackActionTitle(String focus) {
+    switch (focus.toUpperCase()) {
       case 'GRAMMAR':
-        return 'Phiên sau ưu tiên nói câu đúng cấu trúc trước. Đừng cố nói dài ngay; hãy nói rõ chủ ngữ, động từ, thời, rồi mới thêm chi tiết.';
+        return 'Sửa cấu trúc câu từ transcript';
       case 'VOCABULARY':
-        return 'Phiên sau ưu tiên dùng từ cụ thể hơn. Thay vì nói chung chung, hãy gọi đúng tên kỹ năng, công việc, công cụ hoặc kết quả.';
+        return 'Dùng từ chính xác hơn theo ngữ cảnh';
       case 'NATURALNESS':
       default:
-        return 'Phiên sau ưu tiên nói tự nhiên hơn. Giữ ý chính của bạn, nhưng đổi sang cách người bản ngữ hay dùng trong hội thoại.';
+        return 'Nói tự nhiên hơn từ lượt vừa nói';
     }
   }
 
-  String _defaultExampleForFocus(String focus) {
-    switch (focus) {
+  Color _tintForFocus(String focus) {
+    switch (focus.toUpperCase()) {
       case 'GRAMMAR':
-        return 'Mẫu: I built..., then I improved..., so users can...';
+        return AppColors.accent500;
       case 'VOCABULARY':
-        return 'Mẫu: I worked on API integration and reusable UI components.';
+        return AppColors.warning;
       case 'NATURALNESS':
+        return AppColors.primary700;
       default:
-        return 'Mẫu: I think I would be a good fit because I learn fast and care about user experience.';
+        return AppColors.secondary500;
     }
   }
 }
@@ -857,14 +817,16 @@ class _ImprovementActionTile extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.sm),
-                Text(
-                  action.example,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: action.tint,
-                    fontWeight: FontWeight.w700,
+                if (action.example.trim().isNotEmpty) ...<Widget>[
+                  const SizedBox(height: AppDimensions.sm),
+                  Text(
+                    action.example,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: action.tint,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

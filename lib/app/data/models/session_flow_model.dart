@@ -66,6 +66,7 @@ class SessionStartModel {
 class SessionResultModel {
   const SessionResultModel({
     required this.sessionId,
+    required this.sourceType,
     required this.sceneId,
     required this.sceneTitle,
     required this.characterName,
@@ -75,6 +76,7 @@ class SessionResultModel {
     required this.naturalnessScore,
     required this.targetTurns,
     required this.transcript,
+    required this.improvementPlan,
     this.spokenCoaching,
     this.nextLearningAction,
   });
@@ -95,6 +97,11 @@ class SessionResultModel {
         map['spokenCoaching'] as Map<String, dynamic>?;
     final Map<String, dynamic>? nextLearningActionMap =
         map['nextLearningAction'] as Map<String, dynamic>?;
+    final List<SessionImprovementPlanItemModel> improvementPlan =
+        (map['improvementPlan'] as List<dynamic>? ?? const <dynamic>[])
+            .whereType<Map<String, dynamic>>()
+            .map(SessionImprovementPlanItemModel.fromMap)
+            .toList(growable: false);
     final List<MessageEntity> transcript =
         (map['messages'] as List<dynamic>? ?? const <dynamic>[])
             .whereType<Map<String, dynamic>>()
@@ -134,6 +141,7 @@ class SessionResultModel {
 
     return SessionResultModel(
       sessionId: sessionMap['id'] as String? ?? '',
+      sourceType: sessionMap['sourceType'] as String? ?? 'CURATED_SCENE',
       sceneId:
           (sessionMap['scene'] as Map<String, dynamic>? ??
                   <String, dynamic>{})['id']
@@ -148,6 +156,7 @@ class SessionResultModel {
       targetTurns:
           (sessionMap['targetTurns'] as num?)?.toInt() ?? fallbackTargetTurns,
       transcript: transcript,
+      improvementPlan: improvementPlan,
       spokenCoaching: spokenCoachingMap == null
           ? null
           : SessionSpokenCoachingModel.fromMap(spokenCoachingMap),
@@ -158,6 +167,7 @@ class SessionResultModel {
   }
 
   final String sessionId;
+  final String sourceType;
   final String sceneId;
   final String sceneTitle;
   final String characterName;
@@ -167,6 +177,7 @@ class SessionResultModel {
   final int naturalnessScore;
   final int targetTurns;
   final List<MessageEntity> transcript;
+  final List<SessionImprovementPlanItemModel> improvementPlan;
   final SessionSpokenCoachingModel? spokenCoaching;
   final SessionNextLearningActionModel? nextLearningAction;
 
@@ -176,6 +187,7 @@ class SessionResultModel {
   }) {
     return SessionResultEntity(
       sessionId: sessionId,
+      sourceType: sourceType,
       sceneId: sceneId,
       sceneTitle: sceneTitle,
       characterName: characterName,
@@ -186,8 +198,55 @@ class SessionResultModel {
       completedTurns: completedTurns,
       targetTurns: this.targetTurns > 0 ? this.targetTurns : targetTurns,
       transcript: transcript,
+      improvementPlan: improvementPlan
+          .map((SessionImprovementPlanItemModel item) => item.toEntity())
+          .toList(growable: false),
       spokenCoaching: spokenCoaching?.toEntity(),
       nextLearningAction: nextLearningAction?.toEntity(),
+    );
+  }
+}
+
+class SessionImprovementPlanItemModel {
+  const SessionImprovementPlanItemModel({
+    required this.title,
+    required this.body,
+    required this.focus,
+    required this.priority,
+    this.example,
+    this.sourceMessageId,
+    this.turnIndex,
+  });
+
+  factory SessionImprovementPlanItemModel.fromMap(Map<String, dynamic> map) {
+    return SessionImprovementPlanItemModel(
+      title: map['title'] as String? ?? '',
+      body: map['body'] as String? ?? '',
+      example: map['example'] as String?,
+      focus: map['focus'] as String? ?? 'NATURALNESS',
+      priority: (map['priority'] as num?)?.toInt() ?? 0,
+      sourceMessageId: map['sourceMessageId'] as String?,
+      turnIndex: (map['turnIndex'] as num?)?.toInt(),
+    );
+  }
+
+  final String title;
+  final String body;
+  final String focus;
+  final int priority;
+  final String? example;
+  final String? sourceMessageId;
+  final int? turnIndex;
+
+  SessionImprovementPlanItemEntity toEntity() {
+    return SessionImprovementPlanItemEntity(
+      title: title,
+      body: body,
+      example: example,
+      focus: focus,
+      priority: priority,
+      sourceMessageId: sourceMessageId,
+      turnIndex: turnIndex,
     );
   }
 }

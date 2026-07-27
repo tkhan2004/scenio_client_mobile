@@ -17,6 +17,7 @@ import '../modules/learning_plan/learning_plan_binding.dart';
 import '../modules/learning_plan/learning_plan_view.dart';
 import '../modules/notifications/notifications_binding.dart';
 import '../modules/notifications/notifications_view.dart';
+import '../modules/history/history_view.dart';
 import '../modules/roadmap_completion/roadmap_completion_binding.dart';
 import '../modules/roadmap_completion/roadmap_completion_view.dart';
 import '../modules/scene_detail/scene_detail_binding.dart';
@@ -85,5 +86,9 @@ final List<GetPage<dynamic>> appPages = <GetPage<dynamic>>[
     name: Routes.notifications,
     page: () => const NotificationsView(),
     binding: NotificationsBinding(),
+  ),
+  GetPage<dynamic>(
+    name: Routes.history,
+    page: () => const HistoryView(),
   ),
 ];
